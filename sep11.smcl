@@ -1,0 +1,482 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\lihon\Downloads\sep11.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 2 Sep 2023, 14:41:42
+
+{com}. import sas PERMNO DATE CUSIP NCUSIP COMNAM PERMCO SHRCD SHRCLS SICCD NAMEENDT year using "C:\Users\lihon\Downloads\crsp_hist.sas7bdat", clear
+{res}{text}(11 vars, 4,018,245 obs)
+
+{com}. y_nameend = year( NAMEENDT)
+{err}command {bf}y_nameend{sf} is unrecognized
+{txt}{search r(199), local:r(199);}
+
+{com}. gen y_nameend = year( NAMEENDT)
+{txt}(3,932,044 missing values generated)
+
+{com}. duplicates drop  PERMCO PERMNO SHRCD SHRCLS SICCD year CUSIP NCUSIP COMNAM y_nameend,force
+
+{p 0 4}{txt}Duplicates in terms of {res} PERMCO PERMNO SHRCD SHRCLS SICCD year CUSIP NCUSIP COMNAM y_nameend{p_end}
+
+{txt}(3,555,742 observations deleted)
+
+{com}. count
+  {res}462,503
+
+{com}. duplicates drop  PERMCO PERMNO SHRCD SHRCLS SICCD year CUSIP NCUSIP COMNAM,force
+
+{p 0 4}{txt}Duplicates in terms of {res} PERMCO PERMNO SHRCD SHRCLS SICCD year CUSIP NCUSIP COMNAM{p_end}
+
+{txt}(76,205 observations deleted)
+
+{com}. duplicates drop  PERMCO PERMNO SHRCD SHRCLS SICCD  CUSIP NCUSIP COMNAM,force
+
+{p 0 4}{txt}Duplicates in terms of {res} PERMCO PERMNO SHRCD SHRCLS SICCD CUSIP NCUSIP COMNAM{p_end}
+
+{txt}(329,204 observations deleted)
+
+{com}. duplicates drop  PERMCO PERMNO SHRCD  COMNAM,force
+
+{p 0 4}{txt}Duplicates in terms of {res} PERMCO PERMNO SHRCD COMNAM{p_end}
+
+{txt}(17,775 observations deleted)
+
+{com}. duplicates drop  PERMCO PERMNO COMNAM,force
+
+{p 0 4}{txt}Duplicates in terms of {res} PERMCO PERMNO COMNAM{p_end}
+
+{txt}(264 observations deleted)
+
+{com}. count
+  {res}39,055
+
+{com}. save, crsp1925_2022
+{err}invalid file specification
+{txt}{search r(198), local:r(198);}
+
+{com}. save crsp1925_2022
+{txt}{p 0 4 2}
+file {bf}
+crsp1925_2022.dta{rm}
+saved
+{p_end}
+
+{com}. pwcd
+{err}command {bf}pwcd{sf} is unrecognized
+{txt}{search r(199), local:r(199);}
+
+{com}. pwd
+{res}C:\Users\lihon\OneDrive\Documents
+
+{com}. use D:\Research\patent\data\kpss
+
+. gen issue_y = date(issue_date, "YMD")
+{err}variable {bf}issue_y{sf} already defined
+{txt}{search r(110), local:r(110);}
+
+{com}. ls *dta
+{err}{p 0 4 2}
+file not found
+{p_end}
+
+{com}. pwd
+{res}C:\Users\lihon\OneDrive\Documents
+
+{com}. use C:\Users\lihon\Downloads\crsp1925_2022
+{txt}(                                )
+
+{com}. unique perno
+{err}command {bf}unique{sf} is unrecognized
+{txt}{search r(199), local:r(199);}
+
+{com}. ssh install unique
+{err}command {bf}ssh{sf} is unrecognized
+{txt}{search r(199), local:r(199);}
+
+{com}. ssc install unique
+{txt}checking {hilite:unique} consistency and verifying not already installed...
+installing into C:\Users\lihon\ado\plus\...
+installation complete.
+
+{com}. unique perno
+{err}variable {bf}perno{sf} not found
+{txt}{search r(111), local:r(111);}
+
+{com}. unique PERMNO
+{txt}Number of unique values of PERMNO is  {res}28822
+{txt}Number of records is  {res}39055
+
+{com}. unique PERMCO
+{txt}Number of unique values of PERMCO is  {res}28161
+{txt}Number of records is  {res}39055
+
+{com}. notes: v0-unique perono permco
+{res}
+{com}. unique permno permco
+{err}variable {bf}permno{sf} not found
+{txt}{search r(111), local:r(111);}
+
+{com}. unique PERMNO PERMCO
+{txt}Number of unique values of PERMNO PERMCO is  {res}28822
+{txt}Number of records is  {res}39055
+
+{com}. duplicates reports PERMNO PERMCO
+{err}illegal {cmd}duplicates {err}subcommand
+{txt}{search r(198), local:r(198);}
+
+{com}. duplicates report PERMNO PERMCO
+
+{p 0 4}{txt}Duplicates in terms of {res} PERMNO PERMCO{p_end}
+
+{txt}{hline 10}{c TT}{hline 27}
+   Copies {c |} Observations       Surplus
+{hline 10}{c +}{hline 27}
+        1 {c |}        {res}21075             0
+        {txt}2 {c |}        {res}11818          5909
+        {txt}3 {c |}         {res}4041          2694
+        {txt}4 {c |}         {res}1520          1140
+        {txt}5 {c |}          {res}390           312
+        {txt}6 {c |}          {res}138           115
+        {txt}7 {c |}           {res}49            42
+        {txt}8 {c |}           {res}24            21
+{txt}{hline 10}{c BT}{hline 27}
+
+{com}. duplicates tag PERMNO PERMCO, gen(duplicates_permno_permco)
+
+{p 0 4}{txt}Duplicates in terms of {res} PERMNO PERMCO{p_end}
+
+{com}. save, replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\lihon\Downloads\crsp1925_2022.dta{rm}
+saved
+{p_end}
+
+{com}. use C:\Users\lihon\Downloads\crsp1925_2022
+{txt}(                                )
+
+{com}. sort permno
+{err}variable {bf}permno{sf} not found
+{txt}{search r(111), local:r(111);}
+
+{com}. sort PERMNO year
+
+. by permno: gen year_end = year[_n+1]
+{err}variable {bf}permno{sf} not found
+{txt}{search r(111), local:r(111);}
+
+{com}. by  PERMNO PERMCO: gen year_end = year[_n+1]
+{err}not sorted
+{txt}{search r(5), local:r(5);}
+
+{com}. bysort  PERMNO PERMCO: gen year_end = year[_n+1]
+{txt}(28,822 missing values generated)
+
+{com}. replace  year_end = y_nameend if missing( year_end)
+{txt}(28,822 real changes made)
+
+{com}. save, replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\lihon\Downloads\crsp1925_2022.dta{rm}
+saved
+{p_end}
+
+{com}. notes: v1 correct name start and ending
+{res}
+{com}. save, replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\lihon\Downloads\crsp1925_2022.dta{rm}
+saved
+{p_end}
+
+{com}. clear
+
+. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat"
+{res}{text}(13 vars, 3,221,591 obs)
+
+{com}. sort patent_num
+
+. sort patent_num  permno
+
+. count
+  {res}3,221,591
+
+{com}. count permno patent_num
+{err}varlist not allowed
+{txt}{search r(101), local:r(101);}
+
+{com}. collapse (count) count=year, by(permno patent_num)
+{res}
+{com}. save merged_kpss_count
+{txt}{p 0 4 2}
+file {bf}
+merged_kpss_count.dta{rm}
+saved
+{p_end}
+
+{com}. merge 1:1 permno patent_num using  C:\Users\lihon\Downloads\kpss_countPermno_patentnum.dta
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               0
+{txt}{col 5}Matched{col 30}{res}       3,160,453{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. merge 1:1 permno patent_num using  C:\Users\lihon\Downloads\kpss_countPermno_patentnum.dta
+{res}{err}variable {bf}_merge{sf} already defined
+{txt}{search r(110), local:r(110);}
+
+{com}.  use merged_kpss_count,clear
+{txt}(                                )
+
+{com}. merge 1:1 permno patent_num using  C:\Users\lihon\Downloads\kpss_countPermno_patentnum.dta
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               0
+{txt}{col 5}Matched{col 30}{res}       3,160,453{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. 
+. 
+. disp 3,221,591-9313
+{res}3 221 -8722
+
+{com}. disp 3221591-9313
+{res}3212278
+
+{com}. count if count!=kout_kpss
+{err}kout_kpss not found
+{txt}{search r(111), local:r(111);}
+
+{com}. count if count!=cout_kpss
+{err}cout_kpss not found
+{txt}{search r(111), local:r(111);}
+
+{com}. count if count!=count_kpss
+  {res}60,817
+
+{com}. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\R
+{err}invalid using: quotes do not match
+
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat
+{err}invalid using: quotes do not match
+
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat"
+{res}{err}no; data in memory would be lost
+{txt}{search r(4), local:r(4);}
+
+end of do-file
+
+{search r(4), local:r(4);}
+
+{com}. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat", replace
+{err}option {bf:replace} not allowed
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. clear
+
+. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat", replace
+{err}option {bf:replace} not allowed
+{txt}{search r(198), local:r(198);}
+
+end of do-file
+
+{search r(198), local:r(198);}
+
+{com}. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat" 
+{res}{text}(13 vars, 3,212,278 obs)
+
+{com}. 
+. collapse (count) count=year, by(permno patent_num)
+{res}{txt}
+{com}. 
+.  save merged_kpss_count2
+{txt}{p 0 4 2}
+file {bf}
+merged_kpss_count2.dta{rm}
+saved
+{p_end}
+
+{com}. 
+{txt}end of do-file
+
+{com}. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. merge 1:1 permno patent_num using  "C:\Users\lihon\Downloads\kpss_countPermno_patentnum.dta"
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               0
+{txt}{col 5}Matched{col 30}{res}       3,160,453{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. 
+{txt}end of do-file
+
+{com}. count if count!=count_kpss
+  {res}51,566
+
+{com}. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat" 
+{res}{err}no; data in memory would be lost
+{txt}{search r(4), local:r(4);}
+
+end of do-file
+
+{search r(4), local:r(4);}
+
+{com}. clear
+
+. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat" 
+{res}{text}(13 vars, 3,212,278 obs)
+
+{com}. 
+. collapse (count) count=year, by(permno patent_num)
+{res}{txt}
+{com}. 
+.  save merged_kpss_count3
+{txt}{p 0 4 2}
+file {bf}
+merged_kpss_count3.dta{rm}
+saved
+{p_end}
+
+{com}. merge 1:1 permno patent_num using  "C:\Users\lihon\Downloads\kpss_countPermno_patentnum.dta"
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               0
+{txt}{col 5}Matched{col 30}{res}       3,160,453{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. 
+{txt}end of do-file
+
+{com}. clear
+
+. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crsp.sas7bdat" 
+{res}{text}(13 vars, 3,159,359 obs)
+
+{com}. 
+{txt}end of do-file
+
+{com}. duplicates drop permno, force
+
+{p 0 4}{txt}Duplicates in terms of {res} permno{p_end}
+
+{txt}(3,150,816 observations deleted)
+
+{com}. count
+  {res}8,543
+
+{com}. keep permno
+
+. merge 1:1 permno using merge 1:m permno using D:\Research\patent\data\kpss
+{res}{err}invalid '1' 
+{txt}{search r(198), local:r(198);}
+
+{com}. merge 1:1  permno using D:\Research\patent\data\kpss
+{res}{err}{p 0 4 2}
+variable{err} permno
+does not uniquely identify observations in the
+using data
+{p_end}
+{txt}{search r(459), local:r(459);}
+
+{com}. merge 1:m  permno using D:\Research\patent\data\kpss
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               4
+{txt}{col 9}from master{col 30}{res}               0{txt}  (_merge==1)
+{col 9}from using{col 30}{res}               4{txt}  (_merge==2)
+
+{col 5}Matched{col 30}{res}       3,160,449{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\R
+{err}invalid using: quotes do not match
+
+{txt}{search r(198), local:r(198);}
+
+{com}. 
+. > esearch\patent\data\kpss_crspv2.sas7bdat
+{bf}{err}>{sf} is not a valid command name
+{txt}{search r(199), local:r(199);}
+
+{com}. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crspv2.sas7bdat" 
+{res}{err}no; data in memory would be lost
+{txt}{search r(4), local:r(4);}
+
+end of do-file
+
+{search r(4), local:r(4);}
+
+{com}. clear
+
+. do "C:\Users\lihon\AppData\Local\Temp\STD186c_000000.tmp"
+{txt}
+{com}. import sas patent_num permno issue_date filing_date xi_nominal xi_real cites issue_y COMNAM PERMCO year end_year start_year using "D:\Research\patent\data\kpss_crspv2.sas7bdat" 
+{res}{text}(13 vars, 3,159,359 obs)
+
+{com}. 
+{txt}end of do-file
+
+{com}. unique patent_num
+{txt}Number of unique values of patent_num is  {res}3156223
+{txt}Number of records is  {res}3159359
+
+{com}. duplicates tag patent_num
+{err}option {bf}generate(){sf} required
+{txt}{search r(198), local:r(198);}
+
+{com}. duplicates tag patent_num, gen(dup_patentno)
+
+{p 0 4}{txt}Duplicates in terms of {res} patent_num{p_end}
+
+{com}. format end_year start_year %td
+
+. sort permno patent_num
+
+. sort patent_num   permno
+
+. 
