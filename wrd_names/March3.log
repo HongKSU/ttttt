@@ -1,0 +1,4549 @@
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA.
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M7 MBCS3170)
+      Licensed to KENT STATE UNIVERSITY - SFA T&R, Site 70080762.
+NOTE: This session is executing on the X64_10PRO  platform.
+
+
+
+NOTE: Analytical products:
+
+      SAS/STAT 15.2
+      SAS/ETS 15.2
+      SAS/OR 15.2
+      SAS/IML 15.2
+      SAS/QC 15.2
+
+NOTE: Additional host information:
+
+ X64_10PRO WIN 10.0.22000  Workstation
+
+NOTE: SAS initialization used:
+      real time           7.86 seconds
+      cpu time            2.42 seconds
+
+1    proc import datafile =
+1  ! "D:\Research\patent\data\wrds_names\unique_crspHist_remove_fund.dta"
+2          out = work.unique_crspHist_remove_fund
+3          dbms=DTA   replace;
+4    run;
+
+NOTE: One or more variables were converted because the data type is not supported by
+      the V9 engine. For more details, run with options MSGLEVEL=I.
+NOTE: The import data set has 53958 observations and 20 variables.
+NOTE: WORK.UNIQUE_CRSPHIST_REMOVE_FUND data set was successfully created.
+NOTE: PROCEDURE IMPORT used (Total process time):
+      real time           0.41 seconds
+      cpu time            0.17 seconds
+
+
+5    proc contents data = unique_crspHist_remove_fund;
+NOTE: Writing HTML Body file: sashtml.htm
+6    run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           1.53 seconds
+      cpu time            0.51 seconds
+
+
+7    proc import datafile =
+7  ! "D:\Research\patent\data\wrds_names\unique_crspHist_remove_fund.dta"
+8          out = work.unique_crspHist_remove_fund
+9          dbms=DTA   replace;
+10   run;
+
+NOTE: One or more variables were converted because the data type is not supported by
+      the V9 engine. For more details, run with options MSGLEVEL=I.
+NOTE: The import data set has 53958 observations and 18 variables.
+NOTE: WORK.UNIQUE_CRSPHIST_REMOVE_FUND data set was successfully created.
+NOTE: PROCEDURE IMPORT used (Total process time):
+      real time           0.20 seconds
+      cpu time            0.20 seconds
+
+
+11   options MSGLEVEL=I;
+12
+13   proc import datafile =
+13 ! "D:\Research\patent\data\wrds_names\unique_crspHist_remove_fund.dta"
+14         out = work.unique_crspHist_remove_fund
+15         dbms=DTA   replace;
+16   run;
+
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable GVKEY has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HADD1 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HADD2 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HADD3 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HADD4 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HADDZIP has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HCITY has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HCONM has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HCONML has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HCOSTAT has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HCOUNTY has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HINCORP has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable HNAICS has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable comnam has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable std_nameL has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable sub_std_name has
+      been converted to CHAR data type.
+NOTE: The import data set has 53958 observations and 18 variables.
+NOTE: WORK.UNIQUE_CRSPHIST_REMOVE_FUND data set was successfully created.
+NOTE: PROCEDURE IMPORT used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.18 seconds
+
+
+17   proc contents data = unique_crspHist_remove_fund;
+18   run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.04 seconds
+
+
+19   proc sort data=unique_crspHist_remove_fund;
+20   by sub_std_name;
+
+NOTE: There were 53958 observations read from the data set
+      WORK.UNIQUE_CRSPHIST_REMOVE_FUND.
+NOTE: SAS sort was used.
+NOTE: The data set WORK.UNIQUE_CRSPHIST_REMOVE_FUND has 53958 observations and 18
+      variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.20 seconds
+      cpu time            0.10 seconds
+
+
+21   data   AJ_comp KO_comp
+22          PR_comp ST_comp UZ_comp others;
+23          set unique_crspHist_remove_fund(KEEP=GVKEY HCONM comnam std_nameL
+23 ! sub_std_name);
+24          blocking = substr(sub_std_name, 1,1);
+25          if blocking LE 'J' then output AJ_comp;
+26          else if blocking between 'K' AND 'O' then output KO_comp;
+                             -------
+                             388
+                             202
+27          else if blocking between 'S' AND 'T' then output ST_comp;
+                             -------
+                             388
+                             202
+28          else if blocking between 'U' AND 'Z' then output UZ_comp;
+                             -------
+                             388
+                             202
+ERROR 388-185: Expecting an arithmetic operator.
+
+ERROR 202-322: The option or parameter is not recognized and will be ignored.
+
+29          else output others;
+30
+31       run;
+
+NOTE: Character values have been converted to numeric values at the places given by:
+      (Line):(Column).
+      26:16   26:33   26:41   27:16   27:33   27:41   28:16   28:33   28:41
+NOTE: The SAS System stopped processing this step because of errors.
+WARNING: The data set WORK.AJ_COMP may be incomplete.  When this step was stopped there
+         were 0 observations and 6 variables.
+WARNING: The data set WORK.KO_COMP may be incomplete.  When this step was stopped there
+         were 0 observations and 6 variables.
+WARNING: The data set WORK.PR_COMP may be incomplete.  When this step was stopped there
+         were 0 observations and 6 variables.
+WARNING: The data set WORK.ST_COMP may be incomplete.  When this step was stopped there
+         were 0 observations and 6 variables.
+WARNING: The data set WORK.UZ_COMP may be incomplete.  When this step was stopped there
+         were 0 observations and 6 variables.
+WARNING: The data set WORK.OTHERS may be incomplete.  When this step was stopped there
+         were 0 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.04 seconds
+
+
+32   data   AJ_comp KO_comp
+33          PR_comp ST_comp UZ_comp others;
+34          set unique_crspHist_remove_fund(KEEP=GVKEY HCONM comnam std_nameL
+34 ! sub_std_name);
+35          blocking = substr(sub_std_name, 1,1);
+36          if blocking LE 'J' then output AJ_comp;
+37          else if blocking GE 'K' AND blocking LE'O' then output KO_comp;
+38          else if blocking GE 'S' AND blocking LE 'T' then output ST_comp;
+39          else if blocking GE 'U' AND blocking LE'Z' then output UZ_comp;
+40          else output others;
+41
+42       run;
+
+NOTE: There were 53958 observations read from the data set
+      WORK.UNIQUE_CRSPHIST_REMOVE_FUND.
+NOTE: The data set WORK.AJ_COMP has 27179 observations and 6 variables.
+NOTE: The data set WORK.KO_COMP has 9370 observations and 6 variables.
+NOTE: The data set WORK.PR_COMP has 0 observations and 6 variables.
+NOTE: The data set WORK.ST_COMP has 7304 observations and 6 variables.
+NOTE: The data set WORK.UZ_COMP has 4504 observations and 6 variables.
+NOTE: The data set WORK.OTHERS has 5601 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.07 seconds
+
+
+43   data   AJ_comp KO_comp
+44          PR_comp ST_comp UZ_comp others;
+45          set unique_crspHist_remove_fund(KEEP=GVKEY HCONM comnam std_nameL
+45 ! sub_std_name);
+46          blocking = substr(sub_std_name, 1,1);
+47          if blocking LE 'J' then output AJ_comp;
+48          else if blocking GE 'K' AND blocking LE 'O' then output KO_comp;
+49          else if blocking GE 'P' AND blocking LE 'R' then output PR_comp;
+50          else if blocking GE 'S' AND blocking LE 'T' then output ST_comp;
+51          else if blocking GE 'U' AND blocking LE 'Z' then output UZ_comp;
+52          else output others;
+53
+54       run;
+
+NOTE: There were 53958 observations read from the data set
+      WORK.UNIQUE_CRSPHIST_REMOVE_FUND.
+NOTE: The data set WORK.AJ_COMP has 27179 observations and 6 variables.
+NOTE: The data set WORK.KO_COMP has 9370 observations and 6 variables.
+NOTE: The data set WORK.PR_COMP has 5601 observations and 6 variables.
+NOTE: The data set WORK.ST_COMP has 7304 observations and 6 variables.
+NOTE: The data set WORK.UZ_COMP has 4504 observations and 6 variables.
+NOTE: The data set WORK.OTHERS has 0 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.07 seconds
+
+
+55   libname doc "C:\Users\lihon\Downloads";
+NOTE: Libref DOC was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: C:\Users\lihon\Downloads
+
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+56   data   AJ_comp KO_comp
+57          PR_comp ST_comp UZ_comp others;
+58          set unique_crspHist_remove_fund(KEEP=GVKEY HCONM comnam std_nameL
+58 ! sub_std_name);
+59          sub_name = substr(sub_std_name, 1,3);
+60          blocking = substr(sub_std_name, 1,1);
+61          if blocking LE 'J' then output AJ_comp;
+62          else if blocking GE 'K' AND blocking LE 'O' then output KO_comp;
+63          else if blocking GE 'P' AND blocking LE 'R' then output PR_comp;
+64          else if blocking GE 'S' AND blocking LE 'T' then output ST_comp;
+65          else if blocking GE 'U' AND blocking LE 'Z' then output UZ_comp;
+66          else output others;
+67          drop blocking sub_std_name;
+68       run;
+
+ERROR: You cannot open WORK.AJ_COMP.DATA for output access with member-level control
+because WORK.AJ_COMP.DATA is in use by you in resource environment ViewTable Window.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+
+
+69   data   AJ_comp KO_comp
+70          PR_comp ST_comp UZ_comp others;
+71          set unique_crspHist_remove_fund(KEEP=GVKEY HCONM comnam std_nameL
+71 ! sub_std_name);
+72          sub_name = substr(sub_std_name, 1,3);
+73          blocking = substr(sub_std_name, 1,1);
+74          if blocking LE 'J' then output AJ_comp;
+75          else if blocking GE 'K' AND blocking LE 'O' then output KO_comp;
+76          else if blocking GE 'P' AND blocking LE 'R' then output PR_comp;
+77          else if blocking GE 'S' AND blocking LE 'T' then output ST_comp;
+78          else if blocking GE 'U' AND blocking LE 'Z' then output UZ_comp;
+79          else output others;
+80          drop blocking sub_std_name;
+81       run;
+
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=013888 HCONM=  comnam=  std_nameL=  sub_std_name=  sub_name=  blocking=  _ERROR_=1
+_N_=1
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=027317 HCONM=007 PRECIOUS METALS INC comnam=007 Precious Metals Inc
+std_nameL=007 PRECIOUS METALS sub_std_name=00 sub_name=00 blocking=0 _ERROR_=1 _N_=2
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=178741 HCONM=012 SMILE COMMUNICATIONS LTD comnam=012 Smile.Communications Ltd
+std_nameL=012 SMILEDOTCOMMUNICATIONS sub_std_name=01 sub_name=01 blocking=0 _ERROR_=1
+_N_=3
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=132602 HCONM=01 COMMUNIQUE LABORATORY INC comnam=01 Communique Laboratory Inc
+std_nameL=01 COMMUNIQUE LABORATORY sub_std_name=01 sub_name=01 blocking=0 _ERROR_=1
+_N_=4
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=178741 HCONM=012 SMILE COMMUNICATIONS LTD comnam=012 Smile Communications Ltd
+std_nameL=012 SMILE COMMUNICATIONS sub_std_name=01 sub_name=01 blocking=0 _ERROR_=1
+_N_=5
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=164620 HCONM=024 PHARMA INC comnam=024 Pharma Inc std_nameL=024 PHARMA
+sub_std_name=02 sub_name=02 blocking=0 _ERROR_=1 _N_=6
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=106079 HCONM=0373849 B C LTD comnam=0373849 B C Ltd std_nameL=0373849 BC
+sub_std_name=03 sub_name=03 blocking=0 _ERROR_=1 _N_=7
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=180190 HCONM=1 LANE TECHNOLOGIES CORP comnam=1 Lane Technologies Corp
+std_nameL=1 LANE TECHNOLOGIES sub_std_name=1 sub_name=1 blocking=1 _ERROR_=1 _N_=8
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=008149 HCONM=1 POTATO 2 INC comnam=1 Potato 2 Inc std_nameL=1 POTATO 2
+sub_std_name=1 sub_name=1 blocking=1 _ERROR_=1 _N_=9
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=122519 HCONM=1-800-FLOWERS.COM comnam=1-800-FLOWERS.COM Inc
+std_nameL=1 800 FLOWERSDOTCOM sub_std_name=1- sub_name=1- blocking=1 _ERROR_=1 _N_=10
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=066425 HCONM=1-800 CONTACTS INC comnam=1-800 Contacts Inc std_nameL=1 800 CONTACTS
+sub_std_name=1- sub_name=1- blocking=1 _ERROR_=1 _N_=11
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=062884 HCONM=1-800-ATTORNEY INC comnam=1-800-Attorney Inc std_nameL=1 800 ATTORNEY
+sub_std_name=1- sub_name=1- blocking=1 _ERROR_=1 _N_=12
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=142607 HCONM=1-900 JACKPOT INC comnam=1-900 Jackpot Inc std_nameL=1 900 JACKPOT
+sub_std_name=1- sub_name=1- blocking=1 _ERROR_=1 _N_=13
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=038241 HCONM=10X CAP VEN AQ CORP III-REDH
+comnam=10X Capital Venture Acquisition Corp III
+std_nameL=10X CAPITAL VENTURE ACQUISITION CORP III sub_std_name=10 sub_name=10
+blocking=1 _ERROR_=1 _N_=14
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=038240 HCONM=10X CAP VEN ACQ CORP II-REDH
+comnam=10X Capital Venture Acquisition Corp II
+std_nameL=10X CAPITAL VENTURE ACQUISITION CORP II sub_std_name=10 sub_name=10 blocking=1
+_ERROR_=1 _N_=15
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=037078 HCONM=10X CAP VENTU ACQ CORP -REDH
+comnam=10X Capital Venture Acquisition Corp std_nameL=10X CAPITAL VENTURE ACQUISITION
+sub_std_name=10 sub_name=10 blocking=1 _ERROR_=1 _N_=16
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=035640 HCONM=10X GENOMICS INC -REDH comnam=10x Genomics Inc std_nameL=10X GENOMICS
+sub_std_name=10 sub_name=10 blocking=1 _ERROR_=1 _N_=17
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=034066 HCONM=111 INC -ADR comnam=111 Inc std_nameL=111 sub_std_name=11 sub_name=11
+blocking=1 _ERROR_=1 _N_=18
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+GVKEY=010773 HCONM=1225 MAPLE CORP comnam=1225 Maple Corp std_nameL=1225 MAPLE
+sub_std_name=12 sub_name=12 blocking=1 _ERROR_=1 _N_=19
+NOTE: Invalid third argument to function SUBSTR at line 72 column 19.
+WARNING: Limit set by ERRORS= option reached.  Further errors of this type will not be
+         printed.
+GVKEY=019528 HCONM=1347 PROPERTY INS HLDG -SPN
+comnam=1347 Property Insurance Holdings Inc std_nameL=1347 PROPERTY INS HOLDINGS
+sub_std_name=13 sub_name=13 blocking=1 _ERROR_=1 _N_=20
+NOTE: There were 53958 observations read from the data set
+      WORK.UNIQUE_CRSPHIST_REMOVE_FUND.
+NOTE: The data set WORK.AJ_COMP has 27179 observations and 5 variables.
+NOTE: The data set WORK.KO_COMP has 9370 observations and 5 variables.
+NOTE: The data set WORK.PR_COMP has 5601 observations and 5 variables.
+NOTE: The data set WORK.ST_COMP has 7304 observations and 5 variables.
+NOTE: The data set WORK.UZ_COMP has 4504 observations and 5 variables.
+NOTE: The data set WORK.OTHERS has 0 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.07 seconds
+
+
+82   data   AJ_comp KO_comp
+83          PR_comp ST_comp UZ_comp others;
+84          set unique_crspHist_remove_fund(KEEP=GVKEY HCONM comnam std_nameL
+84 ! sub_std_name);
+85          sub_name = substr(std_nameL, 1,3);
+86          blocking = substr(sub_std_name, 1,1);
+87          if blocking LE 'J' then output AJ_comp;
+88          else if blocking GE 'K' AND blocking LE 'O' then output KO_comp;
+89          else if blocking GE 'P' AND blocking LE 'R' then output PR_comp;
+90          else if blocking GE 'S' AND blocking LE 'T' then output ST_comp;
+91          else if blocking GE 'U' AND blocking LE 'Z' then output UZ_comp;
+92          else output others;
+93          drop blocking sub_std_name;
+94       run;
+
+NOTE: There were 53958 observations read from the data set
+      WORK.UNIQUE_CRSPHIST_REMOVE_FUND.
+NOTE: The data set WORK.AJ_COMP has 27179 observations and 5 variables.
+NOTE: The data set WORK.KO_COMP has 9370 observations and 5 variables.
+NOTE: The data set WORK.PR_COMP has 5601 observations and 5 variables.
+NOTE: The data set WORK.ST_COMP has 7304 observations and 5 variables.
+NOTE: The data set WORK.UZ_COMP has 4504 observations and 5 variables.
+NOTE: The data set WORK.OTHERS has 0 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.09 seconds
+
+
+95   %macro merge_comp_or(or, comp);
+96   options msglevel=i fullstimer;
+97
+98   options cpuCount = actual;
+99   sasfile &subset load;
+100  proc sql _method ;
+101     create table m_&subset  as
+102     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+103            b.GVKEY b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+104               compged(a.std_firm1, b.b.std_nameL) as dist_score
+105     from  &or as a
+106     inner join &comp as b
+107     on a.or_sub = b.sub_name
+108    where  CALCULATED dist_score<20
+109      ;
+110    quit;
+111   run;
+112  sasfile &subset close;
+113  %mend merge_sub_sql;
+WARNING: Extraneous text on %MEND statement ignored for macro definition MERGE_COMP_OR.
+
+114  %merge_comp_or(or_name_a_j82098, AJ_comp)
+WARNING: Apparent symbolic reference SUBSET not resolved.
+ERROR: The value '&'n is not a valid SAS name.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1        create table m_&subset  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1
+
+-
+-
+
+22
+76
+
+200
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 76-322: Syntax error, statement will be ignored.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+1  !     create table m_&subset  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1
+1  !  as or_name,           b.GVKEY b.std_nameL as b_std_name, b.HCONM,
+                                    -
+                                    22
+WARNING: Apparent symbolic reference SUBSET not resolved.
+ERROR 22-322: Syntax error, expecting one of the following: !, !!, &, *, **, +, ',', -,
+              /, <, <=, <>, =, >, >=, ?, AND, BETWEEN, CONTAINS, EQ, EQT, GE, GET, GT,
+              GTT, LE, LET, LIKE, LT, LTT, NE, NET, OR, ^=, |, ||, ~=.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.13 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              111.46k
+      OS Memory           31996.00k
+      Timestamp           03/01/2024 05:19:54 PM
+      Step Count                        13  Switch Count  0
+
+WARNING: Apparent symbolic reference SUBSET not resolved.
+ERROR: The value '&'n is not a valid SAS name.
+
+
+115  %macro merge_comp_or(or, comp);
+116  options msglevel=i fullstimer;
+117
+118  options cpuCount = actual;
+119  sasfile &or load;
+120  sasfile &comp load;
+121  proc sql _method ;
+122     create table m_&subset  as
+123     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+124            b.GVKEY b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+125               compged(a.std_firm1, b.b.std_nameL) as dist_score
+126     from  &or as a
+127     inner join &comp as b
+128     on a.or_sub = b.sub_name
+129    where  CALCULATED dist_score<20
+130      ;
+131    quit;
+132   run;
+133  sasfile &or close;
+134  sasfile &comp close;
+135  %mend merge_comp_or;
+136  %merge_comp_or(or_name_a_j82098, AJ_comp)
+ERROR: File WORK.OR_NAME_A_J82098.DATA does not exist.
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1        create table m_&subset  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1
+
+-
+-
+
+22
+76
+
+200
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 76-322: Syntax error, statement will be ignored.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+1  !     create table m_&subset  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1
+1  !  as or_name,           b.GVKEY b.std_nameL as
+                                    -
+                                    22
+WARNING: Apparent symbolic reference SUBSET not resolved.
+ERROR 22-322: Syntax error, expecting one of the following: !, !!, &, *, **, +, ',', -,
+              /, <, <=, <>, =, >, >=, ?, AND, BETWEEN, CONTAINS, EQ, EQT, GE, GET, GT,
+              GTT, LE, LET, LIKE, LT, LTT, NE, NET, OR, ^=, |, ||, ~=.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              73.15k
+      OS Memory           37632.00k
+      Timestamp           03/01/2024 05:20:44 PM
+      Step Count                        14  Switch Count  0
+
+ERROR: File WORK.OR_NAME_A_J82098.DATA is not open.
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+
+
+137  %macro merge_comp_or(or, comp);
+138  options msglevel=i fullstimer;
+139
+140  options cpuCount = actual;
+141  sasfile &or load;
+142  sasfile &comp load;
+143  proc sql _method ;
+144     create table m_&subset  as
+145     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+146            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+147               compged(a.std_firm1, b.b.std_nameL) as dist_score
+148     from  &or as a
+149     inner join &comp as b
+150     on a.or_sub = b.sub_name
+151    where  CALCULATED dist_score<20
+152      ;
+153    quit;
+154   run;
+155  sasfile &or close;
+156  sasfile &comp close;
+157  %mend merge_comp_or;
+158  %merge_comp_or(or_name_a_j82098, AJ_comp)
+ERROR: File WORK.OR_NAME_A_J82098.DATA does not exist.
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1        create table m_&subset  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1
+
+-
+
+22
+
+200
+1  !  as or_name,           b.GVKEY, b.std_nameL as
+WARNING: Apparent symbolic reference SUBSET not resolved.
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+2     b_std_name, b.HCONM, b.HCONML,              compged(a.std_firm1, b.b.std_nameL) as
+                                                                          -
+                                                                          22
+                                                                          200
+2  !  dist_score    from  &or as a    inner join &comp as b    on a.or_sub = b.sub_name
+2  !   where  CALCULATED dist_score<20     ;   quit;  run; sasfile &or close; sasfile
+2  ! &comp
+ERROR 22-322: Syntax error, expecting one of the following: !, !!, &, ), *, **, +, ',',
+              -, /, <, <=, <>, =, >, >=, ?, AND, BETWEEN, CONTAINS, EQ, EQT, GE, GET,
+              GT, GTT, IN, IS, LE, LET, LIKE, LT, LTT, NE, NET, NOT, NOTIN, OR, ^, ^=,
+              |, ||, ~, ~=.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              98.40k
+      OS Memory           37632.00k
+      Timestamp           03/01/2024 05:21:00 PM
+      Step Count                        15  Switch Count  0
+
+ERROR: File WORK.OR_NAME_A_J82098.DATA is not open.
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+
+
+159  %merge_comp_or(doc.or_name_a_j82098, AJ_comp)
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+      host, or the file encoding does not match the session encoding. Cross Environment
+      Data Access will be used, which might require additional CPU resources and might
+      reduce performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1        create table m_&subset  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1
+
+-
+
+22
+
+200
+1  !  as or_name,           b.GVKEY, b.std_nameL as
+WARNING: Apparent symbolic reference SUBSET not resolved.
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+2     b_std_name, b.HCONM, b.HCONML,              compged(a.std_firm1, b.b.std_nameL) as
+                                                                          -
+                                                                          22
+                                                                          200
+2  !  dist_score    from  &or as a    inner join &comp as b    on a.or_sub = b.sub_name
+2  !   where  CALCULATED dist_score<20     ;   quit;  run; sasfile &or close; sasfile
+2  ! &comp
+ERROR 22-322: Syntax error, expecting one of the following: !, !!, &, ), *, **, +, ',',
+              -, /, <, <=, <>, =, >, >=, ?, AND, BETWEEN, CONTAINS, EQ, EQT, GE, GET,
+              GT, GTT, IN, IS, LE, LET, LIKE, LT, LTT, NE, NET, NOT, NOTIN, OR, ^, ^=,
+              |, ||, ~, ~=.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              98.40k
+      OS Memory           102596.00k
+      Timestamp           03/01/2024 05:21:46 PM
+      Step Count                        16  Switch Count  0
+
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+
+
+160  options mlogic MPRINT;
+161  %merge_comp_or(doc.or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value doc.or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1        create table m_&subset  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1
+
+-
+
+22
+
+200
+1  !  as or_name,           b.GVKEY, b.std_nameL as
+WARNING: Apparent symbolic reference SUBSET not resolved.
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+2     b_std_name, b.HCONM, b.HCONML,              compged(a.std_firm1, b.b.std_nameL) as
+                                                                          -
+                                                                          22
+                                                                          200
+2  !  dist_score    from  &or as a    inner join &comp as b    on a.or_sub = b.sub_name
+2  !   where  CALCULATED dist_score<20     ;   quit;  run; sasfile &or close; sasfile
+2  ! &comp
+MPRINT(MERGE_COMP_OR):   create table m_&subset as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+compged(a.std_firm1, b.b.std_nameL) as dist_score from doc.or_name_a_j82098 as a inner
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<20 ;
+ERROR 22-322: Syntax error, expecting one of the following: !, !!, &, ), *, **, +, ',',
+              -, /, <, <=, <>, =, >, >=, ?, AND, BETWEEN, CONTAINS, EQ, EQT, GE, GET,
+              GT, GTT, IN, IS, LE, LET, LIKE, LT, LTT, NE, NET, NOT, NOTIN, OR, ^, ^=,
+              |, ||, ~, ~=.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              98.28k
+      OS Memory           102596.00k
+      Timestamp           03/01/2024 05:26:24 PM
+      Step Count                        17  Switch Count  0
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+
+162  %macro merge_comp_or(or, comp);
+163  options msglevel=i fullstimer;
+164
+165  options cpuCount = actual;
+166  sasfile &or load;
+167  sasfile &comp load;
+168  proc sql _method ;
+169     create table m_&or_&comp  as
+170     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+171            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+172               compged(a.std_firm1, b.b.std_nameL) as dist_score
+173     from  &or as a
+174     inner join &comp as b
+175     on a.or_sub = b.sub_name
+176    where  CALCULATED dist_score<20
+177      ;
+178    quit;
+179   run;
+180  sasfile &or close;
+181  sasfile &comp close;
+182  %mend merge_comp_or;
+183  options mlogic MPRINT;
+184  %merge_comp_or(doc.or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value doc.or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+WARNING: Apparent symbolic reference OR_ not resolved.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1    &or_&comp  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+
+-
+
+22
+
+200
+1  !       b.GVKEY, b.std_nameL as
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+2     b_std_name, b.HCONM, b.HCONML,              compged(a.std_firm1, b.b.std_nameL) as
+                                                                          -
+                                                                          22
+                                                                          200
+2  !  dist_score    from  &or as a    inner join &comp as b    on a.or_sub = b.sub_name
+2  !   where  CALCULATED dist_score<20     ;   quit;  run; sasfile &or close; sasfile
+2  ! &comp
+MPRINT(MERGE_COMP_OR):   create table m_&or_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+compged(a.std_firm1, b.b.std_nameL) as dist_score from doc.or_name_a_j82098 as a inner
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<20 ;
+ERROR 22-322: Syntax error, expecting one of the following: !, !!, &, ), *, **, +, ',',
+              -, /, <, <=, <>, =, >, >=, ?, AND, BETWEEN, CONTAINS, EQ, EQT, GE, GET,
+              GT, GTT, IN, IS, LE, LET, LIKE, LT, LTT, NE, NET, NOT, NOTIN, OR, ^, ^=,
+              |, ||, ~, ~=.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              98.28k
+      OS Memory           102596.00k
+      Timestamp           03/01/2024 05:27:29 PM
+      Step Count                        18  Switch Count  0
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+
+185  %macro merge_comp_or(or, comp);
+186  options msglevel=i fullstimer;
+187
+188  options cpuCount = actual;
+189  sasfile &or load;
+190  sasfile &comp load;
+191  proc sql _method ;
+192     create table m_&or_&comp  as
+193     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+194            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+195               compged(a.std_firm1, b.std_nameL) as dist_score
+196     from  &or as a
+197     inner join &comp as b
+198     on a.or_sub = b.sub_name
+199    where  CALCULATED dist_score<20
+200      ;
+201    quit;
+202   run;
+203  sasfile &or close;
+204  sasfile &comp close;
+205  %mend merge_comp_or;
+206  options mlogic MPRINT;
+207  %merge_comp_or(doc.or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value doc.or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+WARNING: Apparent symbolic reference OR_ not resolved.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1    &or_&comp  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+
+-
+
+22
+
+200
+1  !       b.GVKEY, b.std_nameL as
+MPRINT(MERGE_COMP_OR):   create table m_&or_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as a inner
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<20 ;
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              98.28k
+      OS Memory           102596.00k
+      Timestamp           03/01/2024 05:28:22 PM
+      Step Count                        19  Switch Count  0
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+
+208  %let or=doc.or_name_a_j82098;
+209  %let comp=AJ_comp;
+210  sasfile &or load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+211  sasfile &comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+212  proc sql _method ;
+213     create table
+213! m_&or_&comp  as
+WARNING: Apparent symbolic reference OR_ not resolved.
+213                    &or_&comp  as
+                       -
+                       22
+                       200
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+214     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_name,
+215            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+216            compged(a.std_firm1, b.std_nameL) as dist_score
+217     from  &or as a
+218     inner join
+219           &comp as b
+220     on a.or_sub = b.sub_name
+221     where CALCULATED dist_score<20;
+222    quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              100.03k
+      OS Memory           102596.00k
+      Timestamp           03/01/2024 05:31:37 PM
+      Step Count                        20  Switch Count  0
+
+223   run;
+224  sasfile &or close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+225  sasfile &comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+
+
+226  %let or=doc.or_name_a_j82098;
+227  %let comp=AJ_comp;
+228  sasfile &or load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+229  sasfile &comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+230  proc sql _method ;
+231     create table m_&or._&comp  as
+232     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_name,
+233            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.HCONML,
+234            compged(a.std_firm1, b.std_nameL) as dist_score
+235     from  &or as a
+236     inner join
+237           &comp as b
+238     on a.or_sub = b.sub_name
+239     where CALCULATED dist_score<20;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+ERROR: Column HCONML could not be found in the table/view identified with the
+       correlation name B.
+240    quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.06 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              5314.18k
+      OS Memory           107976.00k
+      Timestamp           03/01/2024 05:32:05 PM
+      Step Count                        21  Switch Count  0
+
+241   run;
+242  sasfile &or close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+243  sasfile &comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+
+
+244  %macro merge_comp_or(or, comp);
+245  options msglevel=i fullstimer;
+246
+247  options cpuCount = actual;
+248  sasfile &or load;
+249  sasfile &comp load;
+250  proc sql _method ;
+251     create table m_&or._&comp  as
+252     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+253            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+254               compged(a.std_firm1, b.std_nameL) as dist_score
+255     from  &or as a
+256     inner join &comp as b
+257     on a.or_sub = b.sub_name
+258    where  CALCULATED dist_score<20
+259      ;
+260    quit;
+261   run;
+262  sasfile &or close;
+263  sasfile &comp close;
+264  %mend merge_comp_or;
+265  options mlogic MPRINT;
+266  %merge_comp_or(doc.or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value doc.or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+MPRINT(MERGE_COMP_OR):   create table m_doc.or_name_a_j82098_AJ_comp as select a.rf_id,
+a.exec_dt, a.id_or, a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name,
+b.HCONM, b.comnam, compged(a.std_firm1, b.std_nameL) as dist_score from
+doc.or_name_a_j82098 as a inner join AJ_comp as b on a.or_sub = b.sub_name where
+CALCULATED dist_score<20 ;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+ERROR: Libref M_DOC is not assigned.
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              5314.56k
+      OS Memory           107976.00k
+      Timestamp           03/01/2024 05:33:01 PM
+      Step Count                        22  Switch Count  0
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+
+267  %macro merge_comp_or(or, comp);
+268  options msglevel=i fullstimer;
+269
+270  options cpuCount = actual;
+271  sasfile &or load;
+272  sasfile &comp load;
+273  proc sql _method ;
+274     create table m_&or_&comp  as
+275     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+276            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+277               compged(a.std_firm1, b.std_nameL) as dist_score
+278     from  &or as a
+279     inner join &comp as b
+280     on a.or_sub = b.sub_name
+281    where  CALCULATED dist_score<20
+282      ;
+283    quit;
+284   run;
+285  sasfile &or close;
+286  sasfile &comp close;
+287  %mend merge_comp_or;
+288  options mlogic MPRINT;
+289  %merge_comp_or(doc.or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value doc.or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+WARNING: Apparent symbolic reference OR_ not resolved.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1    &or_&comp  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+
+-
+
+22
+
+200
+1  !       b.GVKEY, b.std_nameL as
+MPRINT(MERGE_COMP_OR):   create table m_&or_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as a inner
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<20 ;
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              96.40k
+      OS Memory           102852.00k
+      Timestamp           03/01/2024 05:34:09 PM
+      Step Count                        23  Switch Count  0
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+
+290  %let or=doc.or_name_a_j82098;
+291  %let comp=AJ_comp;
+292  sasfile &or load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+293  sasfile &comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+294  proc sql _method ;
+295     create table
+295! m_&or_&comp  as
+WARNING: Apparent symbolic reference OR_ not resolved.
+295                    &or_&comp  as
+                       -
+                       22
+                       200
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+296     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_name,
+297            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+298            compged(a.std_firm1, b.std_nameL) as dist_score
+299     from  &or as a
+300     inner join
+301           &comp as b
+302     on a.or_sub = b.sub_name
+303     where CALCULATED dist_score<20;
+304    quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              96.40k
+      OS Memory           102852.00k
+      Timestamp           03/01/2024 05:34:29 PM
+      Step Count                        24  Switch Count  0
+
+305   run;
+306  sasfile &or close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+307  sasfile &comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+
+
+308  %macro merge_comp_or(or, comp);
+309  options msglevel=i fullstimer;
+310
+311  options cpuCount = actual;
+312  sasfile &or load;
+313  sasfile &comp load;
+314  proc sql _method ;
+315     create table m_&or_&comp  as
+316     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+317            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+318               compged(a.std_firm1, b.std_nameL) as dist_score
+319     from  &or as a
+320     inner join doc.&comp as b
+321     on a.or_sub = b.sub_name
+322    where  CALCULATED dist_score<20
+323      ;
+324    quit;
+325   run;
+326  sasfile &or close;
+327  sasfile &comp close;
+328  %mend merge_comp_or;
+329  options mlogic MPRINT;
+330  %merge_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile or_name_a_j82098 load;
+ERROR: File WORK.OR_NAME_A_J82098.DATA does not exist.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+WARNING: Apparent symbolic reference OR_ not resolved.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1    &or_&comp  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+
+-
+
+22
+
+200
+1  !       b.GVKEY, b.std_nameL as
+MPRINT(MERGE_COMP_OR):   create table m_&or_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+compged(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098 as a inner join
+doc.AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<20 ;
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              96.40k
+      OS Memory           37888.00k
+      Timestamp           03/01/2024 05:35:48 PM
+      Step Count                        25  Switch Count  0
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile or_name_a_j82098 close;
+ERROR: File WORK.OR_NAME_A_J82098.DATA is not open.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+
+331  %macro merge_comp_or(or, comp);
+332  options msglevel=i fullstimer;
+333
+334  options cpuCount = actual;
+335  sasfile &or load;
+336  sasfile &comp load;
+337  proc sql _method ;
+338     create table m_&or_&comp  as
+339     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+340            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+341               compged(a.std_firm1, b.std_nameL) as dist_score
+342     from  doc.&or as a
+343     inner join &comp as b
+344     on a.or_sub = b.sub_name
+345    where  CALCULATED dist_score<20
+346      ;
+347    quit;
+348   run;
+349  sasfile &or close;
+350  sasfile &comp close;
+351  %mend merge_comp_or;
+352  options mlogic MPRINT;
+353  %merge_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile or_name_a_j82098 load;
+ERROR: File WORK.OR_NAME_A_J82098.DATA does not exist.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+WARNING: Apparent symbolic reference OR_ not resolved.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1    &or_&comp  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+
+-
+
+22
+
+200
+1  !       b.GVKEY, b.std_nameL as
+MPRINT(MERGE_COMP_OR):   create table m_&or_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as a inner
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<20 ;
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              96.40k
+      OS Memory           37888.00k
+      Timestamp           03/01/2024 05:36:31 PM
+      Step Count                        26  Switch Count  0
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile or_name_a_j82098 close;
+ERROR: File WORK.OR_NAME_A_J82098.DATA is not open.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+
+354  %macro merge_comp_or(or, comp);
+355  options msglevel=i fullstimer;
+356
+357  options cpuCount = actual;
+358  sasfile doc.&or load;
+359  sasfile &comp load;
+360  proc sql _method ;
+361     create table m_&or_&comp  as
+362     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+363            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+364               compged(a.std_firm1, b.std_nameL) as dist_score
+365     from  doc.&or as a
+366     inner join &comp as b
+367     on a.or_sub = b.sub_name
+368    where  CALCULATED dist_score<20
+369      ;
+370    quit;
+371   run;
+372  sasfile &or close;
+373  sasfile &comp close;
+374  %mend merge_comp_or;
+375  options mlogic MPRINT;
+376  %merge_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+WARNING: Apparent symbolic reference OR_ not resolved.
+NOTE: Line generated by the invoked macro "MERGE_COMP_OR".
+1    &or_&comp  as    select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+
+-
+
+22
+
+200
+1  !       b.GVKEY, b.std_nameL as
+MPRINT(MERGE_COMP_OR):   create table m_&or_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as a inner
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<20 ;
+ERROR 22-322: Syntax error, expecting one of the following: (, '.', AS, LIKE.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              96.40k
+      OS Memory           102852.00k
+      Timestamp           03/01/2024 05:36:53 PM
+      Step Count                        27  Switch Count  0
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile or_name_a_j82098 close;
+ERROR: File WORK.OR_NAME_A_J82098.DATA is not open.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+
+377  %macro merge_comp_or(or, comp);
+378  options msglevel=i fullstimer;
+379
+380  options cpuCount = actual;
+381  sasfile doc.&or load;
+382  sasfile &comp load;
+383  proc sql _method ;
+384     create table m_&comp  as
+385     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+386            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+387               compged(a.std_firm1, b.std_nameL) as dist_score
+388     from  doc.&or as a
+389     inner join &comp as b
+390     on a.or_sub = b.sub_name
+391    where  CALCULATED dist_score<20
+392      ;
+393    quit;
+394   run;
+395  sasfile &or close;
+396  sasfile &comp close;
+397  %mend merge_comp_or;
+398  options mlogic MPRINT;
+399  %merge_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+ERROR: File DOC.OR_NAME_A_J82098.DATA was already opened in memory by a prior SASFILE
+       statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+MPRINT(MERGE_COMP_OR):   create table m_AJ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as a inner
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<20 ;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxjm
+              sqxsort
+                  sqxsrc( WORK.AJ_COMP(alias = B) )
+              sqxsrc( DOC.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 4238 rows and 9 columns.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           22.93 seconds
+      user cpu time       22.57 seconds
+      system cpu time     0.04 seconds
+      memory              11774.84k
+      OS Memory           112928.00k
+      Timestamp           03/01/2024 05:38:12 PM
+      Step Count                        28  Switch Count  0
+
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile or_name_a_j82098 close;
+ERROR: File WORK.OR_NAME_A_J82098.DATA is not open.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+400  sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+401
+402  %macro merge_comp_or(or, comp);
+403  options msglevel=i fullstimer;
+404
+405  options cpuCount = actual;
+406  sasfile doc.&or load;
+407  sasfile &comp load;
+408  proc sql _method ;
+409     create table m_&comp  as
+410     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_name,
+411            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+412               compged(a.std_firm1, b.std_nameL) as dist_score
+413     from  doc.&or as a
+414     left join &comp as b
+415     on a.or_sub = b.sub_name
+416    where  CALCULATED dist_score<=300
+417      ;
+418    quit;
+419   run;
+420  sasfile doc.&or close;
+421  sasfile &comp close;
+422  %mend merge_comp_or;
+423  options mlogic MPRINT;
+424  %merge_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+MPRINT(MERGE_COMP_OR):   create table m_AJ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as a left
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<=300 ;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsrc( DOC.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 162569 rows and 9 columns.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           23.04 seconds
+      user cpu time       23.06 seconds
+      system cpu time     0.12 seconds
+      memory              11508.12k
+      OS Memory           112928.00k
+      Timestamp           03/01/2024 05:41:28 PM
+      Step Count                        29  Switch Count  0
+
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+NOTE: The export data set has 162569 observations and 9 variables.
+NOTE: Exported data successfully.
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+425  proc cotents data =  doc.OR_NAME_orig;
+ERROR: Procedure COTENTS not found.
+426  run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE COTENTS used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              16.31k
+      OS Memory           37356.00k
+      Timestamp           03/01/2024 05:58:41 PM
+      Step Count                        30  Switch Count  0
+
+
+427  proc contents data =  doc.OR_NAME_orig;
+428  run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.06 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.03 seconds
+      memory              720.43k
+      OS Memory           37356.00k
+      Timestamp           03/01/2024 05:58:57 PM
+      Step Count                        31  Switch Count  0
+
+
+429  data or_name;
+430  set  doc.OR_NAME_orig(keep=rf_id id_ee id_or or_name std_firm std_firm1 dba fka
+430! entity entity_1 exec_dt);
+431  or_sub=substr(std_firm1, 1, 3);
+432  len_or = length(std_firm1);
+433  run;
+
+NOTE: There were 170073 observations read from the data set DOC.OR_NAME_ORIG.
+NOTE: The data set WORK.OR_NAME has 170073 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.25 seconds
+      user cpu time       0.04 seconds
+      system cpu time     0.20 seconds
+      memory              733.90k
+      OS Memory           37868.00k
+      Timestamp           03/01/2024 05:59:28 PM
+      Step Count                        32  Switch Count  0
+
+
+434  proc sort data=or_name(index=(or_sub));
+435  by or_sub;
+436  run;
+
+NOTE: There were 170073 observations read from the data set WORK.OR_NAME.
+NOTE: SAS threaded sort was used.
+NOTE: The data set WORK.OR_NAME has 170073 observations and 13 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.43 seconds
+      user cpu time       0.42 seconds
+      system cpu time     0.35 seconds
+      memory              194332.09k
+      OS Memory           231524.00k
+      Timestamp           03/01/2024 05:59:39 PM
+      Step Count                        33  Switch Count  0
+
+
+437  data or_name_A_J82098;
+438  set or_name(obs=82098);
+439  run;
+
+NOTE: There were 82098 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_A_J82098 has 82098 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.13 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.10 seconds
+      memory              681.90k
+      OS Memory           38892.00k
+      Timestamp           03/01/2024 05:59:56 PM
+      Step Count                        34  Switch Count  0
+
+
+440  proc print data = or_name_A_J82098 (obs=10);
+441  run;
+
+NOTE: There were 10 observations read from the data set WORK.OR_NAME_A_J82098.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.08 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              575.06k
+      OS Memory           38892.00k
+      Timestamp           03/01/2024 06:00:30 PM
+      Step Count                        35  Switch Count  0
+
+
+442  /*
+443  NZXT last record
+444  */
+445  data or_name_K_O109896;
+446  set or_name(FirstObs=82099 obs=109895);
+447  run;
+
+NOTE: There were 27797 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_K_O109896 has 27797 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.04 seconds
+      memory              681.15k
+      OS Memory           38892.00k
+      Timestamp           03/01/2024 06:01:34 PM
+      Step Count                        36  Switch Count  0
+
+
+448  /*
+449  NZXT last record
+450  */
+451  data or_name_P_R130938;
+452  set or_name(FirstObs=109896 obs=130938);
+453  run;
+
+NOTE: There were 21043 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_P_R130938 has 21043 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      user cpu time       0.04 seconds
+      system cpu time     0.01 seconds
+      memory              681.15k
+      OS Memory           38892.00k
+      Timestamp           03/01/2024 06:01:34 PM
+      Step Count                        37  Switch Count  0
+
+
+454  data or_name_S_T157024;
+455  set or_name(FirstObs=130939 obs=157024);
+456  run;
+
+NOTE: There were 26086 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_S_T157024 has 26086 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              681.15k
+      OS Memory           38892.00k
+      Timestamp           03/01/2024 06:01:34 PM
+      Step Count                        38  Switch Count  0
+
+
+457  data or_name_U_Z170073;
+458  set or_name(FirstObs=157025 obs=170073);
+459  run;
+
+NOTE: There were 13049 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_U_Z170073 has 13049 observations and 13 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.01 seconds
+      memory              681.15k
+      OS Memory           38892.00k
+      Timestamp           03/01/2024 06:01:34 PM
+      Step Count                        39  Switch Count  0
+
+
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+460  *sasfile doc.OR_NAME_orig load;
+461  data or_name;
+462  set  doc.OR_NAME_orig(keep=rf_id id_ee id_or or_name std_firm std_firm1 dba fka
+462! entity entity_1 exec_dt);
+463  or_sub=substr(std_firm1, 1, 3);
+464  len_std_or = length(std_firm);
+465  len_std_or1 = length(std_firm);
+466  run;
+
+NOTE: There were 170073 observations read from the data set DOC.OR_NAME_ORIG.
+NOTE: The data set WORK.OR_NAME has 170073 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.28 seconds
+      user cpu time       0.07 seconds
+      system cpu time     0.20 seconds
+      memory              747.59k
+      OS Memory           30200.00k
+      Timestamp           03/01/2024 06:13:16 PM
+      Step Count                        40  Switch Count  0
+
+
+467  proc sort data=or_name(index=(or_sub));
+468  by or_sub;
+469  run;
+
+NOTE: There were 170073 observations read from the data set WORK.OR_NAME.
+NOTE: SAS threaded sort was used.
+NOTE: The data set WORK.OR_NAME has 170073 observations and 14 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.49 seconds
+      user cpu time       0.42 seconds
+      system cpu time     0.51 seconds
+      memory              195655.04k
+      OS Memory           223896.00k
+      Timestamp           03/01/2024 06:13:28 PM
+      Step Count                        41  Switch Count  0
+
+
+470  data or_name_A_J82098;
+471  set or_name(obs=82098);
+472  run;
+
+NOTE: There were 82098 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_A_J82098 has 82098 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.16 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.14 seconds
+      memory              693.46k
+      OS Memory           29944.00k
+      Timestamp           03/01/2024 06:13:34 PM
+      Step Count                        42  Switch Count  0
+
+
+473  /*
+474  NZXT last record
+475  */
+476  data or_name_K_O109896;
+477  set or_name(FirstObs=82099 obs=109895);
+478  run;
+
+NOTE: There were 27797 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_K_O109896 has 27797 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.06 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.04 seconds
+      memory              684.96k
+      OS Memory           29944.00k
+      Timestamp           03/01/2024 06:15:41 PM
+      Step Count                        43  Switch Count  0
+
+
+479  /*
+480  NZXT last record
+481  */
+482  data or_name_P_R130938;
+483  set or_name(FirstObs=109896 obs=130938);
+484  run;
+
+NOTE: There were 21043 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_P_R130938 has 21043 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.01 seconds
+      memory              684.96k
+      OS Memory           29944.00k
+      Timestamp           03/01/2024 06:15:41 PM
+      Step Count                        44  Switch Count  0
+
+
+485  data or_name_S_T157024;
+486  set or_name(FirstObs=130939 obs=157024);
+487  run;
+
+NOTE: There were 26086 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_S_T157024 has 26086 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.01 seconds
+      memory              684.96k
+      OS Memory           29944.00k
+      Timestamp           03/01/2024 06:15:41 PM
+      Step Count                        45  Switch Count  0
+
+
+488  data or_name_U_Z170073;
+489  set or_name(FirstObs=157025 obs=170073);
+490  run;
+
+NOTE: There were 13049 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_U_Z170073 has 13049 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.03 seconds
+      memory              684.96k
+      OS Memory           29944.00k
+      Timestamp           03/01/2024 06:15:41 PM
+      Step Count                        46  Switch Count  0
+
+
+491  %macro fuzzy_comp_or(or, comp);
+492  options msglevel=i fullstimer;
+493
+494  options cpuCount = actual;
+495  sasfile doc.&or load;
+496  sasfile &comp load;
+497  proc sql _method ;
+498     create table m_&comp  as
+499     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_std_name, a.or_name,
+500            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+501            compged(a.std_firm1, b.std_nameL) as dist_score
+502     from  doc.&or as a
+503     left join &comp as b
+504     on a.or_sub = b.sub_name
+505    where (CALCULATED dist_score<=200   AND  a.len_std_or>4 AND b.len_name>4)) OR
+506          (a.std_firm1 = b.std_nameL)
+507
+508      ;
+509    quit;
+510   run;
+511  sasfile doc.&or close;
+512  sasfile &comp close;
+513  %mend fuzzy_comp_or;
+
+514  options mlogic MPRINT;
+515  %merge_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(MERGE_COMP_OR):  Beginning execution.
+MLOGIC(MERGE_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(MERGE_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(MERGE_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(MERGE_COMP_OR):   options cpuCount = actual;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   proc sql _method ;
+MPRINT(MERGE_COMP_OR):   create table m_AJ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_name, b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as a left
+join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<=300 ;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsrc( DOC.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 162569 rows and 9 columns.
+
+MPRINT(MERGE_COMP_OR):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           23.13 seconds
+      user cpu time       23.09 seconds
+      system cpu time     0.14 seconds
+      memory              11503.84k
+      OS Memory           110104.00k
+      Timestamp           03/01/2024 06:21:44 PM
+      Step Count                        47  Switch Count  0
+
+
+MPRINT(MERGE_COMP_OR):   run;
+MPRINT(MERGE_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(MERGE_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(MERGE_COMP_OR):  Ending execution.
+
+516   PROC EXPORT DATA= WORK.M_aj_comp
+517              OUTFILE= "C:\Users\lihon\Downloads\or_crsp_merged\aj.dta"
+518              DBMS=STATA REPLACE;
+519  RUN;
+
+NOTE: The export data set has 162569 observations and 9 variables.
+NOTE: "C:\Users\lihon\Downloads\or_crsp_merged\aj.dta" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.21 seconds
+      user cpu time       0.09 seconds
+      system cpu time     0.12 seconds
+      memory              896.56k
+      OS Memory           33516.00k
+      Timestamp           03/01/2024 06:23:07 PM
+      Step Count                        48  Switch Count  0
+
+
+520  %macro fuzzy_comp_or(or, comp);
+521  options msglevel=i fullstimer;
+522
+523  options cpuCount = actual;
+524  sasfile doc.&or load;
+525  sasfile &comp load;
+526  proc sql _method ;
+527     create table m_&comp  as
+528     select a.rf_id, a.exec_dt, a.id_or,   a.std_firm1 as or_std_name, a.or_name,
+529            b.GVKEY, b.std_nameL as b_std_name, b.HCONM, b.comnam,
+530            compged(a.std_firm1, b.std_nameL) as dist_score
+531     from  doc.&or as a
+532     left join &comp as b
+533     on a.or_sub = b.sub_name
+534    where (CALCULATED dist_score<=120   AND  a.len_std_or>4 AND b.len_name>4)) OR
+535          (a.std_firm1 = b.std_nameL)
+536
+537      ;
+538    quit;
+539   run;
+540  sasfile doc.&or close;
+541  sasfile &comp close;
+542  %mend fuzzy_comp_or;
+
+543  %macro fuzzy_comp_or(or, comp);
+544  options msglevel=i fullstimer;
+545
+546  options cpuCount = actual;
+547  sasfile doc.&or load;
+548  sasfile &comp load;
+549  proc sql _method ;
+550     create table m_&comp  as
+551     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+552            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+553            compged(a.std_firm1, b.std_nameL) as dist_score
+554     from  doc.&or as a
+555     left join &comp as b
+556     on a.or_sub = b.sub_name
+557    where (CALCULATED dist_score<=120   AND  a.len_std_or>4 AND b.len_name>4)) OR
+558          (a.std_firm1 = b.std_nameL) ;
+559    quit;
+560   run;
+561  sasfile doc.&or close;
+562  sasfile &comp close;
+563  %mend fuzzy_comp_or;
+
+564  %fuzzy_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   proc sql _method ;
+NOTE: Line generated by the invoked macro "FUZZY_COMP_OR".
+3     b.len_name>4)) OR         (a.std_firm1 = b.std_nameL) ;
+                   -
+                   22
+                   200
+MPRINT(FUZZY_COMP_OR):   create table m_AJ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM,
+b.comnam, compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as
+a left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=120 AND
+a.len_std_or>4 AND b.len_name>4)) OR ( = b.std_nameL) ;
+ERROR 22-322: Syntax error, expecting one of the following: ;, !, !!, &, *, **, +, -,
+              /, <, <=, <>, =, >, >=, ?, AND, BETWEEN, CONTAINS, EQ, EQT, EXCEPT, GE,
+              GET, GROUP, GT, GTT, HAVING, IN, INTERSECT, IS, LE, LET, LIKE, LT, LTT,
+              NE, NET, NOT, NOTIN, OR, ORDER, OUTER, UNION, ^, ^=, |, ||, ~, ~=.
+
+ERROR 200-322: The symbol is not recognized and will be ignored.
+
+MPRINT(FUZZY_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              108.62k
+      OS Memory           103368.00k
+      Timestamp           03/01/2024 06:29:59 PM
+      Step Count                        49  Switch Count  0
+
+MPRINT(FUZZY_COMP_OR):   run;
+MPRINT(FUZZY_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR):  Ending execution.
+
+
+565  %macro fuzzy_comp_or(or, comp);
+566  options msglevel=i fullstimer;
+567
+568  options cpuCount = actual;
+569  sasfile doc.&or load;
+570  sasfile &comp load;
+571  proc sql _method ;
+572     create table m_&comp  as
+573     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+574            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+575            compged(a.std_firm1, b.std_nameL) as dist_score
+576     from  doc.&or as a
+577     left join &comp as b
+578     on a.or_sub = b.sub_name
+579    where (CALCULATED dist_score<=120   AND  a.len_std_or>4 AND b.len_name>4) OR
+580          (a.std_firm1 = b.std_nameL) ;
+581    quit;
+582   run;
+583  sasfile doc.&or close;
+584  sasfile &comp close;
+585  %mend fuzzy_comp_or;
+
+586  %fuzzy_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR):   sasfile doc.or_name_a_j82098 load;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR):   create table m_AJ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM,
+b.comnam, compged(a.std_firm1, b.std_nameL) as dist_score from doc.or_name_a_j82098 as
+a left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=120 AND
+a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+ERROR: Column or_name could not be found in the table/view identified with the
+       correlation name A.
+ERROR: Column len_std_or could not be found in the table/view identified with the
+       correlation name A.
+ERROR: Column len_name could not be found in the table/view identified with the
+       correlation name B.
+MPRINT(FUZZY_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              5311.40k
+      OS Memory           108492.00k
+      Timestamp           03/01/2024 06:30:50 PM
+      Step Count                        50  Switch Count  0
+
+MPRINT(FUZZY_COMP_OR):   run;
+MPRINT(FUZZY_COMP_OR):   sasfile doc.or_name_a_j82098 close;
+NOTE: The file DOC.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR):  Ending execution.
+
+
+INFO: Data file DOC.OR_NAME_A_J82098.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+587  %macro fuzzy_comp_or(or, comp);
+588  options msglevel=i fullstimer;
+589
+590  options cpuCount = actual;
+591  sasfile &or load;
+592  sasfile &comp load;
+593  proc sql _method ;
+594     create table m_&comp  as
+595     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+596            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+597            compged(a.std_firm1, b.std_nameL) as dist_score
+598     from  &or as a
+599     left join &comp as b
+600     on a.or_sub = b.sub_name
+601    where (CALCULATED dist_score<=120   AND  a.len_std_or>4 AND b.len_name>4) OR
+602          (a.std_firm1 = b.std_nameL) ;
+603    quit;
+604   run;
+605  sasfile &or close;
+606  sasfile &comp close;
+607  %mend fuzzy_comp_or;
+608  %fuzzy_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR):   create table m_AJ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM,
+b.comnam, compged(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098 as a
+left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=120 AND
+a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+ERROR: Column len_name could not be found in the table/view identified with the
+       correlation name B.
+MPRINT(FUZZY_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              5253.25k
+      OS Memory           122100.00k
+      Timestamp           03/01/2024 06:32:11 PM
+      Step Count                        51  Switch Count  0
+
+MPRINT(FUZZY_COMP_OR):   run;
+MPRINT(FUZZY_COMP_OR):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR):  Ending execution.
+
+
+609  data   AJ_comp KO_comp
+610         PR_comp ST_comp UZ_comp others;
+611         set unique_crspHist_remove_fund(KEEP=GVKEY HCONM comnam std_nameL len_name
+611! sub_std_name);
+612         sub_name = substr(std_nameL, 1,3);
+613         blocking = substr(sub_std_name, 1,1);
+614         len_name = length(std_nameL);
+615         if blocking LE 'J' then output AJ_comp;
+616         else if blocking GE 'K' AND blocking LE 'O' then output KO_comp;
+617         else if blocking GE 'P' AND blocking LE 'R' then output PR_comp;
+618         else if blocking GE 'S' AND blocking LE 'T' then output ST_comp;
+619         else if blocking GE 'U' AND blocking LE 'Z' then output UZ_comp;
+620         else output others;
+621         drop blocking sub_std_name;
+622      run;
+
+NOTE: There were 53958 observations read from the data set
+      WORK.UNIQUE_CRSPHIST_REMOVE_FUND.
+NOTE: The data set WORK.AJ_COMP has 27179 observations and 6 variables.
+NOTE: The data set WORK.KO_COMP has 9370 observations and 6 variables.
+NOTE: The data set WORK.PR_COMP has 5601 observations and 6 variables.
+NOTE: The data set WORK.ST_COMP has 7304 observations and 6 variables.
+NOTE: The data set WORK.UZ_COMP has 4504 observations and 6 variables.
+NOTE: The data set WORK.OTHERS has 0 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.07 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.04 seconds
+      memory              1612.71k
+      OS Memory           35332.00k
+      Timestamp           03/01/2024 06:32:28 PM
+      Step Count                        52  Switch Count  0
+
+
+623  %fuzzy_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR):   create table m_AJ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM,
+b.comnam, compged(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098 as a
+left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=120 AND
+a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+ERROR: You cannot open WORK.M_AJ_COMP.DATA for output access with member-level control
+because WORK.M_AJ_COMP.DATA is in use by you in resource environment ViewTable Window.
+
+MPRINT(FUZZY_COMP_OR):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              5252.50k
+      OS Memory           123764.00k
+      Timestamp           03/01/2024 06:32:44 PM
+      Step Count                        53  Switch Count  0
+
+MPRINT(FUZZY_COMP_OR):   run;
+MPRINT(FUZZY_COMP_OR):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR):  Ending execution.
+
+
+624  %fuzzy_comp_or(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR):   create table m_AJ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM,
+b.comnam, compged(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098 as a
+left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=120 AND
+a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 12776 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           23.62 seconds
+      user cpu time       23.64 seconds
+      system cpu time     0.20 seconds
+      memory              58235.98k
+      OS Memory           170908.00k
+      Timestamp           03/01/2024 06:33:25 PM
+      Step Count                        54  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR):   run;
+MPRINT(FUZZY_COMP_OR):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR):  Ending execution.
+
+625   PROC EXPORT DATA= WORK.M_aj_comp
+626              OUTFILE= "C:\Users\lihon\Downloads\or_crsp_merged\aj.dta"
+627              DBMS=STATA REPLACE;
+628  RUN;
+
+NOTE: The export data set has 12776 observations and 10 variables.
+NOTE: "C:\Users\lihon\Downloads\or_crsp_merged\aj.dta" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           0.04 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.04 seconds
+      memory              876.93k
+      OS Memory           34028.00k
+      Timestamp           03/01/2024 06:36:13 PM
+      Step Count                        55  Switch Count  0
+
+
+629  PROC DATASETS;
+630  COPY IN = work OUT = doc;
+631  select or_name_a_j82098
+632         or_name_K_O109896
+633         or_name_P_R130938
+634         or_name_S_T157024
+635         or_name_U_Z170073 ;
+636  RUN;
+
+NOTE: Copying WORK.OR_NAME_A_J82098 to DOC.OR_NAME_A_J82098 (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 82098 observations read from the data set WORK.OR_NAME_A_J82098.
+NOTE: The data set DOC.OR_NAME_A_J82098 has 82098 observations and 14 variables.
+NOTE: Copying WORK.OR_NAME_K_O109896 to DOC.OR_NAME_K_O109896 (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 27797 observations read from the data set WORK.OR_NAME_K_O109896.
+NOTE: The data set DOC.OR_NAME_K_O109896 has 27797 observations and 14 variables.
+NOTE: Copying WORK.OR_NAME_P_R130938 to DOC.OR_NAME_P_R130938 (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 21043 observations read from the data set WORK.OR_NAME_P_R130938.
+NOTE: The data set DOC.OR_NAME_P_R130938 has 21043 observations and 14 variables.
+NOTE: Copying WORK.OR_NAME_S_T157024 to DOC.OR_NAME_S_T157024 (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 26086 observations read from the data set WORK.OR_NAME_S_T157024.
+NOTE: The data set DOC.OR_NAME_S_T157024 has 26086 observations and 14 variables.
+NOTE: Copying WORK.OR_NAME_U_Z170073 to DOC.OR_NAME_U_Z170073 (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 13049 observations read from the data set WORK.OR_NAME_U_Z170073.
+NOTE: The data set DOC.OR_NAME_U_Z170073 has 13049 observations and 14 variables.
+637  libname or_crsp_merged "C:\Users\lihon\Downloads\or_crsp_merged";
+ERROR: or_crsp_merged is not a valid SAS name.
+ERROR: Error in the LIBNAME statement.
+638
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           6:35.39
+      user cpu time       3.64 seconds
+      system cpu time     8.17 seconds
+      memory              795.93k
+      OS Memory           33536.00k
+      Timestamp           03/01/2024 06:50:17 PM
+      Step Count                        56  Switch Count  1
+
+
+639  PROC DATASETS;
+640  COPY IN = work OUT = or_crsp_merged NOLIST;
+                                         ------
+                                         22
+                                         202
+ERROR: "OR_CRSP_MERGED" is not a valid name.
+NOTE: Enter RUN; to continue or QUIT; to end the procedure.
+ERROR 22-322: Syntax error, expecting one of the following: ;, ACCEL, ALTER, CLONE,
+              CONSTRAINT, DATECOPY, ENCRYPTKEY, FORCE, IN, INDD, INDEX, INLIB, MEMTYPE,
+              MOVE, MT, MTYPE, NOACCEL, NOCLONE, OUT, OUTDD, OUTLIB, OVERRIDE, PROTECT,
+              PW.
+ERROR 202-322: The option or parameter is not recognized and will be ignored.
+641  select M_AJ_COMP ;
+642  RUN;
+
+NOTE: Statements not processed because of errors noted above.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           0.06 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.00 seconds
+      memory              345.50k
+      OS Memory           33536.00k
+      Timestamp           03/01/2024 06:50:17 PM
+      Step Count                        57  Switch Count  0
+
+
+
+643  data _null_;
+644   call sound(523,2000);
+645  run;
+
+NOTE: DATA statement used (Total process time):
+      real time           4.03 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.04 seconds
+      memory              316.84k
+      OS Memory           33536.00k
+      Timestamp           03/01/2024 06:50:21 PM
+      Step Count                        58  Switch Count  0
+
+
+646  PROC DATASETS NOLIST;
+647  COPY IN = work OUT = or_crsp_merged ;
+ERROR: "OR_CRSP_MERGED" is not a valid name.
+NOTE: Enter RUN; to continue or QUIT; to end the procedure.
+648  select M_AJ_COMP ;
+649  RUN;
+
+NOTE: Statements not processed because of errors noted above.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              232.34k
+      OS Memory           33536.00k
+      Timestamp           03/01/2024 06:51:59 PM
+      Step Count                        59  Switch Count  0
+
+
+
+650  data _null_;
+651   call sound(523,500);
+652  run;
+
+NOTE: DATA statement used (Total process time):
+      real time           1.02 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              316.84k
+      OS Memory           33536.00k
+      Timestamp           03/01/2024 06:52:00 PM
+      Step Count                        60  Switch Count  0
+
+
+653  libname or_crsp_merged "C:\Users\lihon\Downloads\or_crsp_merged";
+ERROR: or_crsp_merged is not a valid SAS name.
+ERROR: Error in the LIBNAME statement.
+
+654  libname or_crsp "C:\Users\lihon\Downloads\or_crsp_merged";
+NOTE: Libref OR_CRSP was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: C:\Users\lihon\Downloads\or_crsp_merged
+655
+656  PROC DATASETS NOLIST;
+657  COPY IN = work OUT = or_crsp ;
+658  select M_AJ_COMP ;
+659  RUN;
+
+NOTE: Copying WORK.M_AJ_COMP to OR_CRSP.M_AJ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 12776 observations read from the data set WORK.M_AJ_COMP.
+NOTE: The data set OR_CRSP.M_AJ_COMP has 12776 observations and 10 variables.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              493.68k
+      OS Memory           33536.00k
+      Timestamp           03/01/2024 06:52:33 PM
+      Step Count                        61  Switch Count  0
+
+
+660  data _null_;
+661   call sound(523,500);
+662  run;
+
+NOTE: DATA statement used (Total process time):
+      real time           1.01 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              316.84k
+      OS Memory           33536.00k
+      Timestamp           03/01/2024 06:52:34 PM
+      Step Count                        62  Switch Count  0
+
+
+663
+664  PROC DATASETS NOLIST;
+665  COPY IN = work OUT = or_crsp ;
+666  select AJ_comp KO_comp
+667         PR_comp ST_comp UZ_comp ;
+668  RUN;
+
+NOTE: Copying WORK.AJ_COMP to OR_CRSP.AJ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 27179 observations read from the data set WORK.AJ_COMP.
+NOTE: The data set OR_CRSP.AJ_COMP has 27179 observations and 6 variables.
+NOTE: Copying WORK.KO_COMP to OR_CRSP.KO_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 9370 observations read from the data set WORK.KO_COMP.
+NOTE: The data set OR_CRSP.KO_COMP has 9370 observations and 6 variables.
+NOTE: Copying WORK.PR_COMP to OR_CRSP.PR_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 5601 observations read from the data set WORK.PR_COMP.
+NOTE: The data set OR_CRSP.PR_COMP has 5601 observations and 6 variables.
+NOTE: Copying WORK.ST_COMP to OR_CRSP.ST_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 7304 observations read from the data set WORK.ST_COMP.
+NOTE: The data set OR_CRSP.ST_COMP has 7304 observations and 6 variables.
+NOTE: Copying WORK.UZ_COMP to OR_CRSP.UZ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 4504 observations read from the data set WORK.UZ_COMP.
+NOTE: The data set OR_CRSP.UZ_COMP has 4504 observations and 6 variables.
+669  %macro fuzzy_comp_or_SPEDIS(or, comp);
+670  options msglevel=i fullstimer;
+671
+672  options cpuCount = actual;
+673  sasfile &or load;
+674  sasfile &comp load;
+675  proc sql _method ;
+676     create table m_&comp  as
+677     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+678            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+679            SPEDIS(a.std_firm1, b.std_nameL) as dist_score
+680     from  &or as a
+681     left join &comp as b
+682     on a.or_sub = b.sub_name
+683    where (CALCULATED dist_score<=120   AND  a.len_std_or>4 AND b.len_name>4) OR
+684          (a.std_firm1 = b.std_nameL) ;
+685    quit;
+686   run;
+687  sasfile &or close;
+688  sasfile &comp close;
+689  %mend fuzzy_comp_or_SPEDIS;
+690  %fuzzy_comp_or_SPEDIS(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           20:40:43.23
+      user cpu time       8.67 seconds
+      system cpu time     12.89 seconds
+      memory              83902.34k
+      OS Memory           117356.00k
+      Timestamp           03/02/2024 03:34:56 PM
+      Step Count                        63  Switch Count  2
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   create table m_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098
+as a left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=120
+AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+ERROR: You cannot open WORK.M_AJ_COMP.DATA for output access with member-level control
+because WORK.M_AJ_COMP.DATA is in use by you in resource environment ViewTable Window.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           3.09 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              5253.37k
+      OS Memory           122480.00k
+      Timestamp           03/02/2024 03:34:59 PM
+      Step Count                        64  Switch Count  0
+
+MPRINT(FUZZY_COMP_OR_SPEDIS):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Ending execution.
+
+
+691  %fuzzy_comp_or_SPEDIS(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   create table m_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098
+as a left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=120
+AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 6783367 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           23.29 seconds
+      user cpu time       20.53 seconds
+      system cpu time     2.79 seconds
+      memory              58236.23k
+      OS Memory           170908.00k
+      Timestamp           03/02/2024 03:35:38 PM
+      Step Count                        65  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Ending execution.
+
+692  %macro fuzzy_comp_or_SPEDIS(or, comp);
+693  options msglevel=i fullstimer;
+694
+695  options cpuCount = actual;
+696  sasfile &or load;
+697  sasfile &comp load;
+698  proc sql _method ;
+699     create table m_&comp  as
+700     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+701            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+702            SPEDIS(a.std_firm1, b.std_nameL) as dist_score
+703     from  &or as a
+704     left join &comp as b
+705     on a.or_sub = b.sub_name
+706    where (CALCULATED dist_score<=20   AND  a.len_std_or>4 AND b.len_name>4) OR
+707          (a.std_firm1 = b.std_nameL) ;
+708    quit;
+709   run;
+710  sasfile &or close;
+711  sasfile &comp close;
+712  %mend fuzzy_comp_or_SPEDIS;
+
+713
+714  %fuzzy_comp_or_SPEDIS(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   create table m_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098
+as a left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=20
+AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 21264 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           20.17 seconds
+      user cpu time       19.43 seconds
+      system cpu time     0.68 seconds
+      memory              58235.26k
+      OS Memory           170908.00k
+      Timestamp           03/02/2024 03:36:35 PM
+      Step Count                        66  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS):  Ending execution.
+
+715  PROC DATASETS NOLIST;
+716  COPY IN = work OUT = or_crsp ;
+717  select M_AJ_COMP ;
+718  RUN;
+
+NOTE: Copying WORK.M_AJ_COMP to OR_CRSP.M_AJ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 21264 observations read from the data set WORK.M_AJ_COMP.
+NOTE: The data set OR_CRSP.M_AJ_COMP has 21264 observations and 10 variables.
+719  %let path=%str("C:\Users\lihon\OneDrive - Kent State
+719! University\2023Spring\crsp_or");
+720  libname oneDrive "&path";
+NOTE: Line generated by the macro variable "PATH".
+1     ""C:\Users\lihon\OneDrive - Kent State University\2023Spring\crsp_or"
+      ---
+      49
+         -
+         22
+
+      ---
+      49
+ERROR: Libref ONEDRIVE is not assigned.
+ERROR: Error in the LIBNAME statement.
+NOTE 49-169: The meaning of an identifier after a quoted string might change in a
+             future SAS release.  Inserting white space between a quoted string and the
+             succeeding identifier is recommended.
+ERROR 22-7: Invalid option name C.
+721  %let path=%str(C:\Users\lihon\OneDrive - Kent State University\2023Spring\crsp_or);
+722  libname oneDrive "&path";
+NOTE: Libref ONEDRIVE was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: C:\Users\lihon\OneDrive - Kent State University\2023Spring\crsp_or
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           2:33:53.83
+      user cpu time       5.31 seconds
+      system cpu time     11.21 seconds
+      memory              565.50k
+      OS Memory           34052.00k
+      Timestamp           03/02/2024 06:12:10 PM
+      Step Count                        67  Switch Count  3
+
+
+723  PROC DATASETS NOLIST;
+724  COPY IN = work OUT = onedrive ;
+725  select M_AJ_COMP ;
+726  RUN;
+
+NOTE: Copying WORK.M_AJ_COMP to ONEDRIVE.M_AJ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 21264 observations read from the data set WORK.M_AJ_COMP.
+NOTE: The data set ONEDRIVE.M_AJ_COMP has 21264 observations and 10 variables.
+727  %macro fuzzy_comp_or_SPEDIS_v2(or, comp);
+728  options msglevel=i fullstimer;
+729
+730  options cpuCount = actual;
+731  sasfile &or load;
+732  sasfile &comp load;
+733  proc sql _method ;
+734     create table m_&comp  as
+735     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+736            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+737            SPEDIS(a.std_firm1, b.std_nameL) as dist_score
+738     from  &or as a
+739     left join &comp as b
+740     on a.or_sub = b.sub_name
+741     where (CALCULATED dist_score<=20   AND  a.len_std_or>4 AND b.len_name>4) OR
+742          (a.std_firm1 = b.std_nameL) ;
+743
+744     create table m_&comp  as
+745     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+746            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+747            SPEDIS(a.std_firm1, b.std_nameL) as dist_score
+748     from  &or as a
+749     left join &comp as b
+750     on a.or_sub = b.sub_name
+751    where CALCULATED dist_score<=20;
+752    quit;
+753   run;
+754  sasfile &or close;
+755  sasfile &comp close;
+756  %mend fuzzy_comp_or_SPEDIS_v2;
+757  %fuzzy_comp_or_SPEDIS_v2(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile AJ_comp load;
+ERROR: File WORK.AJ_COMP.DATA cannot be opened in memory because it is in use.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           5:15.67
+      user cpu time       4.54 seconds
+      system cpu time     9.03 seconds
+      memory              78226.37k
+      OS Memory           112364.00k
+      Timestamp           03/02/2024 06:17:26 PM
+      Step Count                        68  Switch Count  2
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098
+as a left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=20
+AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+ERROR: You cannot open WORK.M_AJ_COMP.DATA for output access with member-level control
+because WORK.M_AJ_COMP.DATA is in use by you in resource environment ViewTable Window.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098
+as a left join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<=20;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+ERROR: You cannot open WORK.M_AJ_COMP.DATA for output access with member-level control
+because WORK.M_AJ_COMP.DATA is in use by you in resource environment ViewTable Window.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              5383.96k
+      OS Memory           117488.00k
+      Timestamp           03/02/2024 06:17:26 PM
+      Step Count                        69  Switch Count  0
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile AJ_comp close;
+ERROR: File WORK.AJ_COMP.DATA is not open.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+
+758  %fuzzy_comp_or_SPEDIS_v2(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098
+as a left join AJ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=20
+AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 21264 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from or_name_a_j82098
+as a left join AJ_comp as b on a.or_sub = b.sub_name where CALCULATED dist_score<=20;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 22547 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           38.65 seconds
+      user cpu time       38.50 seconds
+      system cpu time     0.48 seconds
+      memory              58239.10k
+      OS Memory           170652.00k
+      Timestamp           03/02/2024 06:18:46 PM
+      Step Count                        70  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+759  PROC DATASETS NOLIST;
+760  COPY IN = work OUT = or_crsp ;
+761  select M_AJ_COMP ;
+762  RUN;
+
+NOTE: Copying WORK.M_AJ_COMP to OR_CRSP.M_AJ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 22547 observations read from the data set WORK.M_AJ_COMP.
+NOTE: The data set OR_CRSP.M_AJ_COMP has 22547 observations and 10 variables.
+763  %macro fuzzy_comp_or_SPEDIS_v2(or, comp);
+764  options msglevel=i fullstimer;
+765
+766  options cpuCount = actual;
+767  sasfile &or load;
+768  sasfile &comp load;
+769  proc sql _method ;
+770     create table m_&comp  as
+771     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+772            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+773            SPEDIS(a.std_firm1, b.std_nameL) as dist_score
+774     from  &or as a
+775     left join &comp as b
+776     on a.or_sub = b.sub_name
+777     where (CALCULATED dist_score<=9   AND  a.len_std_or>4 AND b.len_name>4) OR
+778          (a.std_firm1 = b.std_nameL) ;
+779
+780       quit;
+781   run;
+782  sasfile &or close;
+783  sasfile &comp close;
+784  %mend fuzzy_comp_or_SPEDIS_v2;
+785
+786  %macro comp_merge_or;
+787    %fuzzy_comp_or_SPEDIS_v2(or_name_K_O109896, KO_comp)
+788    %fuzzy_comp_or_SPEDIS_v2(or_name_P_R130938, PR_comp)
+789    %fuzzy_comp_or_SPEDIS_v2(or_name_S_T157024, ST_comp)
+790    %fuzzy_comp_or_SPEDIS_v2(or_name_U_Z170073, UZ_comp)
+791  %mend comp_merge_or;
+792  %macro comp_merge_or;
+793  %put "ERROR:(or_name_K_O109896, KO_comp)";
+794    %fuzzy_comp_or_SPEDIS_v2(or_name_K_O109896, KO_comp)
+795    %put "ERROR:(or_name_P_R130938, PR_comp)";
+796    %fuzzy_comp_or_SPEDIS_v2(or_name_P_R130938, PR_comp)
+797  %put "ERROR:(or_name_S_T157024, ST_comp)";
+798  %fuzzy_comp_or_SPEDIS_v2(or_name_S_T157024, ST_comp)
+799  %put "ERROR:(or_name_U_Z170073, UZ_comp)";
+800  %fuzzy_comp_or_SPEDIS_v2(or_name_U_Z170073, UZ_comp)
+801  %mend comp_merge_or;
+802
+803  %comp_merge_or
+MLOGIC(COMP_MERGE_OR):  Beginning execution.
+MLOGIC(COMP_MERGE_OR):  %PUT "ERROR:(or_name_K_O109896, KO_comp)"
+"ERROR:(or_name_K_O109896, KO_comp)"
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_K_O109896
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value KO_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_K_O109896 load;
+NOTE: The file WORK.OR_NAME_K_O109896.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile KO_comp load;
+NOTE: The file WORK.KO_COMP.DATA has been loaded into memory by the SASFILE statement.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           4:05:01.69
+      user cpu time       15.78 seconds
+      system cpu time     21.90 seconds
+      memory              28616.71k
+      OS Memory           58896.00k
+      Timestamp           03/02/2024 10:25:46 PM
+      Step Count                        71  Switch Count  3
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_KO_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from
+or_name_K_O109896 as a left join KO_comp as b on a.or_sub = b.sub_name where
+(CALCULATED dist_score<=9 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 =
+b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.KO_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_K_O109896(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_KO_COMP created, with 1688 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           4.87 seconds
+      user cpu time       4.92 seconds
+      system cpu time     0.15 seconds
+      memory              23129.32k
+      OS Memory           80160.00k
+      Timestamp           03/02/2024 10:25:51 PM
+      Step Count                        72  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_K_O109896 close;
+NOTE: The file WORK.OR_NAME_K_O109896.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile KO_comp close;
+NOTE: The file WORK.KO_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+MLOGIC(COMP_MERGE_OR):  %PUT "ERROR:(or_name_P_R130938, PR_comp)"
+"ERROR:(or_name_P_R130938, PR_comp)"
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_P_R130938
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value PR_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_P_R130938 load;
+NOTE: The file WORK.OR_NAME_P_R130938.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile PR_comp load;
+NOTE: The file WORK.PR_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_PR_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from
+or_name_P_R130938 as a left join PR_comp as b on a.or_sub = b.sub_name where
+(CALCULATED dist_score<=9 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 =
+b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.PR_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_P_R130938(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_PR_COMP created, with 1012 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           3.50 seconds
+      user cpu time       3.46 seconds
+      system cpu time     0.04 seconds
+      memory              18871.67k
+      OS Memory           68752.00k
+      Timestamp           03/02/2024 10:25:55 PM
+      Step Count                        73  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_P_R130938 close;
+NOTE: The file WORK.OR_NAME_P_R130938.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile PR_comp close;
+NOTE: The file WORK.PR_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+MLOGIC(COMP_MERGE_OR):  %PUT "ERROR:(or_name_S_T157024, ST_comp)"
+"ERROR:(or_name_S_T157024, ST_comp)"
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_S_T157024
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value ST_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_S_T157024 load;
+NOTE: The file WORK.OR_NAME_S_T157024.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile ST_comp load;
+NOTE: The file WORK.ST_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_ST_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from
+or_name_S_T157024 as a left join ST_comp as b on a.or_sub = b.sub_name where
+(CALCULATED dist_score<=9 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 =
+b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.ST_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_S_T157024(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_ST_COMP created, with 1552 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           4.15 seconds
+      user cpu time       4.14 seconds
+      system cpu time     0.25 seconds
+      memory              22066.26k
+      OS Memory           77116.00k
+      Timestamp           03/02/2024 10:25:59 PM
+      Step Count                        74  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_S_T157024 close;
+NOTE: The file WORK.OR_NAME_S_T157024.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile ST_comp close;
+NOTE: The file WORK.ST_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+MLOGIC(COMP_MERGE_OR):  %PUT "ERROR:(or_name_U_Z170073, UZ_comp)"
+"ERROR:(or_name_U_Z170073, UZ_comp)"
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_U_Z170073
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value UZ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 load;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp load;
+NOTE: The file WORK.UZ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_UZ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from
+or_name_U_Z170073 as a left join UZ_comp as b on a.or_sub = b.sub_name where
+(CALCULATED dist_score<=9 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 =
+b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.UZ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_U_Z170073(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_UZ_COMP created, with 837 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           2.23 seconds
+      user cpu time       2.28 seconds
+      system cpu time     0.06 seconds
+      memory              13546.32k
+      OS Memory           55576.00k
+      Timestamp           03/02/2024 10:26:02 PM
+      Step Count                        75  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 close;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp close;
+NOTE: The file WORK.UZ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+MLOGIC(COMP_MERGE_OR):  Ending execution.
+
+804  %fuzzy_comp_or(or_name_U_Z170073, UZ_comp)
+MLOGIC(FUZZY_COMP_OR):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR):  Parameter OR has value or_name_U_Z170073
+MLOGIC(FUZZY_COMP_OR):  Parameter COMP has value UZ_comp
+MPRINT(FUZZY_COMP_OR):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR):   sasfile or_name_U_Z170073 load;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR):   sasfile UZ_comp load;
+NOTE: The file WORK.UZ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR):   create table m_UZ_comp as select a.rf_id, a.exec_dt, a.id_or,
+a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM,
+b.comnam, compged(a.std_firm1, b.std_nameL) as dist_score from or_name_U_Z170073 as a
+left join UZ_comp as b on a.or_sub = b.sub_name where (CALCULATED dist_score<=120 AND
+a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.UZ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_U_Z170073(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_UZ_COMP created, with 1896 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           2.79 seconds
+      user cpu time       2.76 seconds
+      system cpu time     0.07 seconds
+      memory              13539.73k
+      OS Memory           58656.00k
+      Timestamp           03/02/2024 10:31:16 PM
+      Step Count                        76  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR):   run;
+MPRINT(FUZZY_COMP_OR):   sasfile or_name_U_Z170073 close;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR):   sasfile UZ_comp close;
+NOTE: The file WORK.UZ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR):  Ending execution.
+
+805  PROC DATASETS NOLIST;
+806  COPY IN = work OUT = or_crsp ;
+807  select  M_UZ_COM
+808
+809          ;
+810  RUN;
+
+ERROR: The file WORK.M_UZ_COM (memtype=ALL) was not found, but appears on a SELECT
+       statement.
+NOTE: Statements not processed because of errors noted above.
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           1:06.67
+      user cpu time       0.65 seconds
+      system cpu time     1.87 seconds
+      memory              231.43k
+      OS Memory           33536.00k
+      Timestamp           03/02/2024 10:33:24 PM
+      Step Count                        77  Switch Count  1
+
+
+
+811  PROC DATASETS NOLIST;
+812  COPY IN = work OUT = or_crsp ;
+813  select  M_UZ_COMP
+814
+815          ;
+816  RUN;
+
+NOTE: Copying WORK.M_UZ_COMP to OR_CRSP.M_UZ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 1896 observations read from the data set WORK.M_UZ_COMP.
+NOTE: The data set OR_CRSP.M_UZ_COMP has 1896 observations and 10 variables.
+817  %fuzzy_comp_or_SPEDIS_v2(or_name_U_Z170073, UZ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_U_Z170073
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value UZ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 load;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp load;
+NOTE: The file WORK.UZ_COMP.DATA has been loaded into memory by the SASFILE statement.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           5:38.77
+      user cpu time       1.07 seconds
+      system cpu time     1.43 seconds
+      memory              6088.06k
+      OS Memory           43888.00k
+      Timestamp           03/02/2024 10:39:03 PM
+      Step Count                        78  Switch Count  1
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_UZ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as dist_score from
+or_name_U_Z170073 as a left join UZ_comp as b on a.or_sub = b.sub_name where
+(CALCULATED dist_score<=9 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 =
+b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.UZ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_U_Z170073(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_UZ_COMP created, with 837 rows and 10 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           2.23 seconds
+      user cpu time       2.23 seconds
+      system cpu time     0.06 seconds
+      memory              13556.23k
+      OS Memory           55576.00k
+      Timestamp           03/02/2024 10:39:06 PM
+      Step Count                        79  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 close;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp close;
+NOTE: The file WORK.UZ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+818  PROC DATASETS NOLIST;
+819  COPY IN = work OUT = or_crsp ;
+820  select  M_UZ_COMP
+821
+822          ;
+823  RUN;
+
+NOTE: Copying WORK.M_UZ_COMP to OR_CRSP.M_UZ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 837 observations read from the data set WORK.M_UZ_COMP.
+NOTE: The data set OR_CRSP.M_UZ_COMP has 837 observations and 10 variables.
+824  %macro fuzzy_comp_or_SPEDIS_v2(or, comp);
+825  options msglevel=i fullstimer;
+826
+827  options cpuCount = actual;
+828  sasfile &or load;
+829  sasfile &comp load;
+830  proc sql _method ;
+831     create table m_&comp  as
+832     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+833            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+834            SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+835            compged(a.std_firm1, b.std_nameL) as gl_score
+836     from  &or as a
+837     left join &comp as b
+838     on a.or_sub = b.sub_name
+839     where (CALCULATED dist_score<=100   AND  a.len_std_or>4 AND b.len_name>4) OR
+840          (a.std_firm1 = b.std_nameL) ;
+841
+842       quit;
+843   run;
+844  sasfile &or close;
+845  sasfile &comp close;
+846  %mend fuzzy_comp_or_SPEDIS_v2;
+847  %macro fuzzy_comp_or_SPEDIS_v2(or, comp);
+848  options msglevel=i fullstimer;
+849
+850  options cpuCount = actual;
+851  sasfile &or load;
+852  sasfile &comp load;
+853  proc sql _method ;
+854     create table m_&comp  as
+855     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+856            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+857            SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+858            compged(a.std_firm1, b.std_nameL) as gl_score
+859     from  &or as a
+860     left join &comp as b
+861     on a.or_sub = b.sub_name
+862     where (CALCULATED spedis_score<=100   AND  a.len_std_or>4 AND b.len_name>4) OR
+863          (a.std_firm1 = b.std_nameL) ;
+864
+865       quit;
+866   run;
+867  sasfile &or close;
+868  sasfile &comp close;
+869  %mend fuzzy_comp_or_SPEDIS_v2;
+870  %fuzzy_comp_or_SPEDIS_v2(or_name_U_Z170073, UZ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_U_Z170073
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value UZ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 load;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp load;
+NOTE: The file WORK.UZ_COMP.DATA has been loaded into memory by the SASFILE statement.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           16:24:01.27
+      user cpu time       6.03 seconds
+      system cpu time     11.84 seconds
+      memory              13591.62k
+      OS Memory           43888.00k
+      Timestamp           03/03/2024 03:03:16 PM
+      Step Count                        80  Switch Count  3
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_UZ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score from or_name_U_Z170073 as a left join
+UZ_comp as b on a.or_sub = b.sub_name where (CALCULATED spedis_score<=100 AND
+a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.UZ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_U_Z170073(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_UZ_COMP created, with 786552 rows and 11 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           5.80 seconds
+      user cpu time       5.14 seconds
+      system cpu time     0.45 seconds
+      memory              13596.92k
+      OS Memory           55576.00k
+      Timestamp           03/03/2024 03:03:22 PM
+      Step Count                        81  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 close;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp close;
+NOTE: The file WORK.UZ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+NOTE: The export data set has 786552 observations and 11 variables.
+NOTE: "C:\Users\lihon\Downloads\or_crsp_merged_spedis100.dta" file was successfully
+      created.
+NOTE: The export data set has 786552 observations and 11 variables.
+NOTE: "C:\Users\lihon\Downloads\Mor_crsp_merged.dta" file was successfully created.
+871  */
+872  %macro fuzzy_comp_or_SPEDIS_v2(or, comp);
+873  options msglevel=i fullstimer;
+874
+875  options cpuCount = actual;
+876  sasfile &or load;
+ERROR: File DOC.OR_NAME_A_J82098.DATA does not exist.
+877  sasfile &comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+878  proc sql _method ;
+879     create table m_&comp  as
+880     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+881            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+882            SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+883            compged(a.std_firm1, b.std_nameL) as gl_score
+884     from  &or as a
+885     left join &comp as b
+886     on a.or_sub = b.sub_name
+887     where (CALCULATED spedis_score<=15  AND gl_score<=200  AND  a.len_std_or>4 AND
+887! b.len_name>4) OR
+888          (a.std_firm1 = b.std_nameL) ;
+ERROR: File DOC.OR_NAME_A_J82098.DATA does not exist.
+889
+890       quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              199.12k
+      OS Memory           46216.00k
+      Timestamp           03/03/2024 03:18:56 PM
+      Step Count                        82  Switch Count  0
+
+891   run;
+892  sasfile &or close;
+ERROR: File DOC.OR_NAME_A_J82098.DATA is not open.
+893  sasfile &comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+ERROR: No matching %MACRO statement for this %MEND statement.
+894  %mend fuzzy_comp_or_SPEDIS_v2;
+
+
+895  %macro fuzzy_comp_or_SPEDIS_v2(or, comp);
+896  options msglevel=i fullstimer;
+897
+898  options cpuCount = actual;
+899  sasfile &or load;
+900  sasfile &comp load;
+901  proc sql _method ;
+902     create table m_&comp  as
+903     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+904            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+905            SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+906            compged(a.std_firm1, b.std_nameL) as gl_score
+907     from  &or as a
+908     left join &comp as b
+909     on a.or_sub = b.sub_name
+910     where (CALCULATED spedis_score<=15  AND gl_score<=200  AND  a.len_std_or>4 AND
+910! b.len_name>4) OR
+911          (a.std_firm1 = b.std_nameL) ;
+912
+913       quit;
+914   run;
+915  sasfile &or close;
+916  sasfile &comp close;
+917  %mend fuzzy_comp_or_SPEDIS_v2;
+
+918  %fuzzy_comp_or_SPEDIS_v2(or_name_U_Z170073, UZ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_U_Z170073
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value UZ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 load;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp load;
+NOTE: The file WORK.UZ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_UZ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score from or_name_U_Z170073 as a left join
+UZ_comp as b on a.or_sub = b.sub_name where (CALCULATED spedis_score<=15 AND
+gl_score<=200 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+ERROR: The following columns were not found in the contributing tables: gl_score.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              5257.15k
+      OS Memory           53876.00k
+      Timestamp           03/03/2024 03:19:35 PM
+      Step Count                        83  Switch Count  0
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 close;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp close;
+NOTE: The file WORK.UZ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+
+919  %macro fuzzy_comp_or_SPEDIS_v2(or, comp);
+920  options msglevel=i fullstimer;
+921
+922  options cpuCount = actual;
+923  sasfile &or load;
+924  sasfile &comp load;
+925  proc sql _method ;
+926     create table m_&comp  as
+927     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+928            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+929            SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+930            compged(a.std_firm1, b.std_nameL) as gl_score
+931     from  &or as a
+932     left join &comp as b
+933     on a.or_sub = b.sub_name
+934     where (CALCULATED spedis_score<=15  AND CALCULATED gl_score<=200  AND
+934! a.len_std_or>4 AND b.len_name>4) OR
+935          (a.std_firm1 = b.std_nameL) ;
+936
+937       quit;
+938   run;
+939  sasfile &or close;
+940  sasfile &comp close;
+941  %mend fuzzy_comp_or_SPEDIS_v2;
+
+942  %fuzzy_comp_or_SPEDIS_v2(or_name_U_Z170073, UZ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_U_Z170073
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value UZ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 load;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp load;
+NOTE: The file WORK.UZ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_UZ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score from or_name_U_Z170073 as a left join
+UZ_comp as b on a.or_sub = b.sub_name where (CALCULATED spedis_score<=15 AND CALCULATED
+gl_score<=200 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.UZ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_U_Z170073(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_UZ_COMP created, with 1093 rows and 11 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           5.07 seconds
+      user cpu time       5.03 seconds
+      system cpu time     0.18 seconds
+      memory              13597.81k
+      OS Memory           60696.00k
+      Timestamp           03/03/2024 03:20:10 PM
+      Step Count                        84  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 close;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp close;
+NOTE: The file WORK.UZ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+943  PROC DATASETS NOLIST;
+944  COPY IN = work OUT = or_crsp ;
+945  select  M:
+946
+947          ;
+948  RUN;
+
+NOTE: Copying WORK.M_AJ_COMP to OR_CRSP.M_AJ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 22547 observations read from the data set WORK.M_AJ_COMP.
+NOTE: The data set OR_CRSP.M_AJ_COMP has 22547 observations and 10 variables.
+NOTE: Copying WORK.M_KO_COMP to OR_CRSP.M_KO_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 1688 observations read from the data set WORK.M_KO_COMP.
+NOTE: The data set OR_CRSP.M_KO_COMP has 1688 observations and 10 variables.
+NOTE: Copying WORK.M_PR_COMP to OR_CRSP.M_PR_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 1012 observations read from the data set WORK.M_PR_COMP.
+NOTE: The data set OR_CRSP.M_PR_COMP has 1012 observations and 10 variables.
+NOTE: Copying WORK.M_ST_COMP to OR_CRSP.M_ST_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 1552 observations read from the data set WORK.M_ST_COMP.
+NOTE: The data set OR_CRSP.M_ST_COMP has 1552 observations and 10 variables.
+NOTE: Copying WORK.M_UZ_COMP to OR_CRSP.M_UZ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 1093 observations read from the data set WORK.M_UZ_COMP.
+NOTE: The data set OR_CRSP.M_UZ_COMP has 1093 observations and 11 variables.
+949  %fuzzy_comp_or_SPEDIS_v2(or_name_S_T157024, ST_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_S_T157024
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value ST_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_S_T157024 load;
+NOTE: The file WORK.OR_NAME_S_T157024.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile ST_comp load;
+NOTE: The file WORK.ST_COMP.DATA has been loaded into memory by the SASFILE statement.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           32.78 seconds
+      user cpu time       1.01 seconds
+      system cpu time     2.46 seconds
+      memory              26635.40k
+      OS Memory           61780.00k
+      Timestamp           03/03/2024 03:21:43 PM
+      Step Count                        85  Switch Count  1
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_ST_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score from or_name_S_T157024 as a left join
+ST_comp as b on a.or_sub = b.sub_name where (CALCULATED spedis_score<=15 AND CALCULATED
+gl_score<=200 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.ST_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_S_T157024(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_ST_COMP created, with 2100 rows and 11 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           9.50 seconds
+      user cpu time       9.46 seconds
+      system cpu time     0.07 seconds
+      memory              22106.82k
+      OS Memory           81980.00k
+      Timestamp           03/03/2024 03:21:53 PM
+      Step Count                        86  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_S_T157024 close;
+NOTE: The file WORK.OR_NAME_S_T157024.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile ST_comp close;
+NOTE: The file WORK.ST_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+950
+951  PROC DATASETS NOLIST;
+952  COPY IN = work OUT = or_crsp ;
+953  select  M_ST_COMP ;
+954  RUN;
+
+NOTE: Copying WORK.M_ST_COMP to OR_CRSP.M_ST_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 2100 observations read from the data set WORK.M_ST_COMP.
+NOTE: The data set OR_CRSP.M_ST_COMP has 2100 observations and 11 variables.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           12:08.55
+      user cpu time       3.51 seconds
+      system cpu time     8.71 seconds
+      memory              711.21k
+      OS Memory           35320.00k
+      Timestamp           03/03/2024 03:47:55 PM
+      Step Count                        87  Switch Count  1
+
+
+955  PROC DATASETS NOLIST;
+956  COPY IN = work OUT = or_crsp ;
+957  select  M_PR_COMP ;
+958  RUN;
+
+NOTE: Copying WORK.M_PR_COMP to OR_CRSP.M_PR_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 1012 observations read from the data set WORK.M_PR_COMP.
+NOTE: The data set OR_CRSP.M_PR_COMP has 1012 observations and 10 variables.
+959    %fuzzy_comp_or_SPEDIS_v2(or_name_P_R130938, PR_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_P_R130938
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value PR_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_P_R130938 load;
+NOTE: The file WORK.OR_NAME_P_R130938.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile PR_comp load;
+NOTE: The file WORK.PR_COMP.DATA has been loaded into memory by the SASFILE statement.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           1:28.90
+      user cpu time       1.14 seconds
+      system cpu time     1.82 seconds
+      memory              21461.40k
+      OS Memory           56608.00k
+      Timestamp           03/03/2024 03:49:24 PM
+      Step Count                        88  Switch Count  1
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_PR_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score from or_name_P_R130938 as a left join
+PR_comp as b on a.or_sub = b.sub_name where (CALCULATED spedis_score<=15 AND CALCULATED
+gl_score<=200 AND a.len_std_or>4 AND b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.PR_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_P_R130938(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_PR_COMP created, with 1389 rows and 11 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           8.28 seconds
+      user cpu time       8.25 seconds
+      system cpu time     0.15 seconds
+      memory              18917.17k
+      OS Memory           73616.00k
+      Timestamp           03/03/2024 03:49:32 PM
+      Step Count                        89  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_P_R130938 close;
+NOTE: The file WORK.OR_NAME_P_R130938.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile PR_comp close;
+NOTE: The file WORK.PR_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+960  PROC DATASETS NOLIST;
+961  COPY IN = work OUT = or_crsp ;
+962  select  M_PR_COMP ;
+963  RUN;
+
+NOTE: Copying WORK.M_PR_COMP to OR_CRSP.M_PR_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 1389 observations read from the data set WORK.M_PR_COMP.
+NOTE: The data set OR_CRSP.M_PR_COMP has 1389 observations and 11 variables.
+964  %macro fuzzy_comp_or_SPEDIS_v2(or, comp);
+965  options msglevel=i fullstimer;
+966
+967  options cpuCount = actual;
+968  sasfile &or load;
+969  sasfile &comp load;
+970  proc sql _method ;
+971     create table m_&comp  as
+972     select a.rf_id, a.exec_dt, a.id_or, a.std_firm1 as or_std_name, a.or_name,
+973            b.GVKEY, b.std_nameL as crsp_std_name, b.HCONM, b.comnam,
+974            SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+975            compged(a.std_firm1, b.std_nameL) as gl_score,
+976            a.len_std_or as len_or,
+977            b.len_name as len_crsp
+978     from  &or as a
+979     left join &comp as b
+980     on a.or_sub = b.sub_name
+981     where (CALCULATED spedis_score<=50  AND CALCULATED gl_score<=250  AND
+981! a.len_std_or>4 AND b.len_name>4) OR
+982          (a.std_firm1 = b.std_nameL) ;
+983
+984       quit;
+985   run;
+986  sasfile &or close;
+987  sasfile &comp close;
+988  %mend fuzzy_comp_or_SPEDIS_v2;
+989    %fuzzy_comp_or_SPEDIS_v2(or_name_P_R130938, PR_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_P_R130938
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value PR_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_P_R130938 load;
+NOTE: The file WORK.OR_NAME_P_R130938.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile PR_comp load;
+NOTE: The file WORK.PR_COMP.DATA has been loaded into memory by the SASFILE statement.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           10:17.97
+      user cpu time       4.10 seconds
+      system cpu time     12.25 seconds
+      memory              21461.40k
+      OS Memory           56608.00k
+      Timestamp           03/03/2024 04:00:16 PM
+      Step Count                        90  Switch Count  2
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_PR_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score, a.len_std_or as len_or, b.len_name as
+len_crsp from or_name_P_R130938 as a left join PR_comp as b on a.or_sub = b.sub_name
+where (CALCULATED spedis_score<=50 AND CALCULATED gl_score<=250 AND a.len_std_or>4 AND
+b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.PR_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_P_R130938(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_PR_COMP created, with 7872 rows and 13 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           8.12 seconds
+      user cpu time       8.18 seconds
+      system cpu time     0.15 seconds
+      memory              18915.48k
+      OS Memory           73616.00k
+      Timestamp           03/03/2024 04:00:24 PM
+      Step Count                        91  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_P_R130938 close;
+NOTE: The file WORK.OR_NAME_P_R130938.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile PR_comp close;
+NOTE: The file WORK.PR_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+990  PROC DATASETS NOLIST;
+991  COPY IN = work OUT = or_crsp ;
+992  select  M_PR_COMP ;
+993  RUN;
+
+NOTE: Copying WORK.M_PR_COMP to OR_CRSP.M_PR_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 7872 observations read from the data set WORK.M_PR_COMP.
+NOTE: The data set OR_CRSP.M_PR_COMP has 7872 observations and 13 variables.
+994      %fuzzy_comp_or_SPEDIS_v2(or_name_K_O109896, KO_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_K_O109896
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value KO_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_K_O109896 load;
+NOTE: The file WORK.OR_NAME_K_O109896.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile KO_comp load;
+NOTE: The file WORK.KO_COMP.DATA has been loaded into memory by the SASFILE statement.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           3:43.38
+      user cpu time       0.90 seconds
+      system cpu time     1.78 seconds
+      memory              28614.56k
+      OS Memory           63760.00k
+      Timestamp           03/03/2024 04:04:28 PM
+      Step Count                        92  Switch Count  1
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_KO_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score, a.len_std_or as len_or, b.len_name as
+len_crsp from or_name_K_O109896 as a left join KO_comp as b on a.or_sub = b.sub_name
+where (CALCULATED spedis_score<=50 AND CALCULATED gl_score<=250 AND a.len_std_or>4 AND
+b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.KO_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_K_O109896(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_KO_COMP created, with 13420 rows and 13 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           11.06 seconds
+      user cpu time       11.06 seconds
+      system cpu time     0.12 seconds
+      memory              23172.04k
+      OS Memory           85024.00k
+      Timestamp           03/03/2024 04:04:39 PM
+      Step Count                        93  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_K_O109896 close;
+NOTE: The file WORK.OR_NAME_K_O109896.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile KO_comp close;
+NOTE: The file WORK.KO_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+995   %put "ERROR:(or_name_S_T157024, ST_comp)";
+"ERROR:(or_name_S_T157024, ST_comp)"
+996      %fuzzy_comp_or_SPEDIS_v2(or_name_S_T157024, ST_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_S_T157024
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value ST_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_S_T157024 load;
+NOTE: The file WORK.OR_NAME_S_T157024.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile ST_comp load;
+NOTE: The file WORK.ST_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_ST_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score, a.len_std_or as len_or, b.len_name as
+len_crsp from or_name_S_T157024 as a left join ST_comp as b on a.or_sub = b.sub_name
+where (CALCULATED spedis_score<=50 AND CALCULATED gl_score<=250 AND a.len_std_or>4 AND
+b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.ST_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_S_T157024(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_ST_COMP created, with 13423 rows and 13 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           9.47 seconds
+      user cpu time       9.43 seconds
+      system cpu time     0.09 seconds
+      memory              22108.23k
+      OS Memory           81980.00k
+      Timestamp           03/03/2024 04:05:32 PM
+      Step Count                        94  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_S_T157024 close;
+NOTE: The file WORK.OR_NAME_S_T157024.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile ST_comp close;
+NOTE: The file WORK.ST_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+997    %put "ERROR:(or_name_U_Z170073, UZ_comp)";
+"ERROR:(or_name_U_Z170073, UZ_comp)"
+998      %fuzzy_comp_or_SPEDIS_v2(or_name_U_Z170073, UZ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_U_Z170073
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value UZ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 load;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp load;
+NOTE: The file WORK.UZ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_UZ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score, a.len_std_or as len_or, b.len_name as
+len_crsp from or_name_U_Z170073 as a left join UZ_comp as b on a.or_sub = b.sub_name
+where (CALCULATED spedis_score<=50 AND CALCULATED gl_score<=250 AND a.len_std_or>4 AND
+b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.UZ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_U_Z170073(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_UZ_COMP created, with 6777 rows and 13 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           4.96 seconds
+      user cpu time       4.95 seconds
+      system cpu time     0.06 seconds
+      memory              13600.20k
+      OS Memory           60440.00k
+      Timestamp           03/03/2024 04:05:37 PM
+      Step Count                        95  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_U_Z170073 close;
+NOTE: The file WORK.OR_NAME_U_Z170073.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile UZ_comp close;
+NOTE: The file WORK.UZ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+999      %fuzzy_comp_or_SPEDIS_v2(or_name_a_j82098, AJ_comp)
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Beginning execution.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter OR has value or_name_a_j82098
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Parameter COMP has value AJ_comp
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options msglevel=i fullstimer;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   options cpuCount = actual;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_a_j82098 load;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been loaded into memory by the SASFILE
+      statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile AJ_comp load;
+NOTE: The file WORK.AJ_COMP.DATA has been loaded into memory by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   proc sql _method ;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   create table m_AJ_comp as select a.rf_id, a.exec_dt,
+a.id_or, a.std_firm1 as or_std_name, a.or_name, b.GVKEY, b.std_nameL as crsp_std_name,
+b.HCONM, b.comnam, SPEDIS(a.std_firm1, b.std_nameL) as spedis_score,
+compged(a.std_firm1, b.std_nameL) as gl_score, a.len_std_or as len_or, b.len_name as
+len_crsp from or_name_a_j82098 as a left join AJ_comp as b on a.or_sub = b.sub_name
+where (CALCULATED spedis_score<=50 AND CALCULATED gl_score<=250 AND a.len_std_or>4 AND
+b.len_name>4) OR (a.std_firm1 = b.std_nameL) ;
+
+NOTE: SQL execution methods chosen are:
+
+      sqxcrta
+          sqxfil
+              sqxjm
+                  sqxsort
+                      sqxsrc( WORK.AJ_COMP(alias = B) )
+                  sqxsort
+                      sqxsrc( WORK.OR_NAME_A_J82098(alias = A) )
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.M_AJ_COMP created, with 42158 rows and 13 columns.
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           43.47 seconds
+      user cpu time       43.53 seconds
+      system cpu time     0.31 seconds
+      memory              58284.32k
+      OS Memory           175516.00k
+      Timestamp           03/03/2024 04:06:21 PM
+      Step Count                        96  Switch Count  0
+
+
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   run;
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile or_name_a_j82098 close;
+NOTE: The file WORK.OR_NAME_A_J82098.DATA has been closed by the SASFILE statement.
+MPRINT(FUZZY_COMP_OR_SPEDIS_V2):   sasfile AJ_comp close;
+NOTE: The file WORK.AJ_COMP.DATA has been closed by the SASFILE statement.
+MLOGIC(FUZZY_COMP_OR_SPEDIS_V2):  Ending execution.
+
+1000  PROC DATASETS NOLIST;
+1001  COPY IN = work OUT = or_crsp ;
+1002  select  M_aj_comp
+1003
+1004          ;
+1005  RUN;
+
+NOTE: Copying WORK.M_AJ_COMP to OR_CRSP.M_AJ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 42158 observations read from the data set WORK.M_AJ_COMP.
+NOTE: The data set OR_CRSP.M_AJ_COMP has 42158 observations and 13 variables.
+
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           42:11.85
+      user cpu time       2.14 seconds
+      system cpu time     6.87 seconds
+      memory              711.28k
+      OS Memory           34808.00k
+      Timestamp           03/03/2024 05:00:24 PM
+      Step Count                        97  Switch Count  1
+
+
+1006  PROC DATASETS NOLIST;
+1007  COPY IN = work OUT = or_crsp ;
+1008  select  M_UZ_comp
+1009
+1010          ;
+1011  RUN;
+
+NOTE: Copying WORK.M_UZ_COMP to OR_CRSP.M_UZ_COMP (memtype=DATA).
+INFO: Engine's block-read method is in use.
+INFO: Engine's block-write  method is in use.
+NOTE: There were 6777 observations read from the data set WORK.M_UZ_COMP.
+NOTE: The data set OR_CRSP.M_UZ_COMP has 6777 observations and 13 variables.
+1012  libname wrds_db "D:\Research\patent\data\wrds_names";
+NOTE: Libref WRDS_DB was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: D:\Research\patent\data\wrds_names
+1013  %let wrds = wrds-cloud.wharton.upenn.edu 4016;
+1014  signon wrds username = hli5 password = XXXXXXXXXXXX;
+NOTE: Remote signon to WRDS commencing (SAS Release 9.04.01M7P080520).
+NOTE: SASPROPRIETARY encryption is being used to protect network traffic.
+NOTE: Copyright (c) 2023 by SAS Institute Inc., Cary, NC, USA.
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M8 MBCS3170)
+      Licensed to UNIVERSITY OF PENNSYLVANIA - SFA T&R, Site 70055201.
+NOTE: This session is executing on the Linux 5.14.0-362.18.1.el9_3.0.1.x86_64 (LIN X64)
+      platform.
+
+
+
+NOTE: Analytical products:
+
+      SAS/STAT 15.3
+      SAS/ETS 15.3
+      SAS/OR 15.3
+      SAS/IML 15.3
+      SAS/QC 15.3
+
+NOTE: Additional host information:
+
+ Linux LIN X64 5.14.0-362.18.1.el9_3.0.1.x86_64 #1 SMP PREEMPT_DYNAMIC Sun Feb 11
+      13:49:23 UTC 2024 x86_64 Rocky Linux release 9.3 (Blue Onyx)
+
+You are running SAS 9. Some SAS 8 files will be automatically converted
+by the V9 engine; others are incompatible.  Please see
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is
+recommended for converting all your SAS libraries from any
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.47 seconds
+      cpu time            0.07 seconds
+
+
+NOTE: AUTOEXEC processing beginning; file is /home/kent/hli5/autoexec.sas.
+
+NOTE: Libref SUBS was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: /home/kent/hli5/subsidiary
+
+NOTE: AUTOEXEC processing completed.
+
+NOTE: Remote signon to WRDS complete.
+1015  rsubmit;
+NOTE: Remote submit to WRDS commencing.
+1    proc download data= SUBS.parent_sub_name_only_stacked
+1  ! out=wrds_db.parent_sub_name_only_stacked;
+2    run;
+
+
+NOTE: Download in progress from data=SUBS.PARENT_SUB_NAME_ONLY_STACKED to
+      out=WRDS_DB.PARENT_SUB_NAME_ONLY_STACKED
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           20:26.20
+      user cpu time       13.82 seconds
+      system cpu time     29.51 seconds
+      memory              1166.96k
+      OS Memory           34808.00k
+      Timestamp           03/03/2024 05:20:50 PM
+      Step Count                        98  Switch Count  5
+
+
+1016  libname wrds_db "D:\Research\patent\data\wrds_names";
+ERROR: Unable to clear or re-assign the library WRDS_DB because it is still in use.
+ERROR: Error in the LIBNAME statement.
+1017  %let wrds = wrds-cloud.wharton.upenn.edu 4016;
+1018  signon wrds username = hli5 password = XXXXXXXX;
+NOTE: A link to WRDS has been previously established. SIGNON is not necessary.
+1019  signon wrds username = hli5 password = XXXXXXXX;
+NOTE: A link to WRDS has been previously established. SIGNON is not necessary.
+NOTE: 773145116 bytes were transferred at 2477362 bytes/second.
+NOTE: The data set WRDS_DB.PARENT_SUB_NAME_ONLY_STACKED has 1259194 observations and 4
+      variables.
+NOTE: Downloaded 1259194 observations of 4 variables.
+NOTE: The data set SUBS.PARENT_SUB_NAME_ONLY_STACKED has 1259194 observations and 4
+      variables.
+NOTE: PROCEDURE DOWNLOAD used (Total process time):
+      real time           5:12.24
+      cpu time            18.99 seconds
+
+
+NOTE: Remote submit to WRDS complete.
+1020  signoff;
+NOTE: Remote signoff from WRDS commencing.
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           10:16.78
+      cpu time            19.08 seconds
+
+NOTE: Remote signoff from WRDS complete.
+1021  data or_name_A_J82098Ex
+1022       or_name_K_O109896Ex
+1023       or_name_P_R130938Ex
+1024       or_name_S_T157024Ex
+1025       or_name_U_Z170073Ex others;
+1026     set or_name;
+1027       blocking = substr(std_firm, 1,1);
+1028       or_year = year(exec_dt);
+1029     if blocking LE 'J' then output or_name_A_J82098Ex;
+1030      else if blocking GE 'K' AND blocking LE 'O' then output or_name_K_O109896Ex;
+1031      else if blocking GE 'P' AND blocking LE 'R' then output or_name_P_R130938Ex;
+1032      else if blocking GE 'S' AND blocking LE 'T' then output or_name_S_T157024Ex;
+1033      else if blocking GE 'U' AND blocking LE 'Z' then output or_name_U_Z170073Ex;
+1034      else output others;
+1035      drop blocking sub_std_name;
+1036      run;
+
+WARNING: The variable sub_std_name in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable sub_std_name in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable sub_std_name in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable sub_std_name in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable sub_std_name in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable sub_std_name in the DROP, KEEP, or RENAME list has never been
+         referenced.
+NOTE: Missing values were generated as a result of performing an operation on missing
+      values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      370 at 1028:16
+NOTE: There were 170073 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_NAME_A_J82098EX has 82097 observations and 15 variables.
+NOTE: The data set WORK.OR_NAME_K_O109896EX has 31682 observations and 15 variables.
+NOTE: The data set WORK.OR_NAME_P_R130938EX has 17157 observations and 15 variables.
+NOTE: The data set WORK.OR_NAME_S_T157024EX has 26088 observations and 15 variables.
+NOTE: The data set WORK.OR_NAME_U_Z170073EX has 13040 observations and 15 variables.
+NOTE: The data set WORK.OTHERS has 9 observations and 15 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.45 seconds
+      user cpu time       0.06 seconds
+      system cpu time     0.25 seconds
+      memory              1965.34k
+      OS Memory           34808.00k
+      Timestamp           03/03/2024 05:39:29 PM
+      Step Count                        99  Switch Count  0
+
+
+1037  ods trace on;
+1038  proc contents data = sas.help;
+ERROR: Libref SAS is not assigned.
+1039  run;
+
+NOTE: Statements not processed because of errors noted above.
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              208.03k
+      OS Memory           33784.00k
+      Timestamp           03/03/2024 06:45:05 PM
+      Step Count                        100  Switch Count  0
+
+NOTE: The SAS System stopped processing this step because of errors.
+
+1040  ods trace on;
+1041  proc contents data = sashelp.cars;
+1042  run;
+
+
+Output Added:
+-------------
+Name:       Attributes
+Label:      Attributes
+Template:   Base.Contents.Attributes
+Path:       Contents.DataSet.Attributes
+-------------
+
+Output Added:
+-------------
+Name:       EngineHost
+Label:      Engine/Host Information
+Template:   Base.Contents.EngineHost
+Path:       Contents.DataSet.EngineHost
+-------------
+
+Output Added:
+-------------
+Name:       Variables
+Label:      Variables
+Template:   Base.Contents.Variables
+Path:       Contents.DataSet.Variables
+-------------
+
+Output Added:
+-------------
+Name:       Sortedby
+Label:      Sortedby
+Template:   Base.Contents.Sortedby
+Path:       Contents.DataSet.Sortedby
+-------------
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.12 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.01 seconds
+      memory              696.31k
+      OS Memory           33784.00k
+      Timestamp           03/03/2024 06:45:22 PM
+      Step Count                        101  Switch Count  0
+
+
+1043  proc sql;
+1044  select distinct make, model from sashelp.cars;
+
+Output Added:
+-------------
+Name:       SQL_Results
+Label:      Query Results
+Template:   Base.SQL
+Path:       SQL.SQL_Results
+-------------
+1045  quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.09 seconds
+      user cpu time       0.06 seconds
+      system cpu time     0.00 seconds
+      memory              5403.31k
+      OS Memory           38908.00k
+      Timestamp           03/03/2024 06:46:09 PM
+      Step Count                        102  Switch Count  0
+
+
+1046  proc sql;
+1047  select distinct make    from sashelp.cars;
+
+Output Added:
+-------------
+Name:       SQL_Results
+Label:      Query Results
+Template:   Base.SQL
+Path:       SQL.SQL_Results
+-------------
+1048  quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              5401.53k
+      OS Memory           38908.00k
+      Timestamp           03/03/2024 06:46:36 PM
+      Step Count                        103  Switch Count  0
+
+
+1049  *set wrds_db.parent_sub_name_only_stacked;
+1050  libname wrds_db "D:\Research\patent\data\wrds_names";
+NOTE: Libref WRDS_DB was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: D:\Research\patent\data\wrds_names
+1051  %let wrds = wrds-cloud.wharton.upenn.edu 4016;
+1052  signon wrds username = hli5 password =XXXXXXXX;
+NOTE: Remote signon to WRDS commencing (SAS Release 9.04.01M7P080520).
+NOTE: SASPROPRIETARY encryption is being used to protect network traffic.
+NOTE: Copyright (c) 2023 by SAS Institute Inc., Cary, NC, USA.
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M8 MBCS3170)
+      Licensed to UNIVERSITY OF PENNSYLVANIA - SFA T&R, Site 70055201.
+NOTE: This session is executing on the Linux 5.14.0-362.18.1.el9_3.0.1.x86_64 (LIN X64)
+      platform.
+
+
+
+NOTE: Analytical products:
+
+      SAS/STAT 15.3
+      SAS/ETS 15.3
+      SAS/OR 15.3
+      SAS/IML 15.3
+      SAS/QC 15.3
+
+NOTE: Additional host information:
+
+ Linux LIN X64 5.14.0-362.18.1.el9_3.0.1.x86_64 #1 SMP PREEMPT_DYNAMIC Sun Feb 11
+      13:49:23 UTC 2024 x86_64 Rocky Linux release 9.3 (Blue Onyx)
+
+You are running SAS 9. Some SAS 8 files will be automatically converted
+by the V9 engine; others are incompatible.  Please see
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is
+recommended for converting all your SAS libraries from any
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.73 seconds
+      cpu time            0.06 seconds
+
+
+NOTE: AUTOEXEC processing beginning; file is /home/kent/hli5/autoexec.sas.
+
+NOTE: Libref SUBS was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: /home/kent/hli5/subsidiary
+
+NOTE: AUTOEXEC processing completed.
+
+NOTE: Remote signon to WRDS complete.
+1053  Lihong123654;
+      ------------
+      180
+
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+1054  /*Log out of WRDS.*/
+1055  *signoff;
+1056  rsubmit;
+NOTE: Remote submit to WRDS commencing.
+1    proc download data= SUBS.parent_sub_stacked
+1  ! out=wrds_db.parent_sub_name_only_stacked;
+2    run;
+
+ERROR: File SUBS.PARENT_SUB_STACKED.DATA does not exist.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE DOWNLOAD used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+
+NOTE: Remote submit to WRDS complete.
+
+1057  rsubmit;
+NOTE: Remote submit to WRDS commencing.
+
+
+3    proc download data= SUBS.parent_sub_stacked
+3  ! out=wrds_db.parent_sub_name_only_stacked;
+4    run;
+
+
+NOTE: Download in progress from data=SUBS.PARENT_SUB_STACKED to
+      out=WRDS_DB.PARENT_SUB_NAME_ONLY_STACKED
+NOTE: 2737051520 bytes were transferred at 1210492 bytes/second.
+NOTE: The data set WRDS_DB.PARENT_SUB_NAME_ONLY_STACKED has 4276643 observations and 7
+      variables.
+NOTE: Downloaded 4276643 observations of 7 variables.
+NOTE: The data set SUBS.PARENT_SUB_STACKED has 4276643 observations and 7 variables.
+NOTE: PROCEDURE DOWNLOAD used (Total process time):
+      real time           37:41.28
+      cpu time            1:03.86
+
+
+NOTE: Remote submit to WRDS complete.
+1058  *signoff;
+
+1059  *signoff;
+
+1060  rsubmit;
+NOTE: Remote submit to WRDS commencing.
+5    proc download data= SUBS.parent_sub_stacked
+5  ! out=wrds_db.parent_sub_name_only_stacked;
+6    run;
+
+
+NOTE: Download in progress from data=SUBS.PARENT_SUB_STACKED to
+      out=WRDS_DB.PARENT_SUB_NAME_ONLY_STACKED
