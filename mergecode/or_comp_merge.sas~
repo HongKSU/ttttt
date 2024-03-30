@@ -1,0 +1,307 @@
+%let path=%str(C:\Users\lihon\OneDrive - Kent State University\2023Spring\crsp_or);
+*OR_name 
+libname or_crsp "C:\Users\lihon\Downloads\or_crsp_merged";
+libname comp_or "C:\Users\lihon\Downloads\or_crsp_merged";
+libname comp_ee "C:\Users\lihon\Downloads\ee_crsp_merged";
+libname oneDrive "&path";
+
+options mlogic MPRINT;
+options cpuCount = actual;
+options msglevel=i fullstimer;
+options cpuCount = actual;
+
+*************************************************************************************;
+* Import COMPSTAT firm names 
+* 53,958 obs 
+* 18 Variables                                                                     *;
+*************************************************************************************;
+proc import datafile = "D:\Research\patent\data\wrds_names\unique_crspHist_remove_fund.dta"
+      out = work.unique_crspHist_remove_fund   
+      dbms=DTA 
+      replace;
+run;
+
+*** Divid the COMPUSTAT names into several small files *;
+/************************************************************************
+* UNIQUE_CRSPHIST_REMOVE_FUND: 53,958
+* AJ_COMP: 27,132
+* KO_COMP:  9,393
+* PR_COMP:  5,598
+* ST_COMP:  7,298
+* UZ_COMP:  4,537
+****************************/
+data AJ_comp KO_comp 
+     PR_comp ST_comp 
+     UZ_comp 
+     others;
+     set unique_crspHist_remove_fund(KEEP=GVKEY HCONM std_nameL);
+         or_sub = substr(std_nameL, 1,3);
+         blocking = substr(std_nameL, 1,1);
+         len_name = length(std_nameL);
+     if blocking LE 'J' then output AJ_comp;
+     else if blocking GE 'K' AND blocking LE 'O' then output KO_comp;
+     else if blocking GE 'P' AND blocking LE 'R' then output PR_comp;
+     else if blocking GE 'S' AND blocking LE 'T' then output ST_comp;
+     else if blocking GE 'U' AND blocking LE 'Z' then output UZ_comp;
+     else output others;
+     drop blocking;
+run;
+
+
+*************************************************************************************;
+* The assignor names are divided into several files and mathc them with COMPUSTAT   *;
+* corresponding files                                                               *;
+* March 2nd, 2024                                                                   *;
+* Directory: "C:\Users\lihon\Downloads\or_crsp_merged"                              *;
+*************************************************************************************;
+/* subset of or_names
+%do v= or_name_a_j82098
+       or_name_K_O109896 
+       or_name_P_R130938
+       or_name_S_T157024  
+       or_name_U_Z170073 
+       ;
+*/
+/************************************************************************************;
+*Import Unique ee name 
+*
+************************************************************************************/
+proc import datafile = "D:\Research\patent\data\uspto\unique_ee_name_dedup.dta"
+     out = work.unique_ee_name   
+     dbms=DTA 
+     replace;
+run;
+
+/************************************
+proc contents data = unique_ee_name;
+ods select Variables;
+run;
+
+proc contents data = unique_crspHist_remove_fund;
+run;
+************************************/
+proc sort data=unique_crspHist_remove_fund;
+by sub_std_name;
+run;
+
+proc sort data = unique_ee_name;
+  blocking = substr(std_ee_name, 1, 1);
+by std_ee_name;
+run;
+/*****************************************************
+* 1       State	        Char	8	 
+* 2	coname	        Char	300	 
+* 4	country_code	Char	8	 
+* 1	gvkey	        Char	6	 
+* 3	location	Char	300	 
+* 7	y_report	Num	8	 
+* 6	year_report	Num	8	DATE
+******************************************************/
+
+%macro merge_comp_or(or, comp);
+  data or_comp;
+set
+
+
+%fuzzy_comp_or(or_name_U_Z170073, UZ_comp)
+%fuzzy_comp_or(or_name_a_j82098, AJ_comp)
+
+%fuzzy_comp_or_SPEDIS(or_name_a_j82098, AJ_comp)
+%fuzzy_comp_or_SPEDIS_v2(or_name_a_j82098, AJ_comp)
+
+/*****************************************************
+*        or_name_a_j82098
+*        or_name_K_O109896 
+*       or_name_P_R130938
+*       or_name_S_T157024  
+*       or_name_U_Z170073
+*
+*	    AJ_comp 
+*       KO_comp
+*	    PR_comp 
+*       ST_comp 
+*       UZ_comp ;
+**************************************************/
+%macro comp_merge_or;
+  %put "NOTE:(or_name_A_J, AJ_comp)";
+     %fuzzy_comp_or_SPEDIS_v2(or_name_a_j82098, AJ_comp)
+  %put "NOTE:(or_name_K_O109896, KO_comp)";
+     %fuzzy_comp_or_SPEDIS_v2(or_name_K_O109896, KO_comp)
+  %put "NOTE:(or_name_P_R130938, PR_comp)";
+     %fuzzy_comp_or_SPEDIS_v2(or_name_P_R130938, PR_comp)
+  %put "ERROR:(or_name_S_T157024, ST_comp)";
+     %fuzzy_comp_or_SPEDIS_v2(or_name_S_T157024, ST_comp)
+  %put "ERROR:(or_name_U_Z170073, UZ_comp)";
+    %fuzzy_comp_or_SPEDIS_v2(or_name_U_Z170073, UZ_comp)
+%mend comp_merge_or;
+
+proc sql;
+drop table m_aj_comp;
+quit;
+
+DATA comp_or;  /*60,595*/
+  set comp_or.m_aj_comp /*42,158*/
+      comp_or.m_ko_comp /*1,688*/
+	  comp_or.m_pr_comp /*7,872*/
+	  comp_or.m_st_comp /*2,100*/
+	  comp_or.m_uz_comp; /*6,777*/
+RUN;
+
+proc sort data = comp_or out=comp_or_unique;
+by id_or gl_score;
+run;
+
+data comp_or_merged;
+  set comp_or_unique;
+     by id_or;
+  if first.id_or;
+run;
+
+* Too FEW records NOT used here;
+* OBS from comp_or: 16,054  variables: 8;
+* comp_or_simple: 16,054;
+data comp_or_simple;
+   set comp_or(keep = rf_id gvkey id_or or_name 
+                     crsp_std_name HCONM 
+                     spedis_score gl_score 
+              where = (spedis_score <=20 and gl_score <= 200)
+             );
+run;
+
+
+
+*************************************************************************************;
+* subsidiaries                                                                      *;
+*
+*************************************************************************************;
+DATA sub_or_merged;
+    set m_subs: ;
+RUN;
+
+PROC DATASETS NOLIST;
+  COPY IN = work OUT = comp_or ;
+  select  m_subs:;
+  select sub_or_merged    ;
+RUN;
+
+
+Title "sub_or_merged";
+title2 ;
+proc contents data = sub_or_merged varnum short;
+   ods select PositionShort;
+run;
+
+Title "comp_or";
+proc contents data = comp_or varnum short;
+ods select PositionShort;
+run;
+
+data or_matched_all;
+  set sub_or_merged(keep=rf_id exec_dt id_or or_std_name or_name gvkey 
+                        crsp_std_name b_originalName 
+                         spedis_score gl_score len_or len_crsp
+				   rename=(b_originalName=firm_name crsp_std_name=std_name))
+
+     comp_or(keep=rf_id exec_dt id_or or_std_name or_name GVKEY 
+                        crsp_std_name HCONM 
+                        spedis_score gl_score len_or len_crsp  
+		 	rename=(HCONM=firm_name crsp_std_name=std_name));
+run;
+
+PROC DATASETS NOLIST;
+     COPY IN = work OUT = comp_or ;
+     select or_matched_all    ;
+RUN;
+
+
+
+PROC DATASETS NOLIST;
+COPY IN = work OUT = comp_or ;
+select or_matched_all    ;
+RUN;
+Title "";
+ods select default;
+
+%comp_merge_or
+
+proc sort data = or_name ;
+by id_or ;
+run;
+
+ ods trace off; 
+
+*************************************************************************************;
+* Nonmatched_comp                                                                   *;
+* comp_or:60,595                                                                    *;
+* or_name: 170,073                                                                  *;
+* only keeop the records which does not hav a GVKEY matched ;
+*************************************************************************************;
+data nonmatched_or_comp;
+    merge or_name (rf_id=or_rfid 
+                   or_name=orig_or_name 
+		   exec_dt=orig_exec_dt 
+		   in =inor)
+          comp_or_merged (in=incomp);
+    by id_or;
+    
+    or_in = inor;
+    comp_in = incomp;
+    if NOT comp_in;
+RUN;
+/*
+NOTE: There were 170073 observations read from the data set WORK.OR_NAME.
+NOTE: There were 23102 observations read from the data set WORK.COMP_OR_MERGED.
+NOTE: The data set WORK.NONMATCHED_COMP has 146971 observations and 26 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.35 seconds
+      user cpu time       0.14 seconds
+      system cpu time     0.20 seconds
+      memory              1174.71k
+
+*/
+PROC DATASETS NOLIST;
+    COPY IN = work 
+         OUT = or_crsp;
+    select comp_or_merged nonmatched_or_comp;
+RUN;
+
+%merge_comp_or(or_name_a_j82098, AJ_comp)
+fuzzy_comp_or_SPEDIS
+
+PROC EXPORT DATA= WORK.M_aj_comp 
+            OUTFILE= "C:\Users\lihon\Downloads\or_crsp_merged\aj.dta" 
+            DBMS=STATA REPLACE;
+RUN;
+
+
+ 
+PROC DATASETS NOLIST;
+COPY IN = work OUT = or_crsp ;
+select M_AJ_COMP ;
+RUN;
+
+PROC DATASETS NOLIST;
+COPY IN = work OUT = onedrive ;
+select M_AJ_COMP ;
+RUN;
+
+* Make a sound *;
+data _null_;
+ call sound(523,500);
+run;
+
+PROC DATASETS NOLIST;
+	COPY IN = work OUT = or_crsp ;
+	select AJ_comp KO_comp
+	       PR_comp ST_comp 
+	       UZ_comp
+	       ;
+RUN;
+
+PROC DATASETS NOLIST;
+	COPY IN = work OUT = or_crsp ;
+	select  
+	  M_aj_comp;
+	  M_PR_COMP;
+	  M_UZ_comp;
+RUN;

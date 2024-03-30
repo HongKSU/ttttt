@@ -1,0 +1,58 @@
+format rf_id %10.0f
+
+https://support.sas.com/resources/papers/proceedings14/1674-2014.pdf
+Number of unique values of ee_gvkey is  6906
+Number of records is  396801
+
+. unique or_gvkey
+Number of unique values of or_gvkey is  18473
+Number of records is  396801
+
+Relation:
+ disp r(sum)
+75711
+
+gvkey
+032371
+028475
+027680
+ 
+ 
+032545
+008358
+
+008358
+
+170598
+022039
+032545
+
+032545
+022039
+170598
+063766
+
+062263
+066446
+060992
+186610
+008358
+060992
+060992
+120794
+060992
+157955
+273505
+060992
+138743
+025330
+025330
+060992
+060992
+008358
+139665
+029378
+197658
+060992
+060992
+

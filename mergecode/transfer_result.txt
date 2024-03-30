@@ -1,0 +1,130 @@
+Top assignors:
+
+STRYKER EUROPEAN HOLDINGS VI, LLC 010115 
+STRYKER TRAUMA GMBH
+STRYKER TRAUMA SA
+MARVELL SEMICONDUCTOR, INC.
+SANDISK CORPORATION
+STRYKER EUROPEAN HOLDINGS V, LLC
+RESEARCH IN MOTION CORPORATION
+SYNTHES GMBH
+JANSSEN PHARMACEUTICA, INC.
+NALCO COMPANY LLC
+ROHM AND HAAS ELECTRONIC MATERIALS K.K.
+
+Top assignees:
+STRYKER EUROPEAN HOLDINGS I, LLC
+MARVELL INTERNATIONAL LTD.
+SANDISK TECHNOLOGIES INC.
+RESEARCH IN MOTION LIMITED
+JANSSEN PHARMACEUTICA NV
+ECOLAB USA INC.
+BLACKBERRY LIMITED
+ROHM AND HAAS ELECTRONIC MATERIALS LLC
+
+   ee_state |      Freq.     Percent        Cum.
+---------------------+-----------------------------------
+          CALIFORNIA |     55,558       20.11       20.11
+               TEXAS |     21,775        7.88       27.99
+       MASSACHUSETTS |     16,305        5.90       33.90
+            DELAWARE |     16,285        5.89       39.79
+            NEW YORK |     15,597        5.65       45.44
+            MICHIGAN |     15,168        5.49       50.93
+            COLORADO |     13,080        4.73       55.66
+          NEW JERSEY |     12,360        4.47       60.14
+          WASHINGTON |     10,241        3.71       63.84
+            ILLINOIS |      9,614        3.48       67.32
+           MINNESOTA |      8,375        3.03       70.35
+        PENNSYLVANIA |      8,274        3.00       73.35
+                OHIO |      6,007        2.17       75.52
+            VIRGINIA |      5,564        2.01       77.54
+             FLORIDA |      5,541        2.01       79.54
+  
+
+assignor_state:
+  state |      Freq.     Percent        Cum.
+------------+-----------------------------------
+         CA |     51,043       16.80       16.80
+         TX |     21,688        7.14       23.93
+         NY |     20,389        6.71       30.64
+         MI |     16,546        5.44       36.09
+         MA |     15,521        5.11       41.19
+         NJ |     15,033        4.95       46.14
+         DE |     13,493        4.44       50.58
+         IL |     12,034        3.96       54.54
+         FL |     10,812        3.56       58.10
+         ON |     10,560        3.47       61.57
+         PA |      8,987        2.96       64.53
+  
+
+Assignor state to subsidiaries:
+ tab state if relation==1, sort
+
+      state |      Freq.     Percent        Cum.
+------------+-----------------------------------
+         MI |     11,810       18.52       18.52
+         CA |      9,294       14.57       33.09
+         NJ |      5,302        8.31       41.40
+         DE |      4,566        7.16       48.56
+         MA |      3,466        5.43       54.00
+         TX |      3,314        5.20       59.19
+         IL |      2,583        4.05       63.24
+         NY |      2,308        3.62       66.86
+         ON |      2,133        3.34       70.21
+         PA |      1,874        2.94       73.14
+         MN |      1,684        2.64       75.78
+         IN |      1,324        2.08       77.86
+         VA |      1,251        1.96       79.82
+         NC |      1,202        1.88       81.71
+         OH |      1,165        1.83       83.53
+         MO |      1,128        1.77       85.30
+         FL |      1,093        1.71       87.02
+
+. tab ee_state if relation==1, sort
+
+            ee_state |      Freq.     Percent        Cum.
+---------------------+-----------------------------------
+            MICHIGAN |      8,810       17.15       17.15
+          CALIFORNIA |      8,063       15.70       32.85
+            DELAWARE |      4,731        9.21       42.06
+               TEXAS |      4,070        7.92       49.98
+       MASSACHUSETTS |      3,422        6.66       56.64
+            NEW YORK |      2,572        5.01       61.65
+           MINNESOTA |      2,399        4.67       66.32
+          NEW JERSEY |      1,895        3.69       70.01
+            ILLINOIS |      1,564        3.04       73.05
+        PENNSYLVANIA |      1,324        2.58       75.63
+         CONNECTICUT |      1,141        2.22       77.85
+            COLORADO |        874        1.70       79.55
+                OHIO |        851        1.66       81.21
+
+. tab state if relation==1, sort
+
+      state |      Freq.     Percent        Cum.
+------------+-----------------------------------
+         MI |     11,810       18.52       18.52
+         CA |      9,294       14.57       33.09
+         NJ |      5,302        8.31       41.40
+         DE |      4,566        7.16       48.56
+         MA |      3,466        5.43       54.00
+         TX |      3,314        5.20       59.19
+         IL |      2,583        4.05       63.24
+         NY |      2,308        3.62       66.86
+         ON |      2,133        3.34       70.21
+         PA |      1,874        2.94       73.14
+         MN |      1,684        2.64       75.78
+         IN |      1,324        2.08       77.86
+         VA |      1,251        1.96       79.82
+
+. sum or_state_tax if relation ==1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+or_state_tax |     47,142    .0724406    .0223285          0       .138
+
+. sum ee_state_tax if relation ==1
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+ee_state_tax |     32,915    .0658979    .0275285          0       .138
+
