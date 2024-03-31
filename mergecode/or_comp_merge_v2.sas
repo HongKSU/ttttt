@@ -1,4 +1,4 @@
-﻿%let path=%str(C:\Users\lihon\OneDrive - Kent State University\2023Spring\crsp_or);
+%let path=%str(C:\Users\lihon\OneDrive - Kent State University\2023Spring\crsp_or);
 *OR_name 
 libname or_crsp "C:\Users\lihon\Downloads\or_crsp_merged";
 libname comp_or "C:\Users\lihon\Downloads\data_or_crsp_merged";
@@ -232,7 +232,7 @@ RUN;
 *	    PR_comp 
 *       ST_comp 
 *       UZ_comp ;
-**************************************************/
+**************************************************
 %macro comp_merge_or;
   %put "NOTE:(or_name_A_J, AJ_comp)";
      %fuzzy_comp_or_SPEDIS_v2(or_name_a_j82098, AJ_comp)
@@ -250,12 +250,12 @@ proc sql;
 drop table m_aj_comp;
 quit;
 
-DATA comp_or;  /*60,595*/
-  set comp_or.m_aj_comp /*42,158*/
-      comp_or.m_ko_comp /*1,688*/
-	  comp_or.m_pr_comp /*7,872*/
-	  comp_or.m_st_comp /*2,100*/
-	  comp_or.m_uz_comp; /*6,777*/
+DATA comp_or;  *60,595*;
+  set comp_or.m_aj_comp ;*42,158*;
+      comp_or.m_ko_comp ;*1,688*;
+	  comp_or.m_pr_comp ;*7,872*;
+	  comp_or.m_st_comp ;*2,100*;
+	  comp_or.m_uz_comp; *6,777*;
 RUN;
 
 proc sort data = comp_or out=comp_or_unique;
@@ -267,80 +267,54 @@ data comp_or_merged;
      by id_or;
   if first.id_or;
 run;
-
+*
 * Too FEW records NOT used here;
 * OBS from comp_or: 16,054  variables: 8;
 * comp_or_simple: 16,054;
-data comp_or_simple;
-   set comp_or(keep = rf_id gvkey id_or or_name 
-                     crsp_std_name HCONM 
-                     spedis_score gl_score 
-              where = (spedis_score <=20 and gl_score <= 200)
-             );
-run;
+*/
 
 
 
+*************************************************************************************;
 *************************************************************************************;
 * subsidiaries                                                                      *;
 *
 *************************************************************************************;
-DATA sub_or_merged;
-    set m_subs: ;
-RUN;
 
-PROC DATASETS NOLIST;
-  COPY IN = work OUT = comp_or ;
-  select  m_subs:;
-  select sub_or_merged    ;
-RUN;
+
+*comp_or_mar29_v3c;
+* need to change the name make them consistent;
+*There were 20691 observations read from the data set WORK.COMP_OR;
+
+
+
+proc datasets library=work nolist;
+change comp_or_mar29_v3=comp_or;
+run;
+data comp_or_merged;
+  set comp_or;
+     by id_or;
+  if first.id_or;
+run;
+
+%listVars(comp_or)
+/*
+rf_id exec_dt id_or id_ee or_name entity_or or_std_name or_sub
+gvkey crsp_std_name comp_conm 
+spedis_score len_or len_comp entity_comp dist_name
 
 
 
 Title "sub_or_merged";
-title2 ;
-proc contents data = sub_or_merged varnum short;
-   ods select PositionShort;
+
+data comp_or_simple;
+   set comp_or(keep = rf_id gvkey id_or or_name 
+                     crsp_std_name comp_conm  
+                     spedis_score  
+              where = (spedis_score <=20 )
+             );
 run;
-
-Title "comp_or";
-proc contents data = comp_or varnum short;
-ods select PositionShort;
-run;
-
-data or_matched_all;
-  set sub_or_merged(keep=rf_id exec_dt id_or or_std_name or_name gvkey 
-                        crsp_std_name b_originalName 
-                         spedis_score gl_score len_or len_crsp
-				   rename=(b_originalName=firm_name crsp_std_name=std_name))
-
-     comp_or(keep=rf_id exec_dt id_or or_std_name or_name GVKEY 
-                        crsp_std_name HCONM 
-                        spedis_score gl_score len_or len_crsp  
-		 	rename=(HCONM=firm_name crsp_std_name=std_name));
-run;
-
-PROC DATASETS NOLIST;
-     COPY IN = work OUT = comp_or ;
-     select or_matched_all    ;
-RUN;
-
-
-
-PROC DATASETS NOLIST;
-COPY IN = work OUT = comp_or ;
-select or_matched_all    ;
-RUN;
-Title "";
-ods select default;
-
-%comp_merge_or
-
-proc sort data = or_name ;
-by id_or ;
-run;
-
- ods trace off; 
+*/
 
 *************************************************************************************;
 * Nonmatched_comp                                                                   *;
@@ -348,10 +322,10 @@ run;
 * or_name: 170,073                                                                  *;
 * only keeop the records which does not hav a GVKEY matched ;
 *************************************************************************************;
-data nonmatched_or_comp;
-    merge or_name (rf_id=or_rfid 
-                   or_name=orig_or_name 
-		   exec_dt=orig_exec_dt 
+/*data nonmatched_or_comp;
+    merge or_name(rename=(rf_id=or_rfid 
+                          or_name=orig_or_name 
+		                  exec_dt=orig_exec_dt) 
 		   in =inor)
           comp_or_merged (in=incomp);
     by id_or;
@@ -360,6 +334,32 @@ data nonmatched_or_comp;
     comp_in = incomp;
     if NOT comp_in;
 RUN;
+*/
+proc sql;
+create table nommatched_or as
+select * from or_name  
+where rf_id not in
+            (select rf_id from comp_or_merged);
+ 
+quit;
+run;
+
+%split_non_matched(all_data =nommatched_or  
+                         ,std_firm = std_firm1
+                         ,prefix = or
+                         ) 
+
+ *NOTE: There were 149382 observations read from the data set WORK.NOMMATCHED_OR.
+NOTE: The data set WORK.OR_NAME_A_C has 33165 observations and 16 variables.
+NOTE: The data set WORK.OR_NAME_D_G has 23846 observations and 16 variables.
+NOTE: The data set WORK.OR_NAME_H_L has 23932 observations and 16 variables.
+NOTE: The data set WORK.OR_NAME_M_R has 34061 observations and 16 variables.
+NOTE: The data set WORK.OR_NAME_S_Z has 34369 observations and 16 variables.
+NOTE: The data set WORK.OR_OTHERS has 9 observations and 16 variables.
+
+*WORK.NOMMATCHED_OR created, with 149382 rows and 1 columns.;
+
+
 /*
 NOTE: There were 170073 observations read from the data set WORK.OR_NAME.
 NOTE: There were 23102 observations read from the data set WORK.COMP_OR_MERGED.
@@ -371,49 +371,3 @@ NOTE: DATA statement used (Total process time):
       memory              1174.71k
 
 */
-PROC DATASETS NOLIST;
-    COPY IN = work 
-         OUT = or_crsp;
-    select comp_or_merged nonmatched_or_comp;
-RUN;
-
-%merge_comp_or(or_name_a_j82098, AJ_comp)
-fuzzy_comp_or_SPEDIS
-
-PROC EXPORT DATA= WORK.M_aj_comp 
-            OUTFILE= "C:\Users\lihon\Downloads\or_crsp_merged\aj.dta" 
-            DBMS=STATA REPLACE;
-RUN;
-
-
- 
-PROC DATASETS NOLIST;
-COPY IN = work OUT = or_crsp ;
-select M_AJ_COMP ;
-RUN;
-
-PROC DATASETS NOLIST;
-COPY IN = work OUT = onedrive ;
-select M_AJ_COMP ;
-RUN;
-
-* Make a sound *;
-data _null_;
- call sound(523,500);
-run;
-
-PROC DATASETS NOLIST;
-	COPY IN = work OUT = or_crsp ;
-	select AJ_comp KO_comp
-	       PR_comp ST_comp 
-	       UZ_comp
-	       ;
-RUN;
-
-PROC DATASETS NOLIST;
-	COPY IN = work OUT = or_crsp ;
-	select  
-	  M_aj_comp;
-	  M_PR_COMP;
-	  M_UZ_comp;
-RUN;

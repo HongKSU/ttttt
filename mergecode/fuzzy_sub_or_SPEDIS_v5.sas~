@@ -39,8 +39,9 @@ proc sql _method ;
           a.&len_std_or>5 AND b.&len_name>5) OR
           (a.&or_name = b.&comp_name) 
 	  group by id_or
-	  having spedis_score=min(spedis_score) ;
-
+	  having spedis_score=min(spedis_score) 
+	  order by id_or 
+	  ;
    quit;
  run;
 sasfile &or close;
@@ -174,11 +175,11 @@ proc sql _method ;
                          ,std_firm = std_firmL
                          ,prefix = or
                         );
-	data &prefix._name_A_C
-         &prefix._name_D_G
-         &prefix._name_H_L
-         &prefix._name_M_R
-         &prefix._name_S_Z
+	data &prefix._AC
+         &prefix._DG
+         &prefix._HL
+         &prefix._MR
+         &prefix._SZ
          &prefix._others;
     set &all_data;
     

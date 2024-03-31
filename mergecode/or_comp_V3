@@ -1,0 +1,41 @@
+
+
+%split_non_matched(all_data =or_name  
+                         ,std_firm = std_firm1
+                         ,prefix = or
+                         ) 
+%match_or(or_name_a_c, COMP_NAME_A_C)
+%match_or(or_name_d_g, COMP_NAME_d_g)
+%match_or(or_name_h_l, COMP_NAME_h_L)
+%match_or(or_name_m_r, COMP_NAME_m_r)
+%match_or(or_name_s_z, COMP_NAME_s_z)
+%match_or(or_others, COMP_others)
+DATA comp_or_mar29_v3;  /*60,595*/
+
+set m_comp_comp_name_:;
+RUN;
+*can be done in the mathch macro;
+proc sql;
+create table _temp_ as
+select * ,spedis(or_name, comp_conm) as dist_name from comp_or_mar29_v3
+group by id_or
+having spedis_score = min(spedis_score)
+order by id_or;
+ 
+create table _temp_2 as
+select * from _temp_
+group by id_or
+having dist_name = min(dist_name)
+order by id_or;
+run;
+
+
+proc sort data =_temp_2 out= comp_or_mar29_v3  nodupkey;
+by id_or  ;
+run;
+
+PROC DATASETS NOLIST;
+  COPY IN = work OUT = comp_or ;
+  *select  m_comp_comp_name_:;
+  select comp_or_mar29_v3    ;
+RUN;

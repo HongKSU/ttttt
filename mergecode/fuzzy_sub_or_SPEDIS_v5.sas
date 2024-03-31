@@ -175,11 +175,11 @@ proc sql _method ;
                          ,std_firm = std_firmL
                          ,prefix = or
                         );
-	data &prefix._name_A_C
-         &prefix._name_D_G
-         &prefix._name_H_L
-         &prefix._name_M_R
-         &prefix._name_S_Z
+	data &prefix._AC
+         &prefix._DG
+         &prefix._HL
+         &prefix._MR
+         &prefix._SZ
          &prefix._others;
     set &all_data;
     
