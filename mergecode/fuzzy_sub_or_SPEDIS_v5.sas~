@@ -19,7 +19,8 @@ proc sql _method ;
           a.exec_dt, 
           a.id_or,
           a.id_ee, 
-	      a.or_name,
+	  a.or_name,
+	  a.entity_1 as entity_or_1,
           a.entity as entity_or,
           a.&or_name as or_std_name, 
           a.&or_sub,
@@ -36,7 +37,9 @@ proc sql _method ;
    on a.&or_sub = b.&sub_name  
    where (CALCULATED spedis_score <= &up_spedis_score   AND 
           a.&len_std_or>5 AND b.&len_name>5) OR
-          (a.&or_name = b.&comp_name) ;
+          (a.&or_name = b.&comp_name) 
+	  group by id_or
+	  having spedis_score=min(spedis_score) ;
 
    quit;
  run;

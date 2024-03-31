@@ -1,4 +1,4 @@
-
+﻿
 options mlogic MPRINT;
 options cpuCount = actual;
 options msglevel=i fullstimer;
@@ -46,14 +46,15 @@ value lbl_global
 ;
 run;
 data Comp_all;
- set "C:\Users\lihon\OneDrive - Kent State University\aaaa\COMP\comp_names_all.sas7bdat";
- ipo_y = year(ipodate);
- label ipo_y = "IPO year";
- label global = "global_company";
- format global lbl_global.;
+  set "C:\Users\lihon\OneDrive - Kent State University\aaaa\COMP\comp_names_all.sas7bdat";
+  ipo_y = year(ipodate);
+  label ipo_y = "IPO year";
+  label global = "global_company";
+  format global lbl_global.;
 run;
+
 %let table=Comp_all;
-%let table=Comp_all;
+
 %contents(&table) 
 %unique_values(&table) *Gvkey:110512=53523 , names: 125643=53528 ;
  
@@ -71,9 +72,10 @@ DELETE FROM &table
 QUIT;
 RUN;
 */
+
 %listVars(&table)
 proc sql;
-create index gvkey_conm on Comp_all(gvkey, conm);
+  create index gvkey_conm on Comp_all(gvkey, conm);
 quit;
 run;
 
@@ -128,19 +130,19 @@ proc sql   ;
        group by gvkey, conmL
 ;
 drop table _com_all_names;
-       quit;
+     quit;
 run;
 
 proc sort data = com_all_names out= com_all_names_unique NODUPKEY;
 by gvkey conm start_y end_y;
 run;
 proc sort data = com_all_names_unique out= com_all_names_unique NODUPKEY;
-by gvkey conmL start_y end_y;
+  by gvkey conmL start_y end_y;
 run;
 proc datasets library=work;
    copy in=work out=wrds_dow ;
           select com_all_names_unique/memtype=data;
-          run;
+run;
 
 *Stata do standardization and cleasing;
 

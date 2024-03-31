@@ -37,8 +37,11 @@ proc sql _method ;
    on a.&or_sub = b.&sub_name  
    where (CALCULATED spedis_score <= &up_spedis_score   AND 
           a.&len_std_or>5 AND b.&len_name>5) OR
-          (a.&or_name = b.&comp_name) ;
-
+          (a.&or_name = b.&comp_name) 
+	  group by id_or
+	  having spedis_score=min(spedis_score) 
+	  order by id_or 
+	  ;
    quit;
  run;
 sasfile &or close;
