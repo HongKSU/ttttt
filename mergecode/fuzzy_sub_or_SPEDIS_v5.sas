@@ -1,7 +1,8 @@
  /*%*%SYSMACDELETE split_non_matched  */
  %SYSMACDELETE fuzzy_sub_or_SPEDIS_v5  
 
-%macro fuzzy_sub_or_SPEDIS_v5(or, comp 
+%macro fuzzy_sub_or_SPEDIS_v5(or_table
+                              ,comp 
                               ,or_name= std_firm1
                               ,len_std_or = len_std_or 
                               ,or_sub = or_sub_name
@@ -11,28 +12,28 @@
                               ,len_name = len_name
                               ,merged_prefix=comp
                               ,up_spedis_score=10);
-sasfile &or load;
-sasfile &comp load;
+sasfile &or_table load;
+sasfile &comp     load;
 proc sql _method ;
    create table m_&merged_prefix._&comp  as
    select a.rf_id,
           a.exec_dt, 
           a.id_or,
           a.id_ee, 
-	  a.or_name,
-	  a.entity_1 as entity_or_1,
-          a.entity as entity_or,
+	      a.or_name,
+	      a.entity_1 as entity_or_1,
+          a.entity   as entity_or,
           a.&or_name as or_std_name, 
           a.&or_sub,
           b.GVKEY,
-          b.&comp_name as crsp_std_name, 
+          b.&comp_name     as crsp_std_name, 
           b.&comp_original as comp_conm,
           SPEDIS(a.&or_name, b.&comp_name) as spedis_score, 
 /****** compged(a.&or_name, b.&comp_name) as gl_score,*/
           a.&len_std_or as len_or,
-          b.&len_name as len_comp,
-          b.entity as entity_comp
-   from  &or as a
+          b.&len_name   as len_comp,
+          /*b.entity as entity_comp*/
+   from      &or_table as a
    left join &comp as b
    on a.&or_sub = b.&sub_name  
    where (CALCULATED spedis_score <= &up_spedis_score   AND 
@@ -44,7 +45,7 @@ proc sql _method ;
 	  ;
    quit;
  run;
-sasfile &or close;
+sasfile &or_table close;
 sasfile &comp close;
 %mend fuzzy_sub_or_SPEDIS_v5;
 

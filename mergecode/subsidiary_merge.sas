@@ -68,20 +68,63 @@ run;
 * or_name: 170,073                                                                  *;
 * only keeop the records which does not hav a GVKEY matched ;
 *************************************************************************************;
+/*
+NOTE: There were 149382 observations read from the data set WORK.NOMMATCHED_OR.
+NOTE: The data set WORK.OR_NAME_A_C has 33165 observations and 16 variables.
+NOTE: The data set WORK.OR_NAME_D_G has 23846 observations and 16 variables.
+NOTE: The data set WORK.OR_NAME_H_L has 23932 observations and 16 variables.
+NOTE: The data set WORK.OR_NAME_M_R has 34061 observations and 16 variables.
+NOTE: The data set WORK.OR_NAME_S_Z has 34369 observations and 16 variables.
+NOTE: The data set WORK.OR_OTHERS has 9 observations and 16 variables.
+NOTE: DATA statement used (Total process time):
+------------------------------------------------------------------------------------
+NOTE: There were 913834 observations read from the data set
+      WORK.PARENT_SUB_GVKEY_NAME_ONLY.
+NOTE: The data set WORK.SUBS_NAME_A_C has 913834 observations and 6 variables.
+NOTE: The data set WORK.SUBS_NAME_D_G has 0 observations and 6 variables.
+NOTE: The data set WORK.SUBS_NAME_H_L has 0 observations and 6 variables.
+NOTE: The data set WORK.SUBS_NAME_M_R has 0 observations and 6 variables.
+NOTE: The data set WORK.SUBS_NAME_S_Z has 0 observations and 6 variables.
+NOTE: The data set WORK.SUBS_OTHERS has 0 observations and 6 variables.
 
-%fuzzy_sub_or_SPEDIS_v3(or_name_a_j82098Ex, subs_AJ,
-                         or_name= std_firm1, 
-                         comp_name = std_sub_name, up_spedis_score=15, up_gl_score=200)
+*/
+
+proc datasets library=work nolist;
+change OR_NAME_A_C=orac;
+run;
+%macro merge_sub_or(or_name_a_c, SUBS_NAME_A_C);
+
+%fuzzy_sub_or_SPEDIS_v5(&OR_NAME_A_C, &SUBS_NAME_A_C
+                               ,or_name= std_firm1
+                              ,len_std_or = len_std_or 
+                              ,or_sub = or_sub
+                              ,comp_original=coname
+                              ,comp_name = std_sub_name
+                              ,sub_name = subs_sub
+                              ,len_name = len_name
+                              ,merged_prefix=subs
+                              ,up_spedis_score=15)
+
+
+%mend merge_sub_or;
+
+%merge_sub_or(orac, SUBS_NAME_A_C)
+%match_or(or_name_d_g, COMP_NAME_d_g)
+%match_or(or_name_h_l, COMP_NAME_h_L)
+%match_or(or_name_m_r, COMP_NAME_m_r)
+%match_or(or_name_s_z, COMP_NAME_s_z)
+%match_or(or_others, COMP_others)
+
 %macro subs_merge_or;
-  %put "****merge non comp or_names with subsidiaries********";
+  %put ERROR- "****merge non comp or_names with subsidiaries********";
   %put "ERROR:(or_name_K_O109896, KO_comp)";
-    %fuzzy_sub_or_SPEDIS_v4(or_name_K_O109896Ex, subs_KO )
+    %fuzzy_sub_or_SPEDIS_v5(or_name_K_O109896Ex, subs_KO )
   %put "ERROR:(or_name_P_R130938, PR_comp)";
-    %fuzzy_sub_or_SPEDIS_v4(or_name_P_R130938Ex, subs_PR )
+    %fuzzy_sub_or_SPEDIS_v5(or_name_P_R130938Ex, subs_PR )
   %put "ERROR:(or_name_S_T157024, ST_comp)";
-    %fuzzy_sub_or_SPEDIS_v4(or_name_S_T157024Ex, subs_ST )
+    %fuzzy_sub_or_SPEDIS_v5(or_name_S_T157024Ex, subs_ST )
   %put "ERROR:(or_name_U_Z170073, UZ_comp)";
-    %fuzzy_sub_or_SPEDIS_v4(or_name_U_Z170073Ex, subs_UZ )
+    %fuzzy_sub_or_SPEDIS_v5(or_name_U_Z170073Ex, subs_UZ )
 %mend subs_merge_or;
 
 %subs_merge_or
