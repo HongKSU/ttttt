@@ -19,7 +19,8 @@ output:
  
 
 clear
-import sas conm conmL gvkey fic loc costat idbflag city naics sic county state ipo_y start_y end_y global using  "D:\Research\patent\data\wrds_names\com_all_names_unique.sas7bdat"
+import sas conm conmL gvkey fic loc costat idbflag city naics sic county state ipo_y start_y end_y global /*
+           */using  "D:\Research\patent\data\wrds_names\com_all_names_unique.sas7bdat"
 /*"`comp_all'"*/
 
 /*format ipodate year1 year2 year2 %tdCCYYNNDD
@@ -50,6 +51,7 @@ list conm conmL if missing(conm) |missing(conmL) | missing(gvkey)
 gen conmL_c = upper(conmL)
 *clonevar conmL=conmL_c
 replace conmL = conmL_c
+
 gen first_letter = substr(conm, 1,1)
 *tab first_letter
 *list conm conmL ipo_y  *_y if gvkey=="013888"
@@ -59,6 +61,11 @@ replace conm=upper(conmL) if missing(conm) & !missing(conmL)
 replace conmL = conm if missing(conmL) & !missing(conm)
 label variable conmL "Upper conmL"
 
+/************************************************************************
+*  Standardize both COMP name and legal name
+* keep firm entity for further deambiguation
+*  April 1, 2024
+*************************************************************************/
 stnd_compname conmL, gen(std_conmL dba fka entity attn)
 stnd_compname conm, gen(std_conm dba1 fka1 entity1 attn1)
 gen len_std =length(std_conmL)
@@ -69,12 +76,18 @@ drop attn* dba* fka1
 replace entity = fka   if missing(entity) &!missing(fka)
 replace entity =entity1 if missing(entity) &!missing(entity1)
 drop fka entity1
+
 /* label the generated var*/
 label variable std_conmL "standarize CONML-legal company name"
 
 label variable std_conm "standarize HCONM- company name"
 label variable first_letter "First letter of firm for blocking"
 
+
+/************************************************************************
+* Delete non-patent firms
+* 
+**/
 *count if ustrregexm(upper(conmL),"\bSHARES\b$")
 *list conmL  if !ustrregexm(upper(conmL),"\bSHARES\b$") &  ustrregexm(std_conmL,"\bSHARES\b$")
 
@@ -85,7 +98,6 @@ drop if ustrregexm(std_conmL, "(ETF|ETN)$")
 drop if ustrregexm(upper(conmL), "FUND$")
 
 *count if ustrregexm(std_conmL,"\bSHARES\b$")
-
 
  
 //Delete note due
@@ -112,12 +124,16 @@ drop if ustrregexm(upper(conmL), "\bETF[ -][A-Z]*$\b")
 /* country location
 and state */
 
- 
+/*******************************************************************
+ *  firm location
+ * 
+ * */ 
 replace fic=loc if missing(fic) &!missing(loc)
 replace loc=fic if !missing(fic) &missing(loc)
 
 levelsof state if fic!="USA" & loc!="USA"
 *count if inlist(state, "CA", "CO", "MA",  "NY", "PA",  "TX", "WA") & fic!="USA" & loc!="USA"
+* The following state are TYPOs
 replace state="" if  inlist(state, "CA", "CO", "MA",  "NY", "PA",  "TX", "WA") & fic!="USA" & loc!="USA"
 
 

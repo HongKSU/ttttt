@@ -1,4 +1,4 @@
-﻿
+
 options mlogic MPRINT;
 options cpuCount = actual;
 options msglevel=i fullstimer;
@@ -160,7 +160,8 @@ RUN; *115112 observations and 21 variables;
  
          /*
 %let stateAbb =AB   AK   AL   AR   AZ   BC   CA   CO   CT   DC   DE  FL   GA   GU   HI   IA   ID   IL   IN   KS   KY   LA MA   MB   MD   ME   MI   MN   MO   MS   MT   NB   NC ND   NE   NF   NH   NJ   NM   NS   NV   NY   OH   OK   ON   OR   PA   PE   PR   QC   RI   SC   SD   SK   TN  TX   UT   VA   VI   VT   WA   WI   WV   WY 
-data stateAbb_;
+
+
 
          AB |      1,559       18.05       18.05
          BC |      3,124       36.17       54.22
@@ -179,25 +180,9 @@ WRONG Code
   CA CO MA NY PA  TX WA
 
  
+*/
+/**/
 
-
-
-length comp_stcode $2;
-input comp_stcode    $   @@;
-datALINES;
-AK  AL  AR  AZ  CA  CO  CT  DC  DE  FL  
-GA  GU  HI  IA  ID  IL  IN  KS  KY  LA  
-MA  MD  ME  MI  MN  MO  MS  MT  NC  ND  
-NE  NH  NJ  NM  NV  NY  OH  OK  OR  PA  
-PR  RI  SC  SD  TN  TX  UT  VA  VI  VT  
-WA  WI  WV  WY  MP  AS  UM  MH  FM  PW   
-TT
-;
-run;
-data stateAbb;
-set stateAbb_;
-  state_name = stnamel(comp_stcode);
-run;
 */                           * com_all_names_unique_std;
 %split_non_matched(all_data = com_all_names_unique_std 
                          ,std_firm = std_conmL

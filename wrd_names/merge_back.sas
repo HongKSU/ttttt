@@ -132,34 +132,69 @@ RUN;
 proc contents data = aStateNames1;
 run;
 
+data fips;
+  fmtname='FIPS';
+  type='I';
+  length label 8 start $20 ;
+  do label=1 to 95;
+    start=fipnamel(label);
+    if start ne 'Invalid Code' then output;
+  end;
+run;
+
+proc format cntlin=fips ; run;
+%contents(stateRate)
+
+data state_rates;
+set stateRate (drop=state_long b_state_short)  ;
+ state_short=fipstate(fips)  ;
+ run;
+ /*
 proc sql;*826,115;
   create table state_rates as
-  select a.*, b.StateLong as state_long, b.stateShort as state_short
+  select a.*, b.StateLong as state_long, b.stateShort as b_state_short
+* NOT recognize the fun in SQL: , fipstate(a.fips) as stateShort*;
   from stateRate as a
    left join aStateNames1 as b
   on upcase(a.state) = upcase(b.StateLong);
   quit;
   run;
+*/
+
+
+
+ 
+
+  %contents(ee_or_mached_final)
+  proc freq data =state_rates;
+  table state_short;
+  run;
+
 proc sql; 
- /*
+ 
   create table ee_trans_tax as 
   select
   a.* , b.t_f as ee_federal_tax, b.t_s as ee_state_tax
   from ee_or_mached_final   a
   left join
-         stateRate b
-	   on a.ee_state = upcase(b.state) and year(a.exec_dt) = b.year;
- */
+         state_rates b
+        
+	   on a.ee_state = upcase(b.state) and year(a.exec_dt) = b.year ;
+ /*where NOT missing(a.ee_state);*
+       
+       */
+       quit;
+ proc sql; 
   create table or_ee_trans_tax as 
      select a.*, b.t_f as or_federal_tax, b.t_s as or_state_tax
   from  ee_trans_tax  a
   left join  state_rates b
-       on a.ee_state = b.state_short and year(a.exec_dt) = b.year;
+       on upcase(a.or_state) = upcase(b.state_short) and year(a.exec_dt) = b.year;
 	   
 	   quit;
 run;
 
-/*Merge ee_or with country tax Rate*/
+/*Merge ee_or with country tax Rate*
 *EE_TRANS_TAX created, with 197294 rows and 15 columns.;
 
 
@@ -176,11 +211,11 @@ proc sql;
   from  ee_trans_tax  a
   left join  
 	   taxRate.statRate b
-       /*taxRate.ee_trans_tax b*/
+       *taxRate.ee_trans_tax b*;
 	   on a.state = b.state and a.exec_year = b.year;
 	   quit;
 run;
- 
+ */
 PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
 select  or_ee_trans_tax    ;
