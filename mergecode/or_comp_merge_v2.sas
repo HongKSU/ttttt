@@ -4,11 +4,57 @@ libname or_crsp "C:\Users\lihon\Downloads\or_crsp_merged";
 libname comp_or "C:\Users\lihon\Downloads\data_or_crsp_merged";
 libname comp_ee "C:\Users\lihon\Downloads\ee_crsp_merged";
 libname oneDrive "&path";
+ 
+ 
+libname doc "C:\Users\lihon\Downloads";
+libname or_crsp_merged "C:\Users\lihon\Downloads\or_crsp_merged";
 
+
+options nolabel;
 options mlogic MPRINT;
-options cpuCount = actual;
+
 options msglevel=i fullstimer;
+
+Options THREADS;
 options cpuCount = actual;
+
+
+/*
+Feb 05,
+"C:\Users\lihon\OneDrive\Documents\stn_unique_or_dedupe.dta" 
+C:\Users\lihon\Downloads\stn_unique_or_dedupe_co.dta
+
+This file did self_join
+*/
+
+ 
+
+
+ 
+
+PROC IMPORT OUT= WORK.OR_NAME_orig 
+     DATAFILE= "C:\Users\lihon\Downloads\stn_unique_or_dedupe_co.dta" 
+     DBMS=STATA REPLACE;
+RUN;
+
+*************************************************************************************;
+/*sasfile doc.OR_NAME_orig load; */
+*170,073 obs                                   *;
+*************************************************************************************;
+data or_name;
+  set  OR_NAME_orig(
+                  keep = rf_id id_ee id_or 
+                         or_name std_firm std_firm1 dba fka entity entity_1 exec_dt
+                );
+    or_sub=substr(std_firm1, 1, 3);  
+    len_std_or = length(std_firm);
+    len_std_or1 = length(std_firm);
+    exec_y= year(exec_dt);
+run;
+proc sort data=or_name out=or_name;
+by or_sub;
+run; 
+
 
 /*************************************************************************************;
 * Import COMPSTAT firm names 
@@ -115,6 +161,7 @@ proc sort data=or_name_orig out = or_name1;
 by std_firm1;
 run;
 */
+
 %split_non_matched(all_data =or_name  
                          ,std_firm = std_firm1
                          ,prefix = or
@@ -163,7 +210,7 @@ libname or_name "C:\Users\lihon\Downloads\data_or_crsp_merged";
                               ,comp_name = std_conmL
                               ,sub_name = comp_sub
                               ,len_name = len_std
-                              ,merged_prefix=comp
+                              ,merged_prefix=or
                               ,up_spedis_score=15)
 %mend match_or;
 
@@ -177,7 +224,7 @@ libname or_name "C:\Users\lihon\Downloads\data_or_crsp_merged";
 or_name_d_g or_name_h_L or_name_m_R or_name_S_Z
 
 DATA comp_or_mar29_v3;  /*60,595*/
-  set m_comp_comp_name_:;
+  set m_or_comp_name_:;
 RUN;
 *can be done in the mathch macro;
 proc sql;
@@ -292,7 +339,7 @@ proc datasets library=work nolist;
 change comp_or_mar29_v3=comp_or;
 run;
 data comp_or_merged;
-  set comp_or;
+  set COMP_OR.comp_or_mar29_v3;
      by id_or;
   if first.id_or;
 run;
@@ -371,3 +418,9 @@ NOTE: DATA statement used (Total process time):
       memory              1174.71k
 
 */
+
+/*************************************************************************************;
+* ee_merge
+
+
+*************************************************************************************;

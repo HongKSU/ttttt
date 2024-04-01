@@ -1,4 +1,4 @@
-﻿********************************************************************************;
+********************************************************************************;
 * Data:                                                                        *;
 * set wrds_db.parent_sub_name_only_stacked                                     *;   
 ********************************************************************************;
@@ -35,6 +35,9 @@ PROC IMPORT OUT= WORK.parent_sub_gvkey_name_only
      DATAFILE= "D:\Research\patent\data\wrds_names\parent_gvkey_name_only.dta" 
      DBMS=STATA REPLACE;
 RUN;
+
+options nolable;
+%listvars(parent_sub_gvkey_name_only)
 
 Title "Subsidiary data";
 PROC sql;
@@ -89,33 +92,8 @@ NOTE: The data set WORK.SUBS_OTHERS has 0 observations and 6 variables.
 
 */
 
-proc datasets library=work nolist;
-change OR_NAME_A_C=orac;
-run;
-%macro merge_sub_or(or_name_a_c, SUBS_NAME_A_C);
-
-%fuzzy_sub_or_SPEDIS_v5(&OR_NAME_A_C, &SUBS_NAME_A_C
-                               ,or_name= std_firm1
-                              ,len_std_or = len_std_or 
-                              ,or_sub = or_sub
-                              ,comp_original=coname
-                              ,comp_name = std_sub_name
-                              ,sub_name = subs_sub
-                              ,len_name = len_name
-                              ,merged_prefix=subs
-                              ,up_spedis_score=15)
-
-
-%mend merge_sub_or;
-
-%merge_sub_or(orac, SUBS_NAME_A_C)
-%match_or(or_name_d_g, COMP_NAME_d_g)
-%match_or(or_name_h_l, COMP_NAME_h_L)
-%match_or(or_name_m_r, COMP_NAME_m_r)
-%match_or(or_name_s_z, COMP_NAME_s_z)
-%match_or(or_others, COMP_others)
-
-%macro subs_merge_or;
+/*
+                         %macro subs_merge_or;
   %put ERROR- "****merge non comp or_names with subsidiaries********";
   %put "ERROR:(or_name_K_O109896, KO_comp)";
     %fuzzy_sub_or_SPEDIS_v5(or_name_K_O109896Ex, subs_KO )
@@ -129,23 +107,108 @@ run;
 
 %subs_merge_or
 
+   */
+%macro merge_sub_or(OR_table, SUBS_table);
+%fuzzy_sub_or_SPEDIS_v5(&OR_table
+                        ,&SUBS_table
+                        ,or_name= std_firm1
+                        ,len_std_or = len_std_or 
+                        ,or_sub = or_sub
+                        ,comp_original=coname
+                        ,comp_name = std_sub_name
+                        ,sub_name = subs_sub
+                        ,len_name = len_name
+                        ,merged_prefix=subs
+                        ,up_spedis_score=15)
+%mend merge_sub_or;
+
+%merge_sub_or(OR_AC, SUBS_AC)
+%merge_sub_or(or_dg, SUBS_dg)
+%merge_sub_or(or_hl, SUBS_hL)
+%merge_sub_or(or_mr, SUBS_mr)
+%merge_sub_or(or_sz, SUBS_sz)
+%merge_sub_or(or_others, SUBS_others)
+
+/* combine the merged subsets together */
+DATA sub_or_merged;
+    set m_subs_subs_: ;
+RUN;
 
 
-
-proc contents data = ee_name_A_J82098Ex;
-ods select variables;
+proc datasets library=work nolist;
+change sub_or_merged=sub_or_merged_v2;
 run;
 
-ods select position;
-proc contents data =nonmatched_or_comp varnum ;
-run;
-ods select default;
 
-subs_AJ
-       subs_KO
-       subs_PR
-       subs_ST
-       subs_UZ 
+PROC DATASETS NOLIST;
+  COPY IN = work OUT = comp_or ;
+*  select  m_subs_subs_:;
+ * select sub_or_merged    ;
+ select sub_or_merged_v2;
+RUN;
+
+
+*********************************************************;
+proc sql;
+create table _temp_ as
+select * ,spedis(or_name, comp_conm) as dist_name from sub_or_merged_v2
+group by id_or
+having spedis_score = min(spedis_score)
+order by id_or;
+run;
+proc sql;
+create table _temp_2 as
+select * from _temp_
+group by id_or
+having dist_name = min(dist_name)
+order by id_or;
+run;
+
+proc sql;
+Title "number record in origin";
+select count(distinct rf_id) as a from sub_or_merged_v2;
+ title "new rec";
+ select count(distinct rf_id) as d from _temp_2;
+quit;
+run; 
+ 
+
+
+
+proc sort data =_temp_2 out= sub_or_merged_v2  nodupkey;
+by id_or  ;
+run;
+%varList(sub_or_merged_v2)
+%varList( COMP_OR.comp_or_mar29_v3)
+*************************************************;
+
+
+
+***********************************************;
+
+rf_id exec_dt id_or id_ee or_name entity_or_1 entity_or or_std_name or_sub gvkey crsp_std_name comp_conm spedis_score len_or len_comp dist_name 
+rf_id exec_dt id_or id_ee or_name entity_or             or_std_name or_sub gvkey crsp_std_name comp_conm spedis_score len_or len_comp entity_comp dist_name
+
+;
+data or_matched_all;
+  set sub_or_merged_v2(keep=rf_id exec_dt id_or or_std_name or_name gvkey 
+                        crsp_std_name comp_conm 
+                         spedis_score     dist_name 
+				   rename=(comp_conm=firm_name crsp_std_name=std_name))
+
+     COMP_OR.comp_or_mar29_v3(keep=rf_id exec_dt id_or or_std_name or_name GVKEY 
+                        crsp_std_name comp_conm 
+                        spedis_score        dist_name
+		 	rename=(comp_conm=firm_name crsp_std_name=std_name));
+run;
+
+PROC DATASETS NOLIST;
+     COPY IN = work OUT = comp_or ;
+     select or_matched_all    ;
+RUN;
+***********************************************;
+ 
+ 
 
 
 

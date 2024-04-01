@@ -3,6 +3,7 @@
 
 %macro fuzzy_sub_or_SPEDIS_v5(or_table
                               ,comp 
+                              ,original_name=or_name
                               ,or_name= std_firm1
                               ,len_std_or = len_std_or 
                               ,or_sub = or_sub_name
@@ -10,7 +11,7 @@
                               ,comp_name = std_sub_name 
                               ,sub_name = sub_name
                               ,len_name = len_name
-                              ,merged_prefix=comp
+                              ,merged_prefix=ee  /*must set a value*/
                               ,up_spedis_score=10);
 sasfile &or_table load;
 sasfile &comp     load;
@@ -20,18 +21,18 @@ proc sql _method ;
           a.exec_dt, 
           a.id_or,
           a.id_ee, 
-	      a.or_name,
-	      a.entity_1 as entity_or_1,
-          a.entity   as entity_or,
-          a.&or_name as or_std_name, 
+	      a.&original_name as &merged_prefix._name,
+	     /* a.entity_1 as entity_or_1,*/
+          a.entity   as &merged_prefix._entity,
+          a.&or_name as  &merged_prefix._std_name, 
           a.&or_sub,
           b.GVKEY,
           b.&comp_name     as crsp_std_name, 
           b.&comp_original as comp_conm,
           SPEDIS(a.&or_name, b.&comp_name) as spedis_score, 
 /****** compged(a.&or_name, b.&comp_name) as gl_score,*/
-          a.&len_std_or as len_or,
-          b.&len_name   as len_comp,
+          a.&len_std_or as len_&merged_prefix,
+          b.&len_name   as len_comp
           /*b.entity as entity_comp*/
    from      &or_table as a
    left join &comp as b
@@ -48,6 +49,51 @@ proc sql _method ;
 sasfile &or_table close;
 sasfile &comp close;
 %mend fuzzy_sub_or_SPEDIS_v5;
+
+/*************************************************************************************
+ macro deduplicate_merged:
+    left OR
+    right comp
+ 
+    output:
+    m_comp
+**************************************************************************************/
+
+%macro deduplicate_merged(merged_table 
+                         ,out_merged_table
+                         ,or_name=or_name
+                         ,comp_name=comp_name
+                         ,id_unique=id_unique);
+
+%*can be done in the mathch macro;
+proc sql;
+create table _temp_ as
+select * ,spedis(&or_name, &comp_name) as dist_name from &merged_table
+group by &id_unique
+having spedis_score = min(spedis_score)
+order by &id_unique;
+run;
+proc sql;
+create table _temp_2 as
+select * from _temp_
+group by &id_unique
+having dist_name = min(dist_name)
+order by &id_unique;
+run;
+
+proc sql;
+Title "number record in origin";
+select count(distinct &id_unique) as a from &merged_table;
+ title "new rec";
+ select count(distinct &id_unique) as d from _temp_2;
+quit;
+run; 
+
+proc sort data =_temp_2 out= &out_merged_table  nodupkey;
+by id_or  ;
+run;
+%mend deduplicate_merged;
+
 
 /*************************************************************************************
 joint tables:
@@ -190,11 +236,11 @@ proc sql _method ;
      blocking = upcase(substr(&std_firm, 1,1));
 	  &prefix._sub = substr(&std_firm,1,3);
       len_name = length(&std_firm);
-   if blocking LE 'C' then output &prefix._name_A_C;
-	 else if blocking GE 'D' AND blocking LE 'G' then output &prefix._name_D_G;
-	 else if blocking GE 'H' AND blocking LE 'L' then output &prefix._name_H_L;
-	 else if blocking GE 'M' AND blocking LE 'R' then output &prefix._name_M_R;
-	 else if blocking GE 'S' AND blocking LE 'Z' then output &prefix._name_S_Z;
+   if blocking LE 'C' then output &prefix._AC;
+	 else if blocking GE 'D' AND blocking LE 'G' then output &prefix._DG;
+	 else if blocking GE 'H' AND blocking LE 'L' then output &prefix._HL;
+	 else if blocking GE 'M' AND blocking LE 'R' then output &prefix._MR;
+	 else if blocking GE 'S' AND blocking LE 'Z' then output &prefix._SZ;
 	 else output &prefix._others;
     drop blocking ;
     list;
@@ -207,11 +253,13 @@ Title "Varibales in table &table";
 proc contents data= &table;
 run;
 %mend contents;
-%macro listVars(table);
+
+%macro varList(table);
 Title "Varibale list in table &table";
 proc contents data= &table short varnum;
 run;
-%mend listVars;
+%mend varList;
+
 %macro unique_values(table, var_name1=GVKEY, var_name2=CONM);
 Title "The count of unique variable values";
 proc sql;

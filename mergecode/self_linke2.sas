@@ -26,6 +26,8 @@ proc setinit noalias; run;
 proc product_status; run;
 
 libname doc "C:\Users\lihon\Downloads";
+libname or_crsp_merged "C:\Users\lihon\Downloads\or_crsp_merged";
+ 
 
 PROC IMPORT OUT= WORK.OR_NAME_orig 
      DATAFILE= "C:\Users\lihon\Downloads\stn_unique_or_dedupe_co.dta" 
@@ -234,8 +236,7 @@ PROC DATASETS;
   select repeated_or ;
 RUN;
 * 
-libname doc "C:\Users\lihon\Downloads";
-libname or_crsp_merged "C:\Users\lihon\Downloads\or_crsp_merged";
+
 or_crsp_merged
 PROC DATASETS;
 COPY IN = work OUT = or_crsp_merged NOLIST;
