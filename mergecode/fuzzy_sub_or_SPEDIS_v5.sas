@@ -3,7 +3,7 @@
 
 %macro fuzzy_sub_or_SPEDIS_v5(or_table
                               ,comp 
-                              ,original_name=or_name
+                              ,original_name=or_name  /*need to set it up*/
                               ,or_name= std_firm1
                               ,len_std_or = len_std_or 
                               ,or_sub = or_sub_name
@@ -11,7 +11,7 @@
                               ,comp_name = std_sub_name 
                               ,sub_name = sub_name
                               ,len_name = len_name
-                              ,merged_prefix=ee  /*must set a value*/
+                              ,merged_prefix=ee       /*must set a value*/
                               ,up_spedis_score=10);
 sasfile &or_table load;
 sasfile &comp     load;

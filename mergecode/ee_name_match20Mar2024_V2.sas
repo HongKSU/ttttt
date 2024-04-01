@@ -105,6 +105,7 @@ exec_dt dup len_ee exec_y id_ee id_or std_ee_name dba fka entity attn ee_sub len
 *?8888888888888888888888888888888888888888888888888888888888888888888888;
 
 *WORK.COMP_EE_MAR29_V3 has 25123 observations and 14 variables.;
+* removed the duplicated records *;
 DATA comp_ee_mar29_v3;  /*60,595*/
   set m_ee_comp_:;
 RUN;
@@ -115,22 +116,106 @@ RUN;
                     ,id_unique=id_ee
                    )
 
-
 PROC DATASETS NOLIST;
   COPY IN = work OUT = comp_or ;
   *select  m_comp_comp_name_:;
-  select comp_or_mar29_v3    ;
+  select comp_ee_mar29_v2    ;
 RUN;
 
-/* removed the duplicated records */
 
 
+*?8888888888888888888888888888888888888888888888888888888888888888888888;
+proc sql;
+create table nommatched_ee1 as
+select * from unique_ee_name  
+where id_ee not in
+            (select id_ee from comp_ee_mar29_v3);
+ 
+quit;
+run;
 
-***************;
-PROC DATASETS NOLIST;
-  COPY IN = work OUT = comp_ee ;
-  select    m_ee: ;
-RUN;
+%split_non_matched(all_data =nommatched_ee1  
+                         ,std_firm = std_ee_name
+                         ,prefix = ee
+) 
+ 
+/************************************** SUB ee***************/
+%macro fuzzy_sub_or_SPEDIS_v5(or, comp, 
+                             or_name= std_firm1, len_std_or = len_std_or, or_sub = or_sub_name,
+                             comp_original=HCONM, comp_name = std_sub_name, sub_name = sub_name, len_name = len_name,
+							 merged_prefix=EE, exec_y=exec_dt,
+                             up_spedis_score=10, up_gl_score=200);
+options msglevel=i fullstimer;
+
+options cpuCount = actual;
+sasfile &or load;
+sasfile &comp load;
+proc sql _method ;
+   create table m_&merged_prefix._&comp  as
+   select a.rf_id,
+          a.&exec_y, 
+          a.id_or,
+          a.id_ee, 
+          a.&or_name as or_std_name, 
+		  a.&or_sub,
+          b.GVKEY,
+          b.&comp_name as crsp_std_name, 
+          b.&comp_original as b_originalName,
+          SPEDIS(a.&or_name, b.&comp_name) as spedis_score, 
+/*          compged(a.&or_name, b.&comp_name) as gl_score,*/
+		  a.&len_std_or as len_or,
+          b.&len_name as len_crsp
+   from  &or as a
+   left join &comp as b
+   on a.&or_sub = b.&sub_name  
+   where (CALCULATED spedis_score<= &up_spedis_score   AND 
+          a.&len_std_or>5 AND b.&len_name>5) OR
+          (a.&or_name = b.&comp_name) ;
+
+     quit;
+ run;
+sasfile &or close;
+sasfile &comp close;
+%mend fuzzy_sub_or_SPEDIS_v5;
+      fuzzy_sub_or_SPEDIS_v5
+%macro subs_merge_ee;
+
+comp_original=CONAME, or_name= std_firm1,
+comp_name = std_sub_name, 
+up_spedis_score=10, up_gl_score=230);
+%macro subs_merge_ee;
+%put "ERROR:(or_name_K_O109896, subs_aj)";
+    %fuzzy_sub_or_SPEDIS_v5(ee_name_A_J82098Ex, subs_AJ,
+                           or_name = std_ee_name,len_std_or = len_name, or_sub= ee_sub,
+							comp_original=CONAME, comp_name = std_sub_name, sub_name = sub_name, len_name = len_name,
+                             up_spedis_score=10, up_gl_score=200)
+  %put "ERROR:(or_name_K_O109896, KO_comp)";
+  %fuzzy_sub_or_SPEDIS_v5(ee_name_K_O109896Ex, subs_KO,
+                           or_name = std_ee_name,len_std_or = len_name, or_sub= ee_sub,
+							comp_original=CONAME, comp_name = std_sub_name, sub_name = sub_name, len_name = len_name,
+                             up_spedis_score=10, up_gl_score=200)
+     
+  %put "ERROR:(or_name_P_R130938, PR_comp)";
+ 
+	%fuzzy_sub_or_SPEDIS_v5(ee_name_P_R130938Ex, subs_PR,
+                           or_name = std_ee_name,len_std_or = len_name, or_sub= ee_sub,
+							comp_original=CONAME, comp_name = std_sub_name, sub_name = sub_name, len_name = len_name,
+                             up_spedis_score=10, up_gl_score=200)
+  %put "ERROR:(ee_name_S_T157024, ST_comp)";
+ 
+	%fuzzy_sub_or_SPEDIS_v5(ee_name_S_T157024Ex, subs_ST,
+                           or_name = std_ee_name,len_std_or = len_name, or_sub= ee_sub,
+							comp_original=CONAME, comp_name = std_sub_name, sub_name = sub_name, len_name = len_name,
+                             up_spedis_score=10, up_gl_score=200)
+  %put "ERROR:(or_name_U_Z170073, UZ_comp)";
+    
+	%fuzzy_sub_or_SPEDIS_v5(ee_name_U_Z170073Ex, subs_UZ ,
+                           or_name = std_ee_name,len_std_or = len_name, or_sub= ee_sub,
+							comp_original=CONAME, comp_name = std_sub_name, sub_name = sub_name, len_name = len_name,
+                             up_spedis_score=10, up_gl_score=200)
+	
+%mend subs_merge_ee;
+%subs_merge_ee
 
 /***************************************************************************
 *Combin all ee_merged*/
@@ -162,13 +247,13 @@ proc sort data = unique_ee_name;
     by id_ee;
 run;
 
-proc sort data = comp_ee_merged;
+proc sort data = comp_ee_mar29_v3;
    by id_ee;
 run;
 
-data nonmatched_ee_comp;
+data nonmatched_ee_comp1;
     merge unique_ee_name (in =in_ee)
-          comp_ee_merged   (in=in_comp);
+          comp_ee_mar29_v3   (in=in_comp);
 	   by id_ee;
     ee_in = in_ee;
     comp_in = in_comp;
@@ -183,14 +268,7 @@ proc datasets library=work nolist;
 run;
 
 
-data comp_ee_merged;
-    set comp_ee.m_ee_aj_comp
- 	comp_ee.m_ee_ko_comp
-	comp_ee.m_ee_pr_comp
-	comp_ee.m_ee_st_comp
-	comp_ee.m_ee_uz_comp;
-run;
-
+ 
 data subs_ee_merged;
   set m_ee_subs:;
 run;
