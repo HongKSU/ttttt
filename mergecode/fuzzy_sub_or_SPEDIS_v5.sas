@@ -269,3 +269,15 @@ select count(distinct &var_name2) as conm_N from &table;
 quit;
 run;
 %mend unique_values;
+********************************************************************************;
+* importStat *;
+* Load stata file to SAS WORK lib *;
+*
+* ;
+********************************************************************************;
+%macro importStat(infile=, outfile=);
+PROC IMPORT OUT= WORK.&outfile 
+            DATAFILE= &infile 
+            DBMS=STATA REPLACE;
+RUN;
+%mend importStat;

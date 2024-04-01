@@ -243,3 +243,10 @@ proc sql  outobs=15;
   order by    rela_count desc;
   quit;
 
+/* Mereg Country TAX rate 
+  * Merged file input: C:\Users\lihon\Downloads\merge_back
+  * Country tax file:
+  *             C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet
+  * Merged Output:
+  *
+
