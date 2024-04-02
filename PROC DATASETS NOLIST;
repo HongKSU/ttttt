@@ -1,0 +1,116 @@
+PROC DATASETS NOLIST;
+    COPY IN = work 
+         OUT = or_crsp;
+    select comp_or_merged nonmatched_or_comp;
+RUN;
+
+%merge_comp_or(or_name_a_j82098, AJ_comp)
+fuzzy_comp_or_SPEDIS
+
+PROC EXPORT DATA= WORK.M_aj_comp 
+            OUTFILE= "C:\Users\lihon\Downloads\or_crsp_merged\aj.dta" 
+            DBMS=STATA REPLACE;
+RUN;
+
+
+ 
+PROC DATASETS NOLIST;
+COPY IN = work OUT = or_crsp ;
+select M_AJ_COMP ;
+RUN;
+
+PROC DATASETS NOLIST;
+COPY IN = work OUT = onedrive ;
+select M_AJ_COMP ;
+RUN;
+
+* Make a sound *;
+data _null_;
+ call sound(523,500);
+run;
+
+PROC DATASETS NOLIST;
+	COPY IN = work OUT = or_crsp ;
+	select AJ_comp KO_comp
+	       PR_comp ST_comp 
+	       UZ_comp
+	       ;
+RUN;
+
+PROC DATASETS NOLIST;
+	COPY IN = work OUT = or_crsp ;
+	select  
+	  M_aj_comp;
+	  M_PR_COMP;
+	  M_UZ_comp;
+RUN;
+DATA sub_or_merged;
+    set m_subs: ;
+RUN;
+
+PROC DATASETS NOLIST;
+  COPY IN = work OUT = comp_or ;
+  select  m_subs:;
+  select sub_or_merged    ;
+RUN;
+
+
+DATA sub_or_merged;
+    set m_subs: ;
+RUN;
+
+PROC DATASETS NOLIST;
+  COPY IN = work OUT = comp_or ;
+  select  m_subs:;
+  select sub_or_merged    ;
+RUN;
+
+
+DATA sub_or_merged;
+    set m_subs: ;
+RUN;
+
+PROC DATASETS NOLIST;
+  COPY IN = work OUT = comp_or ;
+  select  m_subs:;
+  select sub_or_merged    ;
+RUN;
+*************************************************************************************;
+*************************************************************************************;
+* Merge comp matched and sub matched 
+**************************************************************;
+
+data or_matched_all;
+  set sub_or_merged(keep=rf_id exec_dt id_or or_std_name or_name gvkey 
+                        crsp_std_name b_originalName 
+                         spedis_score gl_score len_or len_crsp
+				   rename=(b_originalName=firm_name crsp_std_name=std_name))
+
+     comp_or(keep=rf_id exec_dt id_or or_std_name or_name GVKEY 
+                        crsp_std_name HCONM 
+                        spedis_score gl_score len_or len_crsp  
+		 	rename=(HCONM=firm_name crsp_std_name=std_name));
+run;
+
+PROC DATASETS NOLIST;
+     COPY IN = work OUT = comp_or ;
+     select or_matched_all    ;
+RUN;
+
+
+
+PROC DATASETS NOLIST;
+COPY IN = work OUT = comp_or ;
+select or_matched_all    ;
+RUN;
+Title "";
+ods select default;
+
+%comp_merge_or
+
+proc sort data = or_name ;
+by id_or ;
+run;
+
+ ods trace off; 
+/*************************************************************************************;

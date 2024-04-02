@@ -94,23 +94,7 @@ sasfile &or close;
 sasfile &comp close;
 %mend fuzzy_sub_or_SPEDIS_v4;
 
-%fuzzy_sub_or_SPEDIS_v3(or_name_a_j82098Ex, subs_AJ,
-                         or_name= std_firm1, 
-                         comp_name = std_sub_name, up_spedis_score=15, up_gl_score=200)
 
-%macro subs_merge_or;
-  %put "ERROR:(or_name_K_O109896, subs_aj)";
-  %put "ERROR:(or_name_K_O109896, KO_comp)";
-    %fuzzy_sub_or_SPEDIS_v4(or_name_K_O109896Ex, subs_KO )
-  %put "ERROR:(or_name_P_R130938, PR_comp)";
-    %fuzzy_sub_or_SPEDIS_v4(or_name_P_R130938Ex, subs_PR )
-  %put "ERROR:(or_name_S_T157024, ST_comp)";
-    %fuzzy_sub_or_SPEDIS_v4(or_name_S_T157024Ex, subs_ST )
-  %put "ERROR:(or_name_U_Z170073, UZ_comp)";
-    %fuzzy_sub_or_SPEDIS_v4(or_name_U_Z170073Ex, subs_UZ )
-%mend subs_merge_or;
-
-%subs_merge_or
 
 /************************************** SUB ee***************/
 %macro fuzzy_sub_or_SPEDIS_v5(or, comp, 
@@ -151,3 +135,73 @@ sasfile &or close;
 sasfile &comp close;
 %mend fuzzy_sub_or_SPEDIS_v5;
       fuzzy_sub_or_SPEDIS_v5
+
+ 
+
+%macro split_non_matched(nonmatched_or_comp=nonmatched_ee_comp,
+                         id_or= id_ee, or_name = ee_name, std_firm=std_ee_name , 
+                         len_std_or=len_ee,prefix=ee);
+%split_non_matched(nonmatched_or_comp=nonmatched_ee_comp,
+                          or_name = ee_name, std_firm=std_ee_name , 
+                          len_std_or=len_ee,prefix=ee)
+ ********************************************************************************;
+*** Divid the Subsidiary COMP names into several small files *;
+* There were 913834 observations read from the data set "Parent_sub_gvkey_name_only";
+* NOTE: There were 913834 observations read from the data set *;
+*      WORK.PARENT_SUB_GVKEY_NAME_ONLY.*;
+* NOTE: The data set WORK.SUBS_AJ has 467586 observations and 5 variables.*;
+* NOTE: The data set WORK.SUBS_KO has 158702 observations and 5 variables.*;
+* NOTE: The data set WORK.SUBS_PR has 88511 observations and 5 variables.*;
+* NOTE: The data set WORK.SUBS_ST has 127905 observations and 5 variables.*;
+* NOTE: The data set WORK.SUBS_UZ has 71130 observations and 5 variables.*;
+* NOTE: The data set WORK.SUBS_OTHERS has 0 observations and 5 variables.*;
+* NOTE: DATA statement used (Total process time):  *;
+
+********************************************************************************;
+/*March 24, 2024
+      WORK.PARENT_SUB_GVKEY_NAME_ONLY.
+NOTE: The data set WORK.SUBS_NAME_A_C has 237975 observations and 5 variables.
+NOTE: The data set WORK.SUBS_NAME_D_G has 145690 observations and 5 variables.
+NOTE: The data set WORK.SUBS_NAME_H_L has 133860 observations and 5 variables.
+NOTE: The data set WORK.SUBS_NAME_M_R has 197274 observations and 5 variables.
+NOTE: The data set WORK.SUBS_NAME_S_Z has 199035 observations and 5 variables.
+NOTE: The data set WORK.SUBS_OTHERS has 0 observations and 5 variables.
+*/
+
+********************************************************************************;
+*set nonmatched_comp
+*
+*
+* Divid the COMP names into several small files *;
+* AJ82:
+NOTE: There were 146971 observations read from the data set WORK.NONMATCHED_COMP.
+NOTE: The data set WORK.OR_NAME_A_J82098EX has 67806 observations and 7 variables.
+NOTE: The data set WORK.OR_NAME_K_O109896EX has 30103 observations and 7 variables.
+NOTE: The data set WORK.OR_NAME_P_R130938EX has 14039 observations and 7 variables.
+NOTE: The data set WORK.OR_NAME_S_T157024EX has 24227 observations and 7 variables.
+NOTE: The data set WORK.OR_NAME_U_Z170073EX has 10787 observations and 7 variables.
+NOTE: The data set WORK.OTHERS has 9 observations and 7 variables
+
+********************************************************************************;
+
+    *Version 2:
+    *Date :March 31, 2024.
+*NOTE: The data set WORK.OR_NAME_A_C has 33165 observations and 16 variables.
+*NOTE: The data set WORK.OR_NAME_D_G has 23846 observations and 16 variables.
+*NOTE: The data set WORK.OR_NAME_H_L has 23932 observations and 16 variables.
+*NOTE: The data set WORK.OR_NAME_M_R has 34061 observations and 16 variables.
+*NOTE: The data set WORK.OR_NAME_S_Z has 34369 observations and 16 variables.
+*NOTE: The data set WORK.OR_OTHERS has 9 observations and 16 variables.
+    ;
+
+
+********************************************************************************;
+*set nonmatched_comp
+*
+*
+* Divid the COMP names into several small files *;
+********************************************************************************;
+
+proc datasets library=work nolist;
+change OR_NAME_A_C=orac;
+run;

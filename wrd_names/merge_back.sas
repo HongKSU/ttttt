@@ -9,9 +9,10 @@ RUN;
 ODS NOPROCTITLE;
 
  *ee_or: 568,987;
-
+/**************************************************************************************/
 * Merge with assignor matched;
-
+* April 1, 2024
+/**************************************************************************************/
 proc sql; 
   create table ee_or_mached as /*ee_or:568,987*/
      select trans.rf_id, trans.ee_name, ee_state,
@@ -32,6 +33,7 @@ data ee_or_mached1; /*139,870*/
 	 run;
 
 %contents(ee_or_mached1)
+/**************************************************************************************/
  /*
 Title "ee_or" ;
 
@@ -65,8 +67,13 @@ RUN;
  *           DATAFILE= "D:\Research\patent\data\wrds_names\com_all_names_unique_std.dta" 
 ;
 %varlist(com_all_names_unique_std)
+
+/**************************************************************************************/
 /* ee_or_mached_location: with 197294 rows and 12 columns
-*/
+Get OR firm country and state from COMP dataset
+April,1st, 2024
+
+/**************************************************************************************/
 proc sql;
  create table ee_or_mached_location as 
  select a.*
@@ -74,12 +81,13 @@ proc sql;
        ,b.fic as or_fic
        ,b.naics as or_naics
  from ee_or_mached1 as a
-       left join 
-     com_all_names_unique_std as b
-   on a.or_gvkey=b.gvkey 
+        left join 
+      com_all_names_unique_std as b
+        on a.or_gvkey=b.gvkey 
    ;
    quit;
 run;
+
 %contents(ee_or_mached_location)
 proc print data=ee_or_mached_location(obs=10);
 run;
@@ -169,7 +177,11 @@ proc sql;*826,115;
   proc freq data =state_rates;
   table state_short;
   run;
-
+************************************************************************************;
+*Merge Sate tax;
+* April 1st, 2024
+*
+************************************************************************************; 
 proc sql; 
  
   create table ee_trans_tax as 
