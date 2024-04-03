@@ -37,22 +37,28 @@ quit;
 
 %importstat(infile="C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet\country_tax_rate.dta"
 ,outfile=country_tax)
+/*
+Recode the country name in international country tax data 
+to IDNAME in SAS built-in data  mapsgfk.world_attr
+*/
+
 data country_taxrate;
-    set country_tax;
-    if      Tax_country_name = "Bolivia"       then Tax_country_name= "Bolivia, Plurinational State of";
-    else if Tax_country_name = "DEM REP CONGO" then Tax_country_name="Democratic Republic of Congo";
-    else if Tax_country_name = "Guernsey"      then Tax_country_name="Bailiwick of Guernsey";
-    else if Tax_country_name = "Hong Kong"     then Tax_country_name="Hong Kong";
-    else if Tax_country_name = "Jersey"        then Tax_country_name="Bailiwick of Jersey";
-    else if Tax_country_name = "KOREA (REP.)"  then Tax_country_name="North Korea";
-    else if Tax_country_name = "Macau"         then Tax_country_name="Macao";
-    else if Tax_country_name = "Russia"        then Tax_country_name="Russian Federation";
-    else if Tax_country_name = "Taiwan"        then Tax_country_name="Taiwan, Province of China";
-    else if Tax_country_name = "Tanzania"      then Tax_country_name="Tanzania, United Republic of";
-    else if Tax_country_name = "Venezuela"     then Tax_country_name="Venezuela, Bolivarian Republic of";
-    else if Tax_country_name = "Vietnam"       then Tax_country_name="Viet Nam";
+    set country_tax; 
+    IF      upcase(TAX_COUNTRY_NAME) = "BOLIVIA"       THEN TAX_COUNTRY_NAME= "BOLIVIA, PLURINATIONAL STATE OF";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "DEM REP CONGO" THEN TAX_COUNTRY_NAME="DEMOCRATIC REPUBLIC OF CONGO";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "GUERNSEY"      THEN TAX_COUNTRY_NAME="BAILIWICK OF GUERNSEY";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "HONG KONG"     THEN TAX_COUNTRY_NAME="HONG KONG";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "JERSEY"        THEN TAX_COUNTRY_NAME="BAILIWICK OF JERSEY";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "KOREA (REP.)"  THEN TAX_COUNTRY_NAME="NORTH KOREA";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "MACAU"         THEN TAX_COUNTRY_NAME="MACAO";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "RUSSIA"        THEN TAX_COUNTRY_NAME="RUSSIAN FEDERATION";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "TAIWAN"        THEN TAX_COUNTRY_NAME="TAIWAN, PROVINCE OF CHINA";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "TANZANIA"      THEN TAX_COUNTRY_NAME="TANZANIA, UNITED REPUBLIC OF";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "VENEZUELA"     THEN TAX_COUNTRY_NAME="VENEZUELA, BOLIVARIAN REPUBLIC OF";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "VIETNAM"       THEN TAX_COUNTRY_NAME="VIET NAM";
 run;
  /* Hong Kong is not in the table of "mapsgfk.world_attr"
+    We add Hong Kong to the dataset
 
 https://www.iban.com/country-codes
 */ 
@@ -75,6 +81,10 @@ https://www.iban.com/country-codes
           quit;       
 run;
 
+/* Get more country name representaions (IDNAME, ISO ALPHA3) 
+in order to have more matching method
+
+*/
 proc sql;
 create table country_taxrate_all as 
 select a.fyendyr
@@ -136,6 +146,15 @@ select distinct ee_country
 from     __ee_country_merge 
 where tax_country_name is missing;
 quit;
+
+
+proc sql;
+Title "All distinct country names in table `country_taxrate_all' ";
+select distinct tax_country_name from country_taxrate_all
+order by tax_country_name;
+quit;
+
+
 /************************************************************************************; 
 EE_names NOT matched :
 NEED to fix the following ee_countries On weekend;
