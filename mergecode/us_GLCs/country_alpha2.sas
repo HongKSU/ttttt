@@ -144,7 +144,7 @@ select a.*,
 proc sql;
 select distinct ee_country
 from     __ee_country_merge 
-where tax_country_name is missing;
+wcd here tax_country_name is missing;
 quit;
 
 
