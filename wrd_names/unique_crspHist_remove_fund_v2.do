@@ -140,4 +140,8 @@ replace state="" if  inlist(state, "CA", "CO", "MA",  "NY", "PA",  "TX", "WA") &
 *Duplicates in terms of conm conmL
 duplicates drop  conm conmL, force
      
-save com_all_names_unique_std, replace
+****
+save D:\Research\patent\data\wrds_names\com_all_names_unique_std.dta, replace
+tab or_fic i missing(or_country) &or_fic!="USA"
+
+* save com_all_names_unique_std, replace

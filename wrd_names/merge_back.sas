@@ -11,7 +11,7 @@ ODS NOPROCTITLE;
  *ee_or: 568,987;
 /**************************************************************************************/
 * Merge with assignor matched;
-* April 1, 2024
+* April 1, 2024;
 /**************************************************************************************/
 proc sql; 
   create table ee_or_mached as /*ee_or:568,987*/
@@ -95,27 +95,30 @@ PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
 select  or_ee_trans_tax    ;
 RUN;
+/*
 PROC IMPORT OUT= WORK.Astate_names 
             DATAFILE= "C:\Users\lihon\Downloads\merge_back\stateNames.csv" 
             DBMS=CSV REPLACE;
      GETNAMES=YES;
      DATAROW=2; 
 RUN;
+
 data aStateNames1;
 set aState_names(rename = (V1=stateL V1_1=stateShort));
 StateLong= strip(upcase(stateL));
 run;
 
 EE_OR_MACHED_LOCATION;
-
+*/
 proc sql;*826,115 v2:* 197294 rows*;
   create table ee_or_mached_final as
-  select a.*, b. stateShort as ee_state2
-  from EE_OR_MACHED_LOCATION as a
-   left join aStateNames1 as b
-  on a.ee_state = b.StateLong;
+  select a.*
+         ,b.stateShort as ee_state2 /*short state name*/
+   from         EE_OR_MACHED_LOCATION as a
+     left join aStateNames1 as b
+   on upcase(a.ee_state) = upcase(b.StateLong);
   quit;
-  run;
+run;
  */
 PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
@@ -154,9 +157,9 @@ proc format cntlin=fips ; run;
 %contents(stateRate)
 
 data state_rates;
-set stateRate (drop=state_long b_state_short)  ;
- state_short=fipstate(fips)  ;
- run;
+  set stateRate (drop=state_long b_state_short)  ;
+      state_short=fipstate(fips)  ;
+run;
  /*
 proc sql;*826,115;
   create table state_rates as
@@ -169,8 +172,11 @@ proc sql;*826,115;
   run;
 */
 
-
-
+%contents(ee_or_mached_final)
+proc freq data = state_rates;
+table stateShort state state_short;
+run;
+* stateShort and State_short are identical;
  
 
   %contents(ee_or_mached_final)
@@ -185,13 +191,13 @@ proc sql;*826,115;
 proc sql; 
  
   create table ee_trans_tax as 
-  select
-  a.* , b.t_f as ee_federal_tax, b.t_s as ee_state_tax
+  select a.* 
+         ,b.t_f as ee_federal_tax
+         ,b.t_s as ee_state_tax
   from ee_or_mached_final   a
-  left join
-         state_rates b
-        
-	   on a.ee_state = upcase(b.state) and year(a.exec_dt) = b.year ;
+         left join
+        state_rates b
+   on a.ee_state = upcase(b.state) and year(a.exec_dt) = b.year ;
  /*where NOT missing(a.ee_state);*
        
        */
@@ -199,11 +205,10 @@ proc sql;
  proc sql; 
   create table or_ee_trans_tax as 
      select a.*, b.t_f as or_federal_tax, b.t_s as or_state_tax
-  from  ee_trans_tax  a
-  left join  state_rates b
-       on upcase(a.or_state) = upcase(b.state_short) and year(a.exec_dt) = b.year;
-	   
-	   quit;
+     from         ee_trans_tax  a
+       left join  state_rates b
+  on upcase(a.or_state) = upcase(b.state_short) and year(a.exec_dt) = b.year;
+  quit;
 run;
 
 /*Merge ee_or with country tax Rate*
