@@ -281,3 +281,8 @@ PROC IMPORT OUT= WORK.&outfile
             DBMS=STATA REPLACE;
 RUN;
 %mend importStat;
+
+%macro print30(infile, obs=30);
+proc print data=&infile (obs=&obs);
+run;
+%mend print30;

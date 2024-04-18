@@ -39,7 +39,7 @@ quit;
 */
 
 
-%importstat(infile="C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet\country_tax_rate.dta"
+%importstat(infile="C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet\country_tax_rate0416.dta"
 ,outfile=country_tax)
 /*;
 Recode the country name in international country tax data 
@@ -83,18 +83,7 @@ https://www.iban.com/country-codes
           ISOALPHA2='MO',	
           ISOALPHA3='MAC',
           ISONAME='Macao'
-          
-      set ID='HK',
-          IDNAME='Hong Kong',
-          ISOALPHA2='HK',	
-          ISOALPHA3='HKG',
-          ISONAME='Hong Kong'
-      set ID='MO',
-          IDNAME='Macao',
-          ISOALPHA2='MO',	
-          ISOALPHA3='MAC',
-          ISONAME='Macao';
-          quit; 
+   quit; 
 run;
 
 /* Get more country name representaions (IDNAME, ISO ALPHA3) 
@@ -276,6 +265,9 @@ WALES
 * Some country names are not correct, or did not show in coutry_taxrate file
 * We first standidize them
 ************************************************************************************;
+data or_ee_trans_tax;
+set mergback.or_ee_trans_tax;
+run;
 proc sql;
     update or_ee_trans_tax
        set ee_country = "CANADA"
@@ -384,7 +376,7 @@ run;
 /* Deal with missed ee_country and or country
 
 */
-
+/*
 proc sql;
 select * from country_taxrate_all_my
 where isoalpha3 in ("AUS", 'AUT', 'BEL','AFG', 'LUX');
@@ -425,7 +417,7 @@ table year*IDNAME /nopercent nocum norow nocol
 run;
 
 ods trace off;
-
+*/
 proc freq data = country_taxrate_all_my ;
 table fyendyr;
 run;
@@ -452,4 +444,12 @@ run;
 PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
 select or_ee_trans_tax_state_country;
+RUN;    
+
+
+
+
+PROC DATASETS NOLIST;
+COPY IN = work OUT = mergback ;
+select  country_tax ;
 RUN;
