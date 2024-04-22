@@ -15,11 +15,11 @@ libname data "D:\Download";
 
 /*
 proc sql;
-select permno, permco, COMNAM, year from &Tmp1..Crsp_hist where permno =10001;
+select permno, permco, COMNAM, year from Data.Crsp_hist where permno =10001;
 quit;
 run;
 proc sql;
-select permno, permco, COMNAM, year from &Tmp1..Crsp_hist where permno =14592
+select permno, permco, COMNAM, year from Data.Crsp_hist where permno =14592
 order by year;
 quit;
 run;
@@ -40,25 +40,39 @@ permno
 86902
 */
 
-
+/* Check 3COM, which has merger and name chagne
+*/
 proc sql;
-select permno, permco, COMNAM, year from &Tmp1..Crsp_hist where permno =10216;
-quit;
-run;
-proc sql;
-select permno, permco, COMNAM from &Tmp1..Crsp_hist where permno =24942;
-quit;
-run;
-proc sql;
-select * from &Tmp1..Crsp_hist where missing(COMNAM);
-quit;
-run;
-proc sql;
-select permno, permco, COMNAM, year,  date from &Tmp1..Crsp_hist where permno =23579;
+select permno, permco, COMNAM, year from Data.Crsp_hist where permno =22592;
 quit;
 run;
 
+proc sql;
+select permno, permco, COMNAM, year from Data.Crsp_hist where permno =10216;
+quit;
+run;
+proc sql;
+select permno, permco, COMNAM from Data.Crsp_hist where permno =24942;
+quit;
+run;
+proc sql;
+select * from Data.Crsp_hist where missing(COMNAM);
+quit;
+run;
+proc sql;
+select permno, permco, COMNAM, year,  date from Data.Crsp_hist where permno =23579;
+quit;
+run;
+permno
 
+proc sql;
+select  permno, issue_date from kpss2022 where patent_num  ="6649529";
+quit;
+run;
+proc sql;
+select permno, permco, COMNAM, year,  date from Data.Crsp_hist where permno =59328;
+quit;
+run;
 
 /*
 Reset Ending date:
@@ -72,7 +86,7 @@ Reset Ending date:
 proc sql;
 create table  temp_crsp_hisp as
     select *, min(year) as  start_year, max(year) as end_year
-    from  &Tmp1..Crsp_hist
+    from  Data.Crsp_hist
     group by permno, permco, COMNAM;
 quit;
 run;
@@ -85,14 +99,14 @@ Here We keep original date rather than year to keep the match more fine degree
 proc sql;
 create table  temp_crsp_hisp as
     select *, min(date) as  start_year format= MMDDYY10. , max(date) as end_year format= MMDDYY10.
-    from  &Tmp1..Crsp_hist
+    from  Data.Crsp_hist
     group by permno, permco, COMNAM;
 quit;
 run;
 /*
 
 proc sql;
-select permno, permco, COMNAM, year ,start_year, from &Tmp1..Crsp_hist where permno =14592
+select permno, permco, COMNAM, year ,start_year, from Data.Crsp_hist where permno =14592
 order by year;
 quit;
 run;
@@ -259,12 +273,12 @@ run;
  select count(distinct permno) from KPSS2022;
  run;
  proc sql;
- select count(*) from &Tmp1..Crsp_hist;
+ select count(*) from Data.Crsp_hist;
  quit;
  run;
 
  proc sql;
-select permno, permco, COMNAM, NAMEENDT from &Tmp1..Crsp_hist where permno =10275;
+select permno, permco, COMNAM, NAMEENDT from Data.Crsp_hist where permno =10275;
 quit;
 
 PROC DATASETS;

@@ -251,6 +251,7 @@ run;
 %macro contents(table);
 Title "Varibales in table &table";
 proc contents data= &table;
+ods select variables;
 run;
 %mend contents;
 
@@ -275,12 +276,12 @@ run;
 *
 * ;
 ********************************************************************************;
-%macro importStat(infile=, outfile=);
+%macro loadStata(infile=, outfile=);
 PROC IMPORT OUT= WORK.&outfile 
             DATAFILE= &infile 
             DBMS=STATA REPLACE;
 RUN;
-%mend importStat;
+%mend loadStata;
 
 %macro print30(infile, obs=30);
 proc print data=&infile (obs=&obs);

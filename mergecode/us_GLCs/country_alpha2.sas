@@ -63,9 +63,19 @@ data country_taxrate;
     ELSE IF upcase(TAX_COUNTRY_NAME) = "VIETNAM"       THEN TAX_COUNTRY_NAME="VIET NAM";
 run;
  /* Hong Kong is not in the table of "mapsgfk.world_attr"
-    We add Hong Kong to the dataset
-
+  Here I  add Hong Kong to the dataset
+https://stackoverflow.com/questions/32771303/sas-format-to-convert-country-codes-to-country-names
+SAS 9.4 has a new set of maps, the GFK maps, which has a dataset that contains information similar to 
+Sashelp.demographics which contains the Country Code but not the country alphanumeric code.
+MAPSGFK.WORLD_ATTR has the country name, 
+        upcased country name, 
+        2 letter alpha, ISO 2 letter alpha, 
+         ISO 3 letter alpha, and ISO country code for each country in its list (250 in total).
 https://www.iban.com/country-codes
+
+sas help:
+https://documentation.sas.com/doc/en/pgmmvacdc/9.4/grmapref/p03gwkwlwxhv5dn1drl3z922qzxd.htm
+mapsgfk.world_attr
 */ 
 
  proc sort data=mapsgfk.world_attr out= _SAS_country_names_;

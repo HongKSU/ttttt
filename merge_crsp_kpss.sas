@@ -40,7 +40,8 @@ permno
 86902
 */
 
-/* Check 3COM, which has merger and name chagne
+/*
+* Check 3COM, which has merger and name chagne
 */
 proc sql;
 select permno, permco, COMNAM, year from Data.Crsp_hist where permno =22592;
@@ -63,12 +64,13 @@ proc sql;
 select permno, permco, COMNAM, year,  date from Data.Crsp_hist where permno =23579;
 quit;
 run;
-permno
+
 
 proc sql;
 select  permno, issue_date from kpss2022 where patent_num  ="6649529";
 quit;
 run;
+
 proc sql;
 select permno, permco, COMNAM, year,  date from Data.Crsp_hist where permno =59328;
 quit;
@@ -98,13 +100,14 @@ Here We keep original date rather than year to keep the match more fine degree
 */
 proc sql;
 create table  temp_crsp_hisp as
-    select *, min(date) as  start_year format= MMDDYY10. , max(date) as end_year format= MMDDYY10.
+    select *, min(date) as  start_year format= MMDDYY10. 
+            ,max(date) as end_year format= MMDDYY10.
     from  Data.Crsp_hist
     group by permno, permco, COMNAM;
 quit;
 run;
-/*
 
+/*
 proc sql;
 select permno, permco, COMNAM, year ,start_year, from Data.Crsp_hist where permno =14592
 order by year;
@@ -159,6 +162,7 @@ select count (*) from temp_crsp_hisp_unique;
 run;
 */
 /* The following data has empty COMNAM */
+
 proc sort data=temp_crsp_hisp out=temp_crsp_hisp_unique nodupkey;
 by permno permco COMNAM;
 run;
@@ -241,10 +245,12 @@ and 30 days after the date of last observation*
 
 
 proc sql;
- create table kpss_crsp2 as
- select Kpss2022.*, crsp1925_2022.COMNAM, crsp1925_2022.permco, crsp1925_2022.year, crsp1925_2022.end_year,crsp1925_2022.start_year
-  from crsp1925_2022, Kpss2022
- where crsp1925_2022.permno = Kpss2022.permno  AND Kpss2022.issue_y +30>= crsp1925_2022.start_year AND  Kpss2022.issue_y-30 <=crsp1925_2022.end_year;
+  create table kpss_crsp2 as
+    select Kpss2022.*, crsp1925_2022.COMNAM, crsp1925_2022.permco, crsp1925_2022.year, crsp1925_2022.end_year,crsp1925_2022.start_year
+    from crsp1925_2022, Kpss2022
+    where crsp1925_2022.permno = Kpss2022.permno  
+       AND Kpss2022.issue_y +30>= crsp1925_2022.start_year 
+       AND  Kpss2022.issue_y-30 <=crsp1925_2022.end_year;
 quit;
 run;
 
