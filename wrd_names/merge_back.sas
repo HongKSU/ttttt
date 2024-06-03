@@ -189,15 +189,14 @@ run;
 *
 ************************************************************************************; 
 proc sql; 
- 
   create table ee_trans_tax as 
-  select a.* 
-         ,b.t_f as ee_federal_tax
-         ,b.t_s as ee_state_tax
-  from ee_or_mached_final   a
+    select a.* 
+          ,b.t_f as ee_federal_tax
+          ,b.t_s as ee_state_tax
+    from ee_or_mached_final   a
          left join
         state_rates b
-   on a.ee_state = upcase(b.state) and year(a.exec_dt) = b.year ;
+    on a.ee_state = upcase(b.state) and year(a.exec_dt) = b.year ;
  /*where NOT missing(a.ee_state);*
        
        */
@@ -244,7 +243,9 @@ Title "Structure of or_ee_trans_tax";
 run;
 
 proc sql  outobs=15;
-  select  distinct ee_name,  ee_gvkey, count(relation) as rela_count
+  select  distinct ee_name,  
+                   ee_gvkey,
+                   count(relation) as rela_count
   from or_ee_trans_tax
   where relation=1 
   group by ee_name

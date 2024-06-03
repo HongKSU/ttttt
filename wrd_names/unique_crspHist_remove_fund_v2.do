@@ -12,14 +12,18 @@ output:
   113,981 v1
   114,427 v2
 
+  if global:
+   global mypath "path"
+   import excel $mypath
 */
-*local  compall "D:\Research\patent\data\wrds_names\com_all_names_unique.sas7bdat"
+ local  compall "D:\Research\patent\data\wrds_names\com_all_names_unique.sas7bdat"
 	           
 *use "D:\Research\patent\data\wrds_names\SMALL_CRSP_HIST.dta" 
  
 
 clear
-import sas conm conmL gvkey fic loc costat idbflag city naics sic county state ipo_y start_y end_y global /*
+import sas conm conmL gvkey fic loc costat idbflag city naics sic county state ipo_y start_y end_y using `compall'
+global /*
            */using  "D:\Research\patent\data\wrds_names\com_all_names_unique.sas7bdat"
 /*"`comp_all'"*/
 

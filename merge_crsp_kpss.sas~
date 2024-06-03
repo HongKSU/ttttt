@@ -40,8 +40,9 @@ permno
 86902
 */
 
-/* Check 3COM, which has merger and name chagne
-*/
+/*
+* Check 3COM, which has merger and name chagne
+*
 proc sql;
 select permno, permco, COMNAM, year from Data.Crsp_hist where permno =22592;
 quit;
@@ -63,26 +64,27 @@ proc sql;
 select permno, permco, COMNAM, year,  date from Data.Crsp_hist where permno =23579;
 quit;
 run;
-permno
+
 
 proc sql;
 select  permno, issue_date from kpss2022 where patent_num  ="6649529";
 quit;
 run;
+
 proc sql;
 select permno, permco, COMNAM, year,  date from Data.Crsp_hist where permno =59328;
 quit;
 run;
 
-/*
+*
 Reset Ending date:
  start_year = by name start year and 
  end_year = the year which names last apear
-*/
+*
 
  
  
-/*
+*
 proc sql;
 create table  temp_crsp_hisp as
     select *, min(year) as  start_year, max(year) as end_year
@@ -90,21 +92,23 @@ create table  temp_crsp_hisp as
     group by permno, permco, COMNAM;
 quit;
 run;
-*/
+*
 /*--
 How about match by year?
 
-Here We keep original date rather than year to keep the match more fine degree
+Here We keep original date rather than year to keep the match at a finer degree
 */
 proc sql;
 create table  temp_crsp_hisp as
-    select *, min(date) as  start_year format= MMDDYY10. , max(date) as end_year format= MMDDYY10.
+    select *
+           , min(date) as  start_year format= MMDDYY10. 
+           ,max(date)  as end_year format= MMDDYY10.
     from  Data.Crsp_hist
     group by permno, permco, COMNAM;
 quit;
 run;
-/*
 
+/*
 proc sql;
 select permno, permco, COMNAM, year ,start_year, from Data.Crsp_hist where permno =14592
 order by year;
@@ -148,8 +152,8 @@ data temp_crsp_hisp;
 /* read in: 4927531
 * out: 4892530 */
 set temp_crsp_hisp ;*(where= (!missing(COMNAM));
-*if !missing(COMNAM);
-*if COMNAM NE missing(COMNAM);
+ *if !missing(COMNAM);
+ *if COMNAM NE missing(COMNAM);
 where not missing(COMNAM);
 run;
 
@@ -159,8 +163,10 @@ select count (*) from temp_crsp_hisp_unique;
 run;
 */
 /* The following data has empty COMNAM */
-proc sort data=temp_crsp_hisp out=temp_crsp_hisp_unique nodupkey;
-by permno permco COMNAM;
+
+proc sort data = temp_crsp_hisp 
+	  out = temp_crsp_hisp_unique nodupkey;
+  by permno permco COMNAM;
 run;
 
 /*
@@ -179,8 +185,8 @@ run;
 and rename the one as crsp1925_2022 
 */
 PROC DATASETS;
-COPY IN = work OUT = crsp;
-select temp_crsp_hisp_unique ;
+   COPY IN = work OUT = crsp;
+   select temp_crsp_hisp_unique ;
 RUN;
 /*
 bysort  PERMNO PERMCO: gen year_end = year[_n+1]
@@ -199,7 +205,7 @@ proc datasets library=work;
 run;
 */
 data crsp1925_2022;
-set crsp.temp_crsp_hisp_unique;
+  set crsp.temp_crsp_hisp_unique;
 run;
 /*
 proc sql;
@@ -241,10 +247,17 @@ and 30 days after the date of last observation*
 
 
 proc sql;
- create table kpss_crsp2 as
- select Kpss2022.*, crsp1925_2022.COMNAM, crsp1925_2022.permco, crsp1925_2022.year, crsp1925_2022.end_year,crsp1925_2022.start_year
-  from crsp1925_2022, Kpss2022
- where crsp1925_2022.permno = Kpss2022.permno  AND Kpss2022.issue_y +30>= crsp1925_2022.start_year AND  Kpss2022.issue_y-30 <=crsp1925_2022.end_year;
+  create table kpss_crsp2 as
+    select Kpss2022.*
+           , crsp1925_2022.COMNAM
+	   , crsp1925_2022.permco
+	   , crsp1925_2022.year
+	   , crsp1925_2022.end_year
+	   , crsp1925_2022.start_year
+    from crsp1925_2022, Kpss2022
+     where crsp1925_2022.permno = Kpss2022.permno  
+       AND Kpss2022.issue_y +30 >= crsp1925_2022.start_year 
+       AND  Kpss2022.issue_y-30 <=crsp1925_2022.end_year;
 quit;
 run;
 
@@ -325,7 +338,7 @@ run;
 proc sql;
  create table kpss_crsp_dup as
   select * from  kpss_crsp2
-  group by patent_num, permno, issue_date
+   group by patent_num, permno, issue_date
 having count(*) gt 1;
 
 
@@ -364,28 +377,37 @@ RUN;
 */
 PROC DATASETS;
 COPY IN = work OUT = crsp;
-select crsp1925_2022 Kpss_crsp2 kpss_crsp_No_dup kpss_crsp_dup;
+  select crsp1925_2022 
+         Kpss_crsp2 
+	 kpss_crsp_No_dup 
+	 kpss_crsp_dup;
 RUN;
 
 data kpss_dup_names;
-set crsp.kpss_crsp_dup (keep = patent_num permno issue_y);
+set crsp.kpss_crsp_dup (keep = patent_num 
+                               permno 
+			       issue_y);
 run;
 
-proc sort data=kpss_dup_names out= crsp_dup_unique nodupkey;
+proc sort data = kpss_dup_names 
+	  out = crsp_dup_unique nodupkey;
 by permno ;
 run;
-proc sort data=kpss_dup_names out= kpss_dup_unique nodupkey;
+proc sort data = kpss_dup_names 
+          out= kpss_dup_unique nodupkey;
 by   patent_num permno issue_y ;
 run;
+
 /* select the CRSP source */
 
 proc sql;
  create table crsp_overlap_time_names as
- select a.* from data.crsp_hist a
-      inner join 
-      crsp_dup_unique b
- on a.permno = b.permno
- order by a.permno, date;
+ select a.* 
+   from data.crsp_hist a
+        inner join 
+       crsp_dup_unique b
+   on a.permno = b.permno
+   order by a.permno, date;
 quit;
 run;
 
@@ -400,9 +422,13 @@ kpss: issue time
 
 proc sql;
  create table kpss_crsp_part2 as
- select kpss_dup_unique.*, a.COMNAM, a.permco, a.date, intck('day', kpss_dup_unique.issue_y, a.date) as diff_days
+ select kpss_dup_unique.*
+        , a.COMNAM
+        , a.permco
+	, a.date
+	, intck('day', kpss_dup_unique.issue_y, a.date) as diff_days
   from crsp_overlap_time_names a, kpss_dup_unique
-  where a.permno = kpss_dup_unique.permno  
+    where a.permno = kpss_dup_unique.permno  
 having abs(diff_days) <15.5;
 quit;
 run;

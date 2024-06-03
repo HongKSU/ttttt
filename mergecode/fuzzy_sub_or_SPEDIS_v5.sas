@@ -261,27 +261,29 @@ proc contents data= &table short varnum;
 run;
 %mend varList;
 
-%macro unique_values(table, var_name1=GVKEY, var_name2=CONM);
-Title "The count of unique variable values";
+%macro unique_values(table, var_name1, var_name2);
+Title "The count of total values and  unique variable &var_name1 and &var_name2 values from table &table";
 proc sql;
-select count(distinct &var_name1) as gvkey_N from  &table
+select count(*) ,'total' as total from &table
 union
-select count(distinct &var_name2) as conm_N from &table;
+select count(distinct &var_name1) as gvkey_N, "&var_name1" as uniq1 from  &table
+union
+select count(distinct &var_name2) as conm_N, "&var_name2" as unique_2 from &table;
 quit;
 run;
 %mend unique_values;
 ********************************************************************************;
-* importStat *;
+* importStaat *;
 * Load stata file to SAS WORK lib *;
 *
 * ;
 ********************************************************************************;
-%macro loadStata(infile=, outfile=);
+%macro importStata(infile=, outfile=);
 PROC IMPORT OUT= WORK.&outfile 
             DATAFILE= &infile 
             DBMS=STATA REPLACE;
 RUN;
-%mend loadStata;
+%mend importStata;
 
 %macro print30(infile, obs=30);
 proc print data=&infile (obs=&obs);
