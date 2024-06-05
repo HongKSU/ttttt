@@ -13,7 +13,7 @@ input data: or_ee_trans_tax_state_country.dta
 *******************************************************************************/
 proc sort data = mergback.or_ee_trans_tax_state_country 
       out=_t0_or_ee_gvkey nodupkey;
-    by rf_id  descending ee_gvkey ee_name or_name  or_gvkey des;
+    by rf_id  descending ee_gvkey ee_name or_name descending or_gvkey  ;
 run;
 
 /***********************
@@ -23,8 +23,8 @@ run;
 data _t1_or_ee_gvkey;
     set _t0_or_ee_gvkey;
       by rf_id;
-    if first.rf_id then dup_rf_id=0;
-      dup_rf_id +1;
+      if first.rf_id then dup_rf_id=0;
+        dup_rf_id +1;
 run;
     
 proc sql;
@@ -46,7 +46,7 @@ data t2_or_ee_gvkey;
     else if (total_dup > 1 and nonmis_ee =0 and dup_rf_id =1) then output;
     else if (total_dup > 1 and nonmis_ee =1 and not missing(ee_gvkey)) then output;
     else if (total_dup > 1 and nonmis_ee >1 and not missing(ee_gvkey) and dup_rf_id =2) then output;
-    drop dup_rf_id total_dup nonmiss_ee;
+    drop dup_rf_id total_dup nonmis_ee;
 run;
 
 proc sql;
@@ -57,15 +57,16 @@ drop table _t0_or_ee_gvkey
     quit;
 run;
 
+/*
 %contents(documentid)
-
+*/
 /* merge with the documentid to grab the patent number
 * Each rf_id can have multiple patentno
 */
 %let usptoData=D:\Research\patent\data\uspto\2022;
-%loadStata(infile="&usptoData\documentid.dta", outfile=documentid)
-%loadStata(infile="D:\Research\patent\data\kpss.dta", outfile=kpss2022)
-%loadStata(infile="D:\Research\patent\data\assignment_conveyance.dta", outfile=assignment_conveyance)
+%importStata(infile="&usptoData\documentid.dta", outfile=documentid)
+%importStata(infile="D:\Research\patent\data\kpss.dta", outfile=kpss2022)
+%importStata(infile="D:\Research\patent\data\assignment_conveyance.dta", outfile=assignment_conveyance)
 
 /********************************************************************************;
 *
@@ -182,9 +183,13 @@ run;
 %varlist(or_ee_trans_sort) 
 
 merge or_ee_gvkey_patentid to get or_permno
+
+Note: missing exec_dt: Invalid (or missing) arguments to 
+the YEAR function have caused the function to return a missing value.
 */
 sasfile Crsp_comp_ccm load;
 proc sql; * with 327470 rows and 11 columns.;
+
 create table or_ee_trans_permno1 as 
 select a.*
        ,or_gvkey
@@ -199,7 +204,9 @@ select a.*
            Crsp_comp_ccm as b
            on a.or_gvkey=b.gvkey
                 AND 
-              fyear-2 LE year(a.exec_dt) LE fyear+1 ;
+               year(a.exec_dt) = fyear  
+  /*where not missing(a.exec_dt)*/
+ ;
  quit;
  run;
 sasfile Crsp_comp_ccm close;
@@ -208,7 +215,8 @@ sasfile Crsp_comp_ccm close;
 * Merge with assignment to get the record_dt;
 *output dataset:                               ;
 *            or_ee_gvkey_patentid_record_dt     ;
-*;
+*Table WORK.OR_EE_GVKEY_PATENTID_RECORD_DT created, with 78855 rows and 33 columns.;
+
 ********************************************************************************;
 proc sql;
  create table or_ee_gvkey_patentid_record_dt as 
@@ -217,7 +225,8 @@ proc sql;
         from or_ee_trans_permno1 as a
             inner join assignment as b
          on a.rf_id =b.rf_id
-          where NOT missing(permno) and relation=1
+          where NOT missing(permno) and 
+                relation=1              
             ;
          quit;
 run;
@@ -300,7 +309,7 @@ proc sql;
     /*wrds_evt_Neg20_p10 a*/
     car0_evtwin_wide as a
     left join
-     or_ee_gvkey_patentid_record_dt b
+     or_ee_gvkey_patentid_record_dt as b
    on a.PERMNO = b.permno 
    and b.record_dt=a.evtdate;
 quit;
@@ -315,7 +324,7 @@ proc sql;
     /*wrds_evt_Neg20_p10 a*/
     wrds_or_ee_event_res_car0 as a
     left join
-     mergback.compustat1979_2023 b
+     mergback.compustat1979_2023 as b
    on a.or_gvkey = b.GVKEY 
    and year(a.record_dt) - b.FYEAR=1;
 quit;

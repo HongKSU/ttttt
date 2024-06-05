@@ -1,0 +1,1654 @@
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA.
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M7)
+      Licensed to KENT STATE UNIVERSITY - SFA T&R, Site 70080762.
+NOTE: This session is executing on the X64_10PRO  platform.
+
+
+
+NOTE: Analytical products:
+
+      SAS/STAT 15.2
+      SAS/ETS 15.2
+      SAS/OR 15.2
+      SAS/IML 15.2
+      SAS/QC 15.2
+
+NOTE: Additional host information:
+
+ X64_10PRO WIN 10.0.22000  Workstation
+
+NOTE: SAS initialization used:
+      real time           13.59 seconds
+      cpu time            2.01 seconds
+
+1
+2    /*
+3    Proc options option=cpucount;
+4    Run;
+5    */
+6    options cpuCount = actual;
+7    options msglevel=i fullstimer;
+8    options threads;
+9
+10   /************************************************************************
+11   * Load the COMP_CRSP merged dataset---downloaded from WRDS CRSP
+12   * Date: Mar 21,2024
+13   * Location: C:\Users\lihon\Downloads\merge_back\crsp_comp_ccm.sas7bdat
+14   * "Crsp_comp_ccm","12.8MB","Table","","20Mar2024:20:56:29"
+15   * Variables: GVKEY DATADATE FYEAR
+16                LPERMCO LPERMNO CONSOL INDFMT DATAFMT POPSRC CURCD COSTAT
+17   */
+18
+19   data Crsp_comp_ccm;
+20   set "C:\Users\lihon\Downloads\merge_back\crsp_comp_ccm_v1.sas7bdat";
+21   run;
+
+NOTE: There were 329697 observations read from the data set
+      C:\Users\lihon\Downloads\merge_back\crsp_comp_ccm_v1.sas7bdat.
+NOTE: The data set WORK.CRSP_COMP_CCM has 329697 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.04 seconds
+      memory              1461.25k
+      OS Memory           10988.00k
+      Timestamp           06/01/2024 11:59:17 AM
+      Step Count                        1  Switch Count  0
+
+
+22
+23   /*
+24   * Load the data to work directory, keep variables needed for event study merge;
+25   * Load assignment.dta *
+26   * April 1, 2024
+27   */
+28   PROC IMPORT OUT= WORK.assignment
+29               DATAFILE= "D:\Research\patent\data\uspto\2022\assignment.dta"
+30               DBMS=STATA REPLACE;
+31
+32   RUN;
+
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable cname has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable caddress_1 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable caddress_2 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable caddress_3 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable caddress_4 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable convey_text has
+      been converted to CHAR data type.
+NOTE: The import data set has 10046764 observations and 14 variables.
+NOTE: WORK.ASSIGNMENT data set was successfully created.
+NOTE: PROCEDURE IMPORT used (Total process time):
+      real time           1:04.20
+      user cpu time       33.73 seconds
+      system cpu time     24.48 seconds
+      memory              302800.37k
+      OS Memory           356320.00k
+      Timestamp           06/01/2024 12:00:22 PM
+      Step Count                        2  Switch Count  0
+
+
+33   %importStata(infile="C:\Users\lihon\Downloads\merge_back\or_ee_trans_tax_state_coun
+     -
+     180
+33 ! try.dta",
+WARNING: Apparent invocation of macro IMPORTSTATA not resolved.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+
+34               outfile=or_ee_trans_tax)
+
+35   %macro contents(table);
+36   Title "Varibales in table &table";
+37   proc contents data= &table;
+38   ods select variables;
+39   run;
+40   %mend contents;
+41
+42   %macro varList(table);
+43   Title "Varibale list in table &table";
+44   proc contents data= &table short varnum;
+45   run;
+46   %mend varList;
+
+47
+48   %macro unique_values(table, var_name1, var_name2);
+49   Title "The count of total values and  unique variable &var_name1 and &var_name2
+49 ! values from table &table";
+50   proc sql;
+51   select count(*) ,'total' as total from &table
+52   union
+53   select count(distinct &var_name1) as gvkey_N, "&var_name1" as uniq1 from  &table
+54   union
+55   select count(distinct &var_name2) as conm_N, "&var_name2" as unique_2 from &table;
+56   quit;
+57   run;
+58   %mend unique_values;
+59   ********************************************************************************;
+60   * importStaat *;
+61   * Load stata file to SAS WORK lib *;
+62   *
+63   * ;
+64   ********************************************************************************;
+65   %macro importStata(infile=, outfile=);
+66   PROC IMPORT OUT= WORK.&outfile
+67               DATAFILE= &infile
+68               DBMS=STATA REPLACE;
+69   RUN;
+70   %mend importStata;
+71
+72   %macro print30(infile, obs=30);
+73   proc print data=&infile (obs=&obs);
+74   run;
+75   %mend print30;
+
+76   %importStata(infile="C:\Users\lihon\Downloads\merge_back\or_ee_trans_tax_state_coun
+76 ! try.dta",
+77               outfile=or_ee_trans_tax)
+
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable ee_name has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable ee_state has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable ee_country has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable or_name has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable ee_gvkey has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable or_gvkey has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable or_state has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable or_fic has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable or_naics has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable ee_state2 has been
+      converted to CHAR data type.
+NOTE: VARCHAR data type is not supported by the V9 engine. Variable or_country has been
+      converted to CHAR data type.
+NOTE: The import data set has 200806 observations and 28 variables.
+NOTE: WORK.OR_EE_TRANS_TAX data set was successfully created.
+NOTE: PROCEDURE IMPORT used (Total process time):
+      real time           1.48 seconds
+      user cpu time       0.50 seconds
+      system cpu time     0.43 seconds
+      memory              1150.90k
+      OS Memory           13532.00k
+      Timestamp           06/01/2024 12:02:11 PM
+      Step Count                        3  Switch Count  0
+
+
+
+78   data or_ee_trans_tax;
+79      /*set "C:\Users\lihon\Downloads\merge_back\or_ee_trans_tax.sas7bdat"(keep
+80          =rf_id ee_name or_name exec_dt or_gvkey relation);*/
+81       set or_ee_trans_tax(
+82                         keep=rf_id ee_name or_name exec_dt or_gvkey relation
+82 ! deciles_for foreign_tran);
+83                         exec_year = year(exec_dt);
+84   run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing
+      values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      87 at 83:35
+NOTE: There were 200806 observations read from the data set WORK.OR_EE_TRANS_TAX.
+NOTE: The data set WORK.OR_EE_TRANS_TAX has 200806 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.40 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.21 seconds
+      memory              643.34k
+      OS Memory           13296.00k
+      Timestamp           06/01/2024 12:02:18 PM
+      Step Count                        4  Switch Count  0
+
+
+85   proc sort data= or_ee_trans_tax
+86             out = or_ee_trans_sort NODUPKEY;
+87       by rf_id  or_name exec_dt;
+88   run;
+
+NOTE: There were 200806 observations read from the data set WORK.OR_EE_TRANS_TAX.
+NOTE: SAS threaded sort was used.
+NOTE: 62410 observations with duplicate key values were deleted.
+NOTE: The data set WORK.OR_EE_TRANS_SORT has 138396 observations and 9 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           1.15 seconds
+      user cpu time       0.26 seconds
+      system cpu time     0.32 seconds
+      memory              128767.00k
+      OS Memory           140944.00k
+      Timestamp           06/01/2024 12:02:25 PM
+      Step Count                        5  Switch Count  0
+
+
+89   sasfile Crsp_comp_ccm load;
+NOTE: The file WORK.CRSP_COMP_CCM.DATA has been loaded into memory by the SASFILE
+      statement.
+90   proc sql;
+90 !           * with 327470 rows and 11 columns.;
+91   create table or_ee_trans_permno1 as
+92   select rf_id
+93          ,or_name
+94          ,exec_dt
+95          ,exec_year
+96          ,or_gvkey
+97          ,relation
+98          ,lpermno as permno
+99          ,lpermco as permco
+100         ,fyear
+101         ,datadate
+102         ,costat
+103         ,deciles_for
+104         ,foreign_tran
+105         from or_ee_trans_sort as a
+106             left join
+107             Crsp_comp_ccm as b
+108             on a.or_gvkey=b.gvkey
+109                AND fyear-2 LE exec_year LE fyear+1 ;
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.OR_EE_TRANS_PERMNO1 created, with 361576 rows and 13 columns.
+
+110   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           1.25 seconds
+      user cpu time       0.76 seconds
+      system cpu time     0.21 seconds
+      memory              39215.25k
+      OS Memory           76380.00k
+      Timestamp           06/01/2024 12:02:36 PM
+      Step Count                        6  Switch Count  0
+
+
+111   run;
+112  sasfile Crsp_comp_ccm close;
+NOTE: The file WORK.CRSP_COMP_CCM.DATA has been closed by the SASFILE statement.
+113  proc sort data = or_ee_trans_permno1 NODUPKEY
+114            out  = or_ee_trans_permno2 ;
+115      by rf_id or_name exec_dt permno;
+116  run;
+
+NOTE: There were 361576 observations read from the data set WORK.OR_EE_TRANS_PERMNO1.
+NOTE: SAS threaded sort was used.
+NOTE: 221507 observations with duplicate key values were deleted.
+NOTE: The data set WORK.OR_EE_TRANS_PERMNO2 has 140069 observations and 13 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.40 seconds
+      user cpu time       0.43 seconds
+      system cpu time     0.32 seconds
+      memory              177183.12k
+      OS Memory           191596.00k
+      Timestamp           06/01/2024 12:02:41 PM
+      Step Count                        7  Switch Count  0
+
+
+117  proc sql;
+118    create table for_event_study1 as
+119    select a.rf_id as rf_id
+120          ,permno
+121          ,relation
+122          ,deciles_for
+123          ,foreign_tran
+124          ,exec_dt
+125          ,record_dt
+126          ,or_name
+127          ,a.or_gvkey as or_gvkey
+128          from or_ee_trans_permno2 as a
+129              inner join assignment as b
+130              on a.rf_id =b.rf_id
+131              where NOT missing(permno) and relation=1
+132              ;
+NOTE: Table WORK.FOR_EVENT_STUDY1 created, with 27651 rows and 9 columns.
+
+133    quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           9.51 seconds
+      user cpu time       3.57 seconds
+      system cpu time     5.67 seconds
+      memory              5790.56k
+      OS Memory           20988.00k
+      Timestamp           06/01/2024 12:02:57 PM
+      Step Count                        8  Switch Count  0
+
+
+134  run;
+
+135  proc sort data = for_event_study1
+136            out  = for_event_study_v2  NODUPKEYS;
+137            by permno record_dt;
+138  run;
+
+NOTE: There were 27651 observations read from the data set WORK.FOR_EVENT_STUDY1.
+NOTE: SAS sort was used.
+NOTE: 8777 observations with duplicate key values were deleted.
+NOTE: The data set WORK.FOR_EVENT_STUDY_V2 has 18874 observations and 9 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.01 seconds
+      memory              8726.15k
+      OS Memory           24092.00k
+      Timestamp           06/01/2024 12:03:15 PM
+      Step Count                        9  Switch Count  0
+
+
+139  data for_event_study_relation;
+140        format permno record_dt;
+141        set for_event_study_v2 ( where= (NOT missing(permno) )
+142                                 keep=permno record_dt
+143                               );
+144  run;
+
+NOTE: There were 18874 observations read from the data set WORK.FOR_EVENT_STUDY_V2.
+      WHERE not MISSING(permno);
+NOTE: The data set WORK.FOR_EVENT_STUDY_RELATION has 18874 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.01 seconds
+      memory              646.53k
+      OS Memory           16116.00k
+      Timestamp           06/01/2024 12:03:24 PM
+      Step Count                        10  Switch Count  0
+
+
+NOTE: A byte-order mark in the file
+      "C:\Users\lihon\Downloads\sas_code\mergecode\after_merge_postProcessing.sas" (for
+      fileref "#LN00064") indicates that the data is encoded in "utf-8".  This encoding
+      will be used to process the file.
+NOTE: A byte-order mark in the file
+      "C:\Users\lihon\Downloads\sas_code\mergecode\after_merge_postProcessing.sas" (for
+      fileref "#LN00064") indicates that the data is encoded in "utf-8".  This encoding
+      will be used to process the file.
+The operation was canceled by the user.
+145  libname mergback "C:\Users\lihon\Downloads\merge_back";
+NOTE: Libref MERGBACK refers to the same physical library as TMP4.
+NOTE: Libref MERGBACK was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: C:\Users\lihon\Downloads\merge_back
+146  /*https://wrds-www.wharton.upenn.edu/pages/support/applications/event-studies/event
+146! -study-research-application/*/
+147
+148  /* ***************************************************************************** */
+149  /* ********* W R D S   R E S E A R C H   A P P L I C A T I O N S *************** */
+150  /* ***************************************************************************** */
+151  /* Program : EVTSTUDY.SAS                                                        */
+152  /* Summary : Provides a sample methodology for calculating Cumulative            */
+153  /*           Abnormal Returns(CARs)& Buy-Hold Abnormal Returns(BHARs)            */
+154  /*           with various t-statistics (CS test, Standardized CS test&Patell Z)  */
+155  /*           in an event study setting. Displays the dynamics of mean CARs and   */
+156  /*           BHARs in the event window specified by the user                     */
+157  /*                                                                               */
+158  /* Date    : Sep 2011                                                            */
+159  /* Author  : Denys Glushkov, WRDS                                                */
+160  /* ****************************************************************************  */
+161
+162  /* STEP 1A: Speficify the parameters necessary to run the event study such as    */
+163  /* the length of estimation period and event window, gap b/w estimation & event  */
+164  /* window, etc                                                                   */
+165  *%libname mycrsp "C:\Users\hli5\OneDrive - Kent State University\aaaa\event_Study";
+166  libname mycrsp "C:\Users\lihon\patent Dropbox\Victor Li\wrds_data";
+NOTE: Libref MYCRSP was successfully assigned as follows:
+      Engine:        V9
+      Physical Name: C:\Users\lihon\patent Dropbox\Victor Li\wrds_data
+167  %let crsp=mycrsp; /*CRSP libary to be used (CRSPQ - quarterly, CRSP-annual update
+167! */
+168  %let estper=150; /*Length of the estimation period in trading days over which    */
+169                   /*the risk model is estimated                                   */
+170
+171  %let start=-2; /*Beginning of the event window (wtr to the event date,e.g. -2)   */
+172  %let end=2;    /*End of the event window (relative to the event date, e.g., +1)  */
+173  %let gap=30;    /*Length of pre-event window,i.e., number of trading days b/w    */
+174                  /*the end of estimation period and the start of the event window */
+175
+176  %let minest=70; /*Minimum of non-missing returns required for estimation        */
+177  %let evtwin=%eval(&end-&start+1);       /*length of event window in trading days */
+178
+179  /* STEP 1B: As an example, create the input table containing Permno-event dates  */
+180  /* corresponding to the stock additions to and deletions from S&P 500 index      */
+181
+182
+183  *  %event_crack(relation_exec) ;
+184  * %let permno_list=relation_exec;
+185  *%let permno_list=foreign_relation;
+186  %let permno_list=For_event_study1;
+187  *%macro event_crack(permno_list, evt_date=exec_dt);
+188
+189  proc sql;
+190    create table input
+191    as select distinct permno, record_dt as edate format MMDDYY10.
+192    from &permno_list where not missing(&start) and year(record_dt);
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.INPUT created, with 18874 rows and 2 columns.
+
+193  quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.34 seconds
+      user cpu time       0.07 seconds
+      system cpu time     0.01 seconds
+      memory              27543.46k
+      OS Memory           67188.00k
+      Timestamp           06/04/2024 09:52:15 AM
+      Step Count                        11  Switch Count  0
+
+
+194
+195  /* STEP 2. Creating Trading Calendar that accounts for the presence of  */
+196  /* weekends, holidays and other non-trading days in the estimation      */
+197  /* and event windows                                                    */
+198  data caldates;
+199
+200   merge &crsp..dsi(keep=date rename=(date=estper_beg))
+201     &crsp..dsi(keep=date firstobs=&estper rename=(date=estper_end))
+202     &crsp..dsi(keep=date firstobs=%eval(&estper+&gap+1) rename=(date=evtwin_beg))
+203     &crsp..dsi(keep=date firstobs=%eval(&estper+&gap-&start+1)
+203! rename=(date=evtdate))
+204     &crsp..dsi(keep=date firstobs=%eval(&estper+&gap+&evtwin)
+204! rename=(date=evtwin_end));
+INFO: Data file MYCRSP.DSI.DATA is in a format that is native to another host, or the
+file encoding does not match the session encoding. Cross Environment Data Access will
+be used, which might require additional CPU resources and might reduce performance.
+INFO: Data file MYCRSP.DSI.DATA is in a format that is native to another host, or the
+file encoding does not match the session encoding. Cross Environment Data Access will
+be used, which might require additional CPU resources and might reduce performance.
+INFO: Data file MYCRSP.DSI.DATA is in a format that is native to another host, or the
+file encoding does not match the session encoding. Cross Environment Data Access will
+be used, which might require additional CPU resources and might reduce performance.
+INFO: Data file MYCRSP.DSI.DATA is in a format that is native to another host, or the
+file encoding does not match the session encoding. Cross Environment Data Access will
+be used, which might require additional CPU resources and might reduce performance.
+INFO: Data file MYCRSP.DSI.DATA is in a format that is native to another host, or the
+file encoding does not match the session encoding. Cross Environment Data Access will
+be used, which might require additional CPU resources and might reduce performance.
+205
+206    format estper_beg estper_end evtwin_beg evtdate evtwin_end date9.;
+207    label  estper_beg='Start of the Estimation Window'
+208           estper_end='End of the Estimation Window'
+209           evtwin_beg='Start of the Event Window'
+210           evtwin_end='End of the Event Window'
+211           evtdate='Event Date';
+212     index+1;
+213    if nmiss(estper_beg,estper_end,evtwin_beg,evtwin_end,evtdate)=0;
+214  run;
+
+NOTE: There were 25799 observations read from the data set MYCRSP.DSI.
+NOTE: There were 25650 observations read from the data set MYCRSP.DSI.
+NOTE: There were 25619 observations read from the data set MYCRSP.DSI.
+NOTE: There were 25617 observations read from the data set MYCRSP.DSI.
+NOTE: There were 25615 observations read from the data set MYCRSP.DSI.
+NOTE: The data set WORK.CALDATES has 25615 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.26 seconds
+      user cpu time       0.07 seconds
+      system cpu time     0.03 seconds
+      memory              1856.43k
+      OS Memory           41704.00k
+      Timestamp           06/04/2024 09:52:15 AM
+      Step Count                        12  Switch Count  0
+
+
+215
+216  /*STEP 3: If event date is a non-trading day*/
+217  /*      select the closest trading day that*/
+218  /* follows the event day                                                         */
+219  proc sql;
+219!           create table temp
+220   as select a.permno
+221             ,b.*
+222    from input a
+223         left join
+224         caldates b
+225    on b.evtdate-a.edate>=0
+226    group by a.edate
+227    having (b.evtdate-a.edate)=min(b.evtdate-a.edate);
+NOTE: The execution of this query involves performing one or more Cartesian product
+      joins that can not be optimized.
+NOTE: The query requires remerging summary statistics back with the original data.
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.TEMP created, with 18874 rows and 7 columns.
+
+228
+229
+230   /*Returns for sample securities around the event dates */
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           44.89 seconds
+      user cpu time       1:02.70
+      system cpu time     10.73 seconds
+      memory              4992879.70k
+      OS Memory           5032012.00k
+      Timestamp           06/04/2024 09:53:00 AM
+      Step Count                        13  Switch Count  0
+
+
+231    proc sql;
+232   create table evtrets_temp
+233   as select a.permno, a.date format date9., a.ret as ret1,
+234             b.evtdate, b.estper_beg, b.estper_end,
+235             b.evtwin_beg, b.evtwin_end
+236   from &crsp..dsf a, temp b
+237   where a.permno=b.permno and b.estper_beg<=a.date<=b.evtwin_end;
+INFO: Data file MYCRSP.DSF.DATA is in a format that is native to another host, or the
+file encoding does not match the session encoding. Cross Environment Data Access will
+be used, which might require additional CPU resources and might reduce performance.
+NOTE: Table WORK.EVTRETS_TEMP created, with 3259356 rows and 8 columns.
+
+238    quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           44.02 seconds
+      user cpu time       43.15 seconds
+      system cpu time     0.82 seconds
+      memory              5927.31k
+      OS Memory           46828.00k
+      Timestamp           06/04/2024 09:53:44 AM
+      Step Count                        14  Switch Count  0
+
+
+239   /* Merge in the risk factors                                           */
+240   /* User can create her own risk factors and use it instead of FF+M ones*/
+241    proc sql;
+242   create view evtrets1
+243     as select a.*, (b.mktrf+b.rf) as mkt, b.mktrf, b.rf,b.smb, b.hml, b.umd
+244     from evtrets_temp a left join
+245          &crsp..ff_factors_daily (keep=date mktrf smb hml umd rf) b
+246     on a.date=b.date;
+NOTE: SQL view WORK.EVTRETS1 has been defined.
+247      quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.04 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.01 seconds
+      memory              101.65k
+      OS Memory           41704.00k
+      Timestamp           06/04/2024 09:53:44 AM
+      Step Count                        15  Switch Count  0
+
+
+248   /*Bring in delisting returns*/
+249      proc sql;
+250   create table evtrets (drop=ret1 where=(not missing(mkt)))
+251     as select a.*,
+252     (1+a.ret1)*sum(1,b.dlret)-1-a.mkt as exret label='Market-adjusted total ret',
+253     (1+a.ret1)*sum(1,b.dlret)-1 as ret "Ret adjusted for delisting"
+254     from evtrets1 a left join &crsp..dsedelist (where=(missing(dlret)=0)) b
+255     on a.permno=b.permno and a.date=b.dlstdt
+256   order by a.permno,a.evtdate,a.date;
+INFO: Data file MYCRSP.FF_FACTORS_DAILY.DATA is in a format that is native to another
+host, or the file encoding does not match the session encoding. Cross Environment Data
+Access will be used, which might require additional CPU resources and might reduce
+performance.
+INFO: Data file MYCRSP.DSEDELIST.DATA is in a format that is native to another host, or
+the file encoding does not match the session encoding. Cross Environment Data Access
+will be used, which might require additional CPU resources and might reduce performance.
+NOTE: SAS threaded sort was used.
+NOTE: Table WORK.EVTRETS created, with 3259356 rows and 15 columns.
+
+257  quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           5.40 seconds
+      user cpu time       9.06 seconds
+      system cpu time     2.28 seconds
+      memory              549582.23k
+      OS Memory           588024.00k
+      Timestamp           06/04/2024 09:53:50 AM
+      Step Count                        16  Switch Count  0
+
+
+258
+259  /* STEP 4. Estimating Factor Exposures over the estimation period*/
+260  proc printto log=junk; run;
+
+
+ERROR: Insufficient authorization to access C:\Windows\system32\junk.log.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              132.93k
+      OS Memory           42216.00k
+      Timestamp           06/04/2024 09:53:50 AM
+      Step Count                        17  Switch Count  0
+
+261
+
+
+262  proc reg data=evtrets edf outest=params  noprint;
+NOTE: Writing HTML Body file: sashtml.htm
+263     where estper_beg<=date<=estper_end;
+264     by permno evtdate;
+265     eq0: model exret=;      /*past market-premium return: ret-mkt as a benchmark*/
+266     eq1: model ret=mktrf;   /*  CAPM      */
+267     eq2: model ret=mktrf smb hml; /* FF 3 factor **/
+268     eq3: model ret=mktrf smb hml umd; /*FF 4 factor */
+269  run;
+
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=12799 Event Date=18JAN2023
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=12799 Event Date=03FEB2023
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=27167 Event Date=22OCT2014
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=27167 Event Date=30OCT2014
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=27167 Event Date=03NOV2014
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=27167 Event Date=18DEC2014
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=27167 Event Date=17JUN2015
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=32791 Event Date=05MAY2016
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=32791 Event Date=15JUL2020
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=40695 Event Date=03APR2000
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=52250 Event Date=11JAN2002
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=64785 Event Date=28MAY1996
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=75760 Event Date=13JAN1997
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=77208 Event Date=12NOV2008
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=77324 Event Date=14AUG1998
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=78001 Event Date=05APR2010
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=78001 Event Date=27MAY2010
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=78179 Event Date=27APR2012
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=79837 Event Date=25NOV1998
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=80993 Event Date=01DEC1994
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=84521 Event Date=31AUG2007
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=84757 Event Date=04APR2017
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=88987 Event Date=07AUG2019
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=89833 Event Date=18DEC2009
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=91612 Event Date=14OCT2013
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=92683 Event Date=14NOV2019
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=92683 Event Date=21DEC2020
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=92683 Event Date=18MAR2021
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=92683 Event Date=25MAR2021
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=92683 Event Date=18NOV2021
+NOTE: Interactivity disabled with BY processing.
+NOTE: PROCEDURE REG used (Total process time):
+      real time           6.10 seconds
+      user cpu time       3.45 seconds
+      system cpu time     0.56 seconds
+      memory              7094.35k
+      OS Memory           43500.00k
+      Timestamp           06/04/2024 09:53:56 AM
+      Step Count                        18  Switch Count  0
+
+NOTE: The data set WORK.PARAMS has 70884 observations and 17 variables.
+
+270  proc printto;run;
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              6.68k
+      OS Memory           43240.00k
+      Timestamp           06/04/2024 09:53:56 AM
+      Step Count                        19  Switch Count  0
+
+
+271
+272
+273  /* STEP 5. Calculating Abnormal Returns for all models */
+274  /* for each trading day in the event window            */
+275  data abrets1/view=abrets1; merge
+276    evtrets(where=(evtwin_beg<=date<=evtwin_end) in=in_evtrets)
+277    params (where=(_model_='eq0')
+278       keep=permno evtdate _model_ _rmse_ _p_ _edf_
+279       rename=(_rmse_=std0 _p_=p0 _edf_=edf0))
+280
+281    params (where=(_model_='eq1')
+282       keep=permno evtdate _model_ _rmse_ intercept mktrf
+283       rename=(_rmse_=std1 intercept=alpha1 mktrf=beta1))
+284
+285    params (where=(_model_='eq2')
+286       keep=permno evtdate _model_ _rmse_ intercept mktrf smb hml
+287       rename=(_rmse_=std2 intercept=alpha2 mktrf=beta2 smb=sminb2 hml=hminl2))
+288
+289    params (where=(_model_='eq3')
+290       keep=permno evtdate _model_ _rmse_ intercept mktrf smb hml umd
+291       rename=(_rmse_=std3 intercept=alpha3 mktrf=beta3 smb=sminb3 hml=hminl3
+291! umd=umind3));
+292    by permno evtdate;
+293
+294    retain missret;
+295    if first.permno then missret=missing(ret);
+296    if missing(ret) then missret+1; /*count number of missing returns*/
+297
+298    var0=std0**2;
+299    var1=std1**2;
+300    var2=std2**2;
+301    var3=std3**2;
+302
+303    abret0  = exret; *extra over market;
+304    expret1 = alpha1 + beta1*mktrf;  *CAPM;
+305    abret1  = ret-expret1;
+306
+307    expret2 = alpha2+beta2*mktrf+sminb2*smb+hminl2*hml;
+308    abret2=ret-expret2;
+309
+310    expret3 =alpha3+beta3*mktrf+sminb3*smb+hminl3*hml+umind3*umd;
+311    abret3=ret-expret3;
+312
+313    nobs=p0+edf0;  /*number of observations used in estimation*/
+314    drop p0 edf0 estper_beg estper_end std0 std1 std2 std3 _model_ exret;
+315    if in_evtrets and nobs>&minest;
+316  run;
+
+NOTE: DATA STEP view saved on file WORK.ABRETS1.
+NOTE: A stored DATA STEP view cannot run under a different operating system.
+NOTE: DATA statement used (Total process time):
+      real time           0.12 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              1339.68k
+      OS Memory           43500.00k
+      Timestamp           06/04/2024 09:53:56 AM
+      Step Count                        20  Switch Count  0
+
+
+317
+318  /* Transform dates to event time using CRSP Trading Calendar       */
+319  /* Using the latter takes into account non-consecutive date records*/
+320  /* do not use lag to avoid non-consecutive date records*/
+321  proc sql;
+322    create table abrets
+323      as select a.*, (b.index-c.index) as evttime
+324    from           abrets1 a
+325        left join  caldates b
+326     on a.date    = b.evtdate
+327         left join caldates c
+328     on a.evtdate = c.evtdate
+329    order by permno, evtdate, date;
+NOTE: SAS threaded sort was used.
+INFO: The variable _MODEL_ on data set WORK.PARAMS will be overwritten by data set
+      WORK.PARAMS.
+INFO: The variable _MODEL_ on data set WORK.PARAMS will be overwritten by data set
+      WORK.PARAMS.
+INFO: The variable _MODEL_ on data set WORK.PARAMS will be overwritten by data set
+      WORK.PARAMS.
+INFO: The variable _MODEL_ on data set WORK.PARAMS will be overwritten by data set
+      WORK.PARAMS.
+INFO: The variable _MODEL_ on data set WORK.PARAMS will be overwritten by data set
+      WORK.PARAMS.
+INFO: The variable _MODEL_ on data set WORK.PARAMS will be overwritten by data set
+      WORK.PARAMS.
+NOTE: Missing values were generated as a result of performing an operation on missing
+      values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      301 at 383:12   307 at 384:12   315 at 385:12   320 at 386:12   589 at 389:27
+      642 at 390:16   589 at 392:25   642 at 393:13   589 at 395:24   642 at 396:13
+      295 at 398:10
+NOTE: View WORK.ABRETS1.VIEW used (Total process time):
+      real time           1.17 seconds
+      user cpu time       1.04 seconds
+      system cpu time     0.53 seconds
+      memory              56450.43k
+      OS Memory           98696.00k
+      Timestamp           06/04/2024 09:53:58 AM
+      Step Count                        21  Switch Count  390
+
+NOTE: There were 87673 observations read from the data set WORK.EVTRETS.
+      WHERE (evtwin_beg<=date) and (date<=evtwin_end);
+NOTE: There were 17721 observations read from the data set WORK.PARAMS.
+      WHERE _model_='eq0';
+NOTE: There were 17721 observations read from the data set WORK.PARAMS.
+      WHERE _model_='eq1';
+NOTE: There were 17721 observations read from the data set WORK.PARAMS.
+      WHERE _model_='eq2';
+NOTE: There were 17721 observations read from the data set WORK.PARAMS.
+      WHERE _model_='eq3';
+NOTE: Table WORK.ABRETS created, with 87063 rows and 37 columns.
+
+330  quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           1.34 seconds
+      user cpu time       1.06 seconds
+      system cpu time     0.57 seconds
+      memory              56450.43k
+      OS Memory           98696.00k
+      Timestamp           06/04/2024 09:53:58 AM
+      Step Count                        21  Switch Count  391
+
+
+331
+332  /*
+333  proc contents data=abrets short varnum;
+334  run;
+335  */
+336  proc sort data=abrets  nodupkey;
+337    by PERMNO evtdate DATE
+338       evtwin_beg evtwin_end
+339       mkt mktrf rf smb hml umd ret
+340       alpha1 beta1
+341       alpha2 beta2 sminb2 hminl2
+342       alpha3 beta3 sminb3 hminl3 umind3
+343       missret var0 var1 var2 var3
+344       abret0 expret1 abret1 expret2 abret2 expret3 abret3 nobs evttime ;
+345  run;
+
+NOTE: There were 87063 observations read from the data set WORK.ABRETS.
+NOTE: SAS sort was used.
+NOTE: 280 observations with duplicate key values were deleted.
+NOTE: The data set WORK.ABRETS has 86783 observations and 37 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.15 seconds
+      user cpu time       0.09 seconds
+      system cpu time     0.06 seconds
+      memory              52376.56k
+      OS Memory           97564.00k
+      Timestamp           06/04/2024 09:53:58 AM
+      Step Count                        22  Switch Count  0
+
+
+346
+347  /* 673  proc sql;
+348  674     create table abrets as
+349  675     select distinct * from abrets;
+350  WARNING: This CREATE TABLE statement recursively references the target table. A
+350! consequence of this
+351           is a possible data integrity problem.
+352  NOTE: Table WORK.ABRETS created, with 253797 rows and 37 columns.
+353
+354    */
+355  /* Calculating Rolling Cumulative Abnormal Returns and various stats */
+356  /* Transformout= calculates cumulative product of gross returns and  */
+357  /* subtracts 1 to arrive at the total net cumulative return          */
+358  proc expand data=abrets
+359              out=car  /* Cumulative returns*/
+360              method=none;
+361    by permno evtdate;
+362    id date;
+363    convert ret=cret/transformout=(+1 cuprod -1);          /*actural cumulative
+363! return from CRSP*/
+364    convert mkt=cmkt/transformout=(+1 cuprod -1);          /*cumulative  market
+364! return*/
+365
+366    /*cumulative market model return: expret1= alpha1 + beta1*mktrf; */
+367    convert expret1 =cexpret1 /transformout=(+1 cuprod -1);
+368
+369    /*expret2 = alpha2+ beta2*mktrf+ sminb2*smb+ hminl2*hml; */
+370    convert expret2 =cexpret2 /transformout=(+1 cuprod -1); /*cumulative FF-3 factor
+370! return */
+371
+372    /*  expret3 =alpha3+beta3*mktrf+sminb3*smb+hminl3*hml+umind3*umd; */
+373    convert expret3 =cexpret3 /transformout=(+1 cuprod -1);/*cumulative FF-4 factor
+373! return */
+374
+375    convert abret0=car0/transformout=(sum);
+376    convert abret1=car1/transformout=(sum);
+377    convert abret2=car2/transformout=(sum);
+378    convert abret3=car3/transformout=(sum);
+379  run;
+
+WARNING: The variable ret has only 0 nonmissing observations, which is too few to apply
+         the conversion method. The result series is set to missing.
+WARNING: The variable abret0 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret1 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret2 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret3 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+NOTE: The above message was for the following BY group:
+      PERMNO=12789 Event Date=31OCT2022
+WARNING: The variable ret has only 0 nonmissing observations, which is too few to apply
+         the conversion method. The result series is set to missing.
+WARNING: The variable abret0 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret1 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret2 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret3 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+NOTE: The above message was for the following BY group:
+      PERMNO=25961 Event Date=24DEC2002
+WARNING: The variable ret has only 0 nonmissing observations, which is too few to apply
+         the conversion method. The result series is set to missing.
+WARNING: The variable abret0 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret1 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret2 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret3 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+NOTE: The above message was for the following BY group:
+      PERMNO=59256 Event Date=10AUG2001
+WARNING: The variable ret has only 0 nonmissing observations, which is too few to apply
+         the conversion method. The result series is set to missing.
+WARNING: The variable abret0 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret1 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret2 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret3 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+NOTE: The above message was for the following BY group:
+      PERMNO=77763 Event Date=25OCT2019
+WARNING: The variable ret has only 0 nonmissing observations, which is too few to apply
+         the conversion method. The result series is set to missing.
+WARNING: The variable abret0 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret1 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret2 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret3 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+NOTE: The above message was for the following BY group:
+      PERMNO=84529 Event Date=11APR2003
+WARNING: The variable ret has only 0 nonmissing observations, which is too few to apply
+         the conversion method. The result series is set to missing.
+WARNING: The variable abret0 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret1 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret2 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret3 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+NOTE: The above message was for the following BY group:
+      PERMNO=87634 Event Date=29AUG2003
+WARNING: The variable ret has only 0 nonmissing observations, which is too few to apply
+         the conversion method. The result series is set to missing.
+WARNING: The variable abret0 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret1 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret2 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+WARNING: The variable abret3 has only 0 nonmissing observations, which is too few to
+         apply the conversion method. The result series is set to missing.
+NOTE: The above message was for the following BY group:
+      PERMNO=89833 Event Date=24FEB2009
+NOTE: The data set WORK.CAR has 86783 observations and 46 variables.
+NOTE: PROCEDURE EXPAND used (Total process time):
+      real time           1.00 seconds
+      user cpu time       0.62 seconds
+      system cpu time     0.32 seconds
+      memory              971.18k
+      OS Memory           46576.00k
+      Timestamp           06/04/2024 09:53:59 AM
+      Step Count                        23  Switch Count  0
+
+
+380  /*
+381  proc contents data =car;
+382
+383
+384  proc contents data =car;
+385  ods select  Variables;
+386  run;
+387  */
+388
+389
+390  /* Car_Evtdate Table: */
+391  /* the cross-sectional output that contains for each      */
+392  /* "firm-event date":                                                       */
+393  /*   1) CAR, BHAR, and SCAR (standardized CAR)                              */
+394  /*   2) Alpha and Beta from the estimation period                           */
+395  /*   3) Estimation period variance                                          */
+396
+397  /* Car_Evtwin Table contains Raw, Abnormal, Std. and Buy-and-Hold Abnormal  */
+398  /* Daily Returns "firm-date" in event time                                  */
+399  proc printto log=junk;run;
+
+
+ERROR: Insufficient authorization to access C:\Windows\system32\junk.log.
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              132.96k
+      OS Memory           46056.00k
+      Timestamp           06/04/2024 09:54:00 AM
+      Step Count                        24  Switch Count  0
+
+400
+
+
+401  data car_evtdate
+402          (drop=evttime ret mkt smb hml umd date calpha1 calpha2 calpha3
+403                cmrkt csmb chml cumd evtwin_beg evtwin_end abret0 abret1
+404                abret2 abret3 sar0 sar1 sar2 sar3 missret cexpret1 cexpret2 cexpret3)
+405       car_evtwin
+406           (keep=permno evtdate evttime date ret cret abret0 abret1 abret2 abret3
+407            sar0 sar1 sar2 sar3 bhar0 bhar1 bhar2 bhar3 car0 car1 car2 car3);
+408    set car;
+409    by permno evtdate date;
+410    /*Standardized CARs and ARs for various models*/
+411    scar0=car0/(&evtwin*var0)**0.5;
+412    scar1=car1/(&evtwin*var1)**0.5;
+413    scar2=car2/(&evtwin*var2)**0.5;
+414    scar3=car3/(&evtwin*var3)**0.5;
+415
+416    sar0=abret0/sqrt(var0);
+417    sar1=abret1/sqrt(var1);
+418    sar2=abret2/sqrt(var2);
+419    sar3=abret3/sqrt(var3);
+420
+421    pat_scale=(nobs-2)/(nobs-4); /*Patell Z scaling factor*/
+422
+423    /*Buy-Hold Abnormal Returns*/
+424    bhar0=cret-cmkt;
+425    bhar1=cret-cexpret1;
+426    bhar2=cret-cexpret2;
+427    bhar3=cret-cexpret3;
+428
+429    if last.evtdate then do;
+430          nrets=&evtwin-missret;
+431       output car_evtdate;
+432    end;
+433    output car_evtwin;
+434  run;
+
+WARNING: The variable calpha1 in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable calpha2 in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable calpha3 in the DROP, KEEP, or RENAME list has never been
+         referenced.
+WARNING: The variable cmrkt in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable csmb in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable chml in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable cumd in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: Missing values were generated as a result of performing an operation on missing
+      values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      35 at 411:13   35 at 412:13   35 at 413:13   35 at 414:13   43 at 416:14
+      43 at 417:14   43 at 418:14   43 at 419:14   35 at 424:13   35 at 425:13
+      35 at 426:13   35 at 427:13
+NOTE: There were 86783 observations read from the data set WORK.CAR.
+NOTE: The data set WORK.CAR_EVTDATE has 17364 observations and 39 variables.
+NOTE: The data set WORK.CAR_EVTWIN has 86783 observations and 22 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.12 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.12 seconds
+      memory              1077.18k
+      OS Memory           45800.00k
+      Timestamp           06/04/2024 09:54:00 AM
+      Step Count                        25  Switch Count  0
+
+
+435
+436  proc printto;run;
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              7.06k
+      OS Memory           45800.00k
+      Timestamp           06/04/2024 09:54:00 AM
+      Step Count                        26  Switch Count  0
+
+
+437
+438  /*Put Cross-sectional and aggregate results together for further analysis*/
+439  data allcars;
+440      merge
+441    car_evtwin
+442           (rename=(bhar0=bhar0win
+443                    bhar1=bhar1win
+444                    bhar2=bhar2win
+445                    bhar3=bhar3win
+446                    car0=car0win
+447            car1=car1win
+448            car2=car2win
+449            car3=car3win
+450            cret=cretwin))
+451    car_evtdate;
+452   by permno evtdate;
+453  run;
+
+NOTE: There were 86783 observations read from the data set WORK.CAR_EVTWIN.
+NOTE: There were 17364 observations read from the data set WORK.CAR_EVTDATE.
+NOTE: The data set WORK.ALLCARS has 86783 observations and 59 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.09 seconds
+      user cpu time       0.04 seconds
+      system cpu time     0.04 seconds
+      memory              1192.93k
+      OS Memory           45800.00k
+      Timestamp           06/04/2024 09:54:00 AM
+      Step Count                        27  Switch Count  0
+
+
+454
+455  /* STEP 6: Compute Cumulative Average Abnormal Return (CAR_MEAN) */
+456  /* and Average Buy-Hold Abnormal Return (BHAR_MEAN)              */
+457  /* and other stats across all distinct events                    */
+458  proc means data=allcars noprint;
+459    class evttime; id nobs;
+460    var ret cret
+461    car0 car1 car2 car3
+462    bhar0 bhar1 bhar2 bhar3
+463    bhar0win bhar1win bhar2win bhar3win
+464    cretwin
+465    car0win car1win car2win car3win
+466    scar0 scar1 scar2 scar3
+467    abret0 abret1 abret2 abret3
+468    sar0 sar1 sar2 sar3
+469    pat_scale;
+470    output out=allstats
+471    mean =
+472       n =
+473       t =
+474     sum =/autoname;
+475  run;
+
+NOTE: Multiple concurrent threads will be used to summarize data.
+NOTE: There were 86783 observations read from the data set WORK.ALLCARS.
+NOTE: The data set WORK.ALLSTATS has 6 observations and 132 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.45 seconds
+      user cpu time       0.84 seconds
+      system cpu time     0.07 seconds
+      memory              6689.10k
+      OS Memory           50932.00k
+      Timestamp           06/04/2024 09:54:01 AM
+      Step Count                        28  Switch Count  0
+
+
+476
+477  /*calculate different stats for assessing    */
+478  /*statistical signficance of abnormal returns*/
+479  data MA_Evtdate (keep=evttime car0_n cret_mean car0_mean car0_t scar0_t
+480                   bhar0_mean pat_car0 model)
+481       MM_Evtdate (keep=evttime car1_n cret_mean car1_mean car1_t scar1_t
+482                   bhar1_mean pat_car1 model )
+483       FF_Evtdate (keep=evttime car2_n cret_mean car2_mean car2_t scar2_t
+484                   bhar2_mean pat_car2 model )
+485       FFM_Evtdate (keep=evttime car3_n cret_mean car3_mean car3_t scar3_t
+486                   bhar3_mean pat_car3 model )
+487       MA_Evtwin  (keep=evttime cretwin_mean abret0_n ret_mean abret0_mean
+488                   car0win_mean bhar0win_mean abret0_t sar0_t pat_ar0 )
+489       MM_Evtwin  (keep=evttime cretwin_mean abret1_n ret_mean abret1_mean
+490                   car1win_mean bhar1win_mean abret1_t sar1_t pat_ar1 )
+491       FF_Evtwin  (keep=evttime cretwin_mean abret2_n ret_mean abret2_mean
+492                   car2win_mean bhar2win_mean abret2_t sar2_t pat_ar2 )
+493       FFM_Evtwin (keep=evttime cretwin_mean abret3_n ret_mean abret3_mean
+494                   car3win_mean bhar3win_mean abret3_t sar3_t pat_ar3 );
+495   set allstats;
+496   by evttime;
+497     if _n_=1 and missing(evttime) then do;
+498     abret0_mean=.;
+499     abret1_mean=.;
+500     abret2_mean=.;
+501     abret3_mean=.;
+502     cretwin_mean=0;
+503     ret_mean=.;
+504     bhar1win_mean=0;
+505     bhar1win_mean=0;
+506     bhar2win_mean=0;
+507     bhar3win_mean=0;
+508     end;
+509     /*Patell Z statistics*/
+510     pat_car0=scar0_mean/(sqrt(pat_scale_sum)/scar0_n);
+511     pat_car1=scar1_mean/(sqrt(pat_scale_sum)/scar1_n);
+512     pat_car2=scar2_mean/(sqrt(pat_scale_sum)/scar2_n);
+513     pat_car3=scar3_mean/(sqrt(pat_scale_sum)/scar3_n);
+514     pat_ar0=sar0_mean/(sqrt(pat_scale_sum)/sar0_n);
+515     pat_ar1=sar1_mean/(sqrt(pat_scale_sum)/sar1_n);
+516     pat_ar2=sar2_mean/(sqrt(pat_scale_sum)/sar2_n);
+517     pat_ar3=sar3_mean/(sqrt(pat_scale_sum)/sar3_n);
+518   label
+519     pat_ar0=       'Patell Z for AR_MA'  pat_ar1=        'Patell Z for AR_MM'
+520     pat_ar2=       'Patell Z for AR_FF'  pat_ar3=        'Patell Z for AR_FFM'
+521     abret0_t=      'CS t-stat, AR_MA'    abret1_t=       'CS t-stat, AR_MM'
+522     abret2_t=      'CS t-stat, AR_FF'    abret3_t=       'CS t-stat, AR_FFM'
+523     sar0_t=        'Std CS test, AR_MA'  sar1_t=         'Std CS test, AR_MM'
+524     sar2_t=        'Std CS test, AR_FF'  sar3_t=         'Std CS test, AR_FFM'
+525     abret0_mean=   'Mean AR_MA'          abret1_mean=    'Mean AR_MM'
+526     abret2_mean=   'Mean AR_FF'          abret3_mean=    'Mean AR_FFM'
+527     car0_n=        'Number of events in the portfolio'
+528     abret0_n=      'Number of events in the portfolio'
+529     evttime=       'Event Time t'
+530     cret_mean=     "Mean CTR (&start, &end)"
+531     cretwin_mean=  "Mean CTR (&start,t) "
+532     car0win_mean=  "Average CAR_MA (&start, t)"
+533     car1win_mean=  "Average CAR_MM (&start, t)"
+534     car2win_mean=  "Average CAR_FF (&start, t)"
+535     car3win_mean=  "Average CAR_FFM (&start, t)"
+536     bhar0win_mean= "Mean BHAR_MA (&start, t)"
+537     bhar1win_mean=  "Mean BHAR_MM (&start, t)"
+538     bhar2win_mean= "Mean BHAR_FF (&start, t)"
+539     bhar3win_mean=  "Mean BHAR_FFM (&start, t)"
+540   ;
+541     format ret_mean cret_mean abret0_mean abret1_mean abret2_mean abret3_mean
+542            car0_mean car1_mean car2_mean car3_mean bhar0_mean bhar1_mean
+543            bhar2_mean bhar3_mean cretwin_mean
+544            bhar0win_mean bhar1win_mean bhar2win_mean bhar3win_mean
+545            car0win_mean car1win_mean car2win_mean car3win_mean
+546        percent7.4
+547            abret0_t abret1_t abret2_t abret3_t sar0_t sar1_t sar2_t sar3_t
+548            pat_car0 pat_car1 pat_car2 pat_car3 pat_ar0 pat_ar1 pat_ar2 pat_ar3
+549            car0_t car1_t car2_t car3_t scar0_t scar1_t scar2_t scar3_t
+550        comma10.2;
+551    if evttime=0 then do; model='Market-Adjusted'; output MA_Evtdate;
+552                          model='Market Model';    output MM_Evtdate;
+553                          model='FF Model';        output FF_Evtdate;
+554                          model='Carhart Model';   output FFM_Evtdate;
+555                   end;
+556    if missing(evttime) then evttime=&start-1;
+557    output MA_Evtwin;
+558    output MM_Evtwin;
+559    output FF_Evtwin;
+560    output FFM_Evtwin;
+561  run;
+
+NOTE: There were 6 observations read from the data set WORK.ALLSTATS.
+NOTE: The data set WORK.MA_EVTDATE has 1 observations and 9 variables.
+NOTE: The data set WORK.MM_EVTDATE has 1 observations and 9 variables.
+NOTE: The data set WORK.FF_EVTDATE has 1 observations and 9 variables.
+NOTE: The data set WORK.FFM_EVTDATE has 1 observations and 9 variables.
+NOTE: The data set WORK.MA_EVTWIN has 6 observations and 10 variables.
+NOTE: The data set WORK.MM_EVTWIN has 6 observations and 10 variables.
+NOTE: The data set WORK.FF_EVTWIN has 6 observations and 10 variables.
+NOTE: The data set WORK.FFM_EVTWIN has 6 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.03 seconds
+      memory              2800.62k
+      OS Memory           46824.00k
+      Timestamp           06/04/2024 09:54:01 AM
+      Step Count                        29  Switch Count  0
+
+
+562
+563  /* STEP 7. Putting Event Date CARs and BHARS for various risk models together*/
+564  data allevtdate; set
+565    MA_Evtdate  (rename=(car0_mean=car_mean bhar0_mean=bhar_mean
+566                  car0_n=n car0_t=car_t scar0_t=scar_t pat_car0=pat_car))
+567    MM_Evtdate  (rename=(car1_mean=car_mean bhar1_mean=bhar_mean
+568                  car1_n=n car1_t=car_t scar1_t=scar_t pat_car1=pat_car))
+569    FF_Evtdate  (rename=(car2_mean=car_mean bhar2_mean=bhar_mean
+570                  car2_n=n car2_t=car_t scar2_t=scar_t pat_car2=pat_car))
+571    FFM_evtdate (rename=(car3_mean=car_mean bhar3_mean=bhar_mean
+572                  car3_n=n car3_t=car_t scar3_t=scar_t pat_car3=pat_car));
+573   length=&evtwin;
+574   label pat_car=   'Patell Z'
+575         car_mean=  "Mean CAR (&start, &end)"
+576         bhar_mean= "Mean BHAR (&start, &end)"
+577         car_t=     'Cross-sectional t-stat for CAR'
+578         scar_t=    'Standaridized cross-sectional t-stat for CAR'
+579         length=    'Length of event window in trading days';
+580  run;
+
+NOTE: There were 1 observations read from the data set WORK.MA_EVTDATE.
+NOTE: There were 1 observations read from the data set WORK.MM_EVTDATE.
+NOTE: There were 1 observations read from the data set WORK.FF_EVTDATE.
+NOTE: There were 1 observations read from the data set WORK.FFM_EVTDATE.
+NOTE: The data set WORK.ALLEVTDATE has 4 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              1117.21k
+      OS Memory           46056.00k
+      Timestamp           06/04/2024 09:54:01 AM
+      Step Count                        30  Switch Count  0
+
+
+581
+582
+583  /*Cross-sectional output for CARs/BHARs at the firm-event level*/
+584  data car_evtdate;
+585    retain permno evtdate alpha1 beta1 cret car0 bhar0 var0 car1 bhar1 var1
+586         car2 bhar2 var2 car3 bhar3 var3 nrets nobs;
+587    set car_evtdate;
+588    label alpha1= 'Alpha (Market Model)'
+589          beta1=  'Beta (Market Model'
+590          car0=   'CAR_MA'
+591          car1=   'CAR_MM'
+592          car2=   'CAR_FF'
+593      car3=   'CAR_FFM'
+594          bhar0=  'BHAR_MA'
+595      bhar1=  'BHAR_MM'
+596          bhar2=  'BHAR_FF'
+597      bhar3=  'BHAR_FFM'
+598          var0=    'Estimation period variance (Market-adjusted returns)'
+599          var1=    'Estimation period variance (Market Model)'
+600          var2=    'Estimation period variance (FF Model)'
+601          var3=    'Estimation period variance (Carhart Model)'
+602          cret=    'Cumulative Total Return'
+603          nrets=   'Number of non-missing returns in event window'
+604          nobs=    'Length of the estimation period';
+605    keep permno evtdate alpha1 beta1 cret car0 bhar0 var0 car1 bhar1 var1
+606         car2 bhar2 var2 car3 bhar3 var3 nrets nobs;
+607    format cret alpha1
+608           car0 bhar0
+609       car1 bhar1
+610       car2 bhar2
+611       car3 bhar3
+612           percent7.4
+613           beta1 comma10.3;
+614  run;
+
+NOTE: There were 17364 observations read from the data set WORK.CAR_EVTDATE.
+NOTE: The data set WORK.CAR_EVTDATE has 17364 observations and 19 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.03 seconds
+      memory              707.50k
+      OS Memory           46056.00k
+      Timestamp           06/04/2024 09:54:01 AM
+      Step Count                        31  Switch Count  0
+
+
+615
+616  /* As an illustration, plot Carhart CAARs and average BHARs in the event window*/
+617  options nodate orientation=landscape; ods pdf file='Carhart_evtrets_5days.pdf';
+NOTE: Writing ODS PDF output to DISK destination "C:\Windows\system32\Carhart_evtrets_5days.pdf", printer "PDF".
+618  goptions device=pdfc; /* Plot Saved in Home Directory */
+619  axis1 label=(angle=90 "Cumulative Returns");
+620  axis2 label=("Event time");
+621  symbol interpol=join w=3 l=1;
+622
+623
+624
+625  proc gplot data =MA_Evtwin;
+626   where evttime>=&start;
+627   Title "Market average: Cumulative Total Returns vs. Carhart CAARs and BHARs around the event date";
+628   plot (cretwin_mean car0win_mean bhar0win_mean)*evttime
+629         /overlay legend vaxis=axis1 haxis=axis2;
+630
+
+WARNING: Unsupported device 'PDFC' for HTML destination. Using default device 'PNG'.
+WARNING: TITLE1 is too long. Height has been reduced to  90.7 pct of specified or default size.
+NOTE: 44381 bytes written to C:\Users\lihon\AppData\Local\Temp\SAS Temporary Files\_TD12592_DELL2_\gplot.png.
+NOTE: There were 5 observations read from the data set WORK.MA_EVTWIN.
+      WHERE evttime>=-2;
+NOTE: At least one W.D format was too small for the number to be printed. The decimal may be shifted by the "BEST"
+      format.
+NOTE: PROCEDURE GPLOT used (Total process time):
+      real time           2.03 seconds
+      user cpu time       0.25 seconds
+      system cpu time     0.36 seconds
+      memory              9082.09k
+      OS Memory           56256.00k
+      Timestamp           06/04/2024 09:54:04 AM
+      Step Count                        32  Switch Count  0
+
+
+631  proc gplot data =MM_Evtwin;
+632   where evttime>=&start;
+633   Title "CAMP:Cumulative Total Returns vs. Carhart CAARs and BHARs around the event date";
+634   plot (cretwin_mean car1win_mean bhar1win_mean)*evttime
+635         /overlay legend vaxis=axis1 haxis=axis2;
+
+NOTE: 48072 bytes written to C:\Users\lihon\AppData\Local\Temp\SAS Temporary Files\_TD12592_DELL2_\gplot1.png.
+NOTE: There were 5 observations read from the data set WORK.MM_EVTWIN.
+      WHERE evttime>=-2;
+NOTE: At least one W.D format was too small for the number to be printed. The decimal may be shifted by the "BEST"
+      format.
+NOTE: PROCEDURE GPLOT used (Total process time):
+      real time           0.45 seconds
+      user cpu time       0.25 seconds
+      system cpu time     0.14 seconds
+      memory              7526.18k
+      OS Memory           56512.00k
+      Timestamp           06/04/2024 09:54:05 AM
+      Step Count                        33  Switch Count  0
+
+
+636  proc gplot data =FF_Evtwin;
+637   where evttime>=&start;
+638   Title "3 factor:Cumulative Total Returns vs. Carhart CAARs and BHARs around the event date";
+639   plot (cretwin_mean car2win_mean bhar2win_mean)*evttime
+640         /overlay legend vaxis=axis1 haxis=axis2;
+641
+
+WARNING: TITLE1 is too long. Height has been reduced to 98.88 pct of specified or default size.
+NOTE: 51477 bytes written to C:\Users\lihon\AppData\Local\Temp\SAS Temporary Files\_TD12592_DELL2_\gplot2.png.
+NOTE: There were 5 observations read from the data set WORK.FF_EVTWIN.
+      WHERE evttime>=-2;
+NOTE: At least one W.D format was too small for the number to be printed. The decimal may be shifted by the "BEST"
+      format.
+NOTE: PROCEDURE GPLOT used (Total process time):
+      real time           0.45 seconds
+      user cpu time       0.23 seconds
+      system cpu time     0.12 seconds
+      memory              7567.03k
+      OS Memory           56512.00k
+      Timestamp           06/04/2024 09:54:05 AM
+      Step Count                        34  Switch Count  0
+
+
+642  proc gplot data =FFM_Evtwin;
+643   where evttime>=&start;
+644   Title "4 Factor model:Cumulative Total Returns vs. Carhart CAARs and BHARs around the event date";
+645   plot (cretwin_mean car3win_mean bhar3win_mean)*evttime
+646         /overlay legend vaxis=axis1 haxis=axis2;
+647
+
+WARNING: TITLE1 is too long. Height has been reduced to 91.85 pct of specified or default size.
+NOTE: 54061 bytes written to C:\Users\lihon\AppData\Local\Temp\SAS Temporary Files\_TD12592_DELL2_\gplot3.png.
+NOTE: There were 5 observations read from the data set WORK.FFM_EVTWIN.
+      WHERE evttime>=-2;
+NOTE: At least one W.D format was too small for the number to be printed. The decimal may be shifted by the "BEST"
+      format.
+NOTE: PROCEDURE GPLOT used (Total process time):
+      real time           0.43 seconds
+      user cpu time       0.25 seconds
+      system cpu time     0.12 seconds
+      memory              7543.15k
+      OS Memory           56512.00k
+      Timestamp           06/04/2024 09:54:06 AM
+      Step Count                        35  Switch Count  0
+
+
+648  proc  gplot data =allstats;
+649   where evttime>=&start;
+650   Title "Cumulative Abnormal by 4 models: around the event date";
+651   plot (car0win_mean  car1win_mean  car2win_mean  car3win_mean )*evttime
+652         /overlay legend vaxis=axis1 haxis=axis2;
+653
+
+NOTE: 45477 bytes written to C:\Users\lihon\AppData\Local\Temp\SAS Temporary Files\_TD12592_DELL2_\gplot4.png.
+NOTE: There were 5 observations read from the data set WORK.ALLSTATS.
+      WHERE evttime>=-2;
+NOTE: PROCEDURE GPLOT used (Total process time):
+      real time           0.35 seconds
+      user cpu time       0.18 seconds
+      system cpu time     0.10 seconds
+      memory              7656.96k
+      OS Memory           56768.00k
+      Timestamp           06/04/2024 09:54:06 AM
+      Step Count                        36  Switch Count  0
+
+
+654  proc  gplot data =allstats;
+655   where evttime>=&start;
+656   Title "buy and Hold: BHARs around the event date";
+657   plot (bhar0_mean  bhar1_mean  bhar2_mean  bhar3_mean )*evttime
+658         /overlay legend vaxis=axis1 haxis=axis2;
+659  run;
+
+NOTE: 25965 bytes written to C:\Users\lihon\AppData\Local\Temp\SAS Temporary Files\_TD12592_DELL2_\gplot5.png.
+659!     quit;
+
+NOTE: There were 5 observations read from the data set WORK.ALLSTATS.
+      WHERE evttime>=-2;
+NOTE: PROCEDURE GPLOT used (Total process time):
+      real time           0.34 seconds
+      user cpu time       0.17 seconds
+      system cpu time     0.10 seconds
+      memory              7659.62k
+      OS Memory           56768.00k
+      Timestamp           06/04/2024 09:54:07 AM
+      Step Count                        37  Switch Count  0
+
+
+660
+661  ods pdf close;
+ERROR: Insufficient authorization to access C:\Windows\system32\Carhart_evtrets_5days.pdf.
+662  run;quit; ods pdf close;
+663
+664  run;quit; ods pdf close;
+665
+666  /*house cleaning*
+667   proc sql;
+668    drop table abrets, allcars, allstats, caldates, car, car_evtwin, evtrets, temp,
+669               evtrets_temp,ffm_evtdate, ff_evtdate, ma_evtdate, mm_evtdate, params;
+670    drop view  evtrets1, abrets1; quit;
+671  */
+672  *%mend  event_crack;
+673  /* ******************************************************************************** */
+674  /* *************  Material Copyright Wharton Research Data Services  ************** */
+675  /* ****************************** All Rights Reserved ***************************** */
+676  /* ******************************************************************************** */
+

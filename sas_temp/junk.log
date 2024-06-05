@@ -1,0 +1,417 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              131.90k
+      OS Memory           49644.00k
+      Timestamp           06/04/2024 11:55:18 AM
+      Step Count                        55  Switch Count  0
+      
+
+862  
+863  proc reg data=evtrets edf outest=params  noprint;
+864     where estper_beg<=date<=estper_end;
+865     by permno evtdate;
+866     eq0: model exret=;      /*past market-premium return: ret-mkt as a
+866! benchmark*/
+867     eq1: model ret=mktrf;   /*  CAPM      */
+868     eq2: model ret=mktrf smb hml; /* FF 3 factor **/
+869     eq3: model ret=mktrf smb hml umd; /*FF 4 factor */
+870  run;
+
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=12799 Event Date=18JAN2023
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=12799 Event Date=03FEB2023
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=27167 Event Date=17JUN2015
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=32791 Event Date=05MAY2016
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=32791 Event Date=15JUL2020
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=40695 Event Date=03APR2000
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=52250 Event Date=11JAN2002
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=64785 Event Date=28MAY1996
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=75760 Event Date=13JAN1997
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=78001 Event Date=05APR2010
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=78001 Event Date=27MAY2010
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=79837 Event Date=25NOV1998
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=80993 Event Date=01DEC1994
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=84757 Event Date=04APR2017
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=89833 Event Date=18DEC2009
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=91612 Event Date=14OCT2013
+NOTE: Interactivity disabled with BY processing.
+NOTE: PROCEDURE REG used (Total process time):
+      real time           3.66 seconds
+      user cpu time       3.23 seconds
+      system cpu time     0.31 seconds
+      memory              1695.50k
+      OS Memory           51184.00k
+      Timestamp           06/04/2024 11:55:21 AM
+      Step Count                        56  Switch Count  0
+      
+NOTE: The data set WORK.PARAMS has 68340 observations and 17 variables.
+
+871  proc printto;run;
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              131.90k
+      OS Memory           50412.00k
+      Timestamp           06/04/2024 11:55:24 AM
+      Step Count                        62  Switch Count  0
+      
+
+1001  
+1002  data car_evtdate
+1003          (drop=evttime ret mkt smb hml umd date calpha1 calpha2 calpha3
+1004                cmrkt csmb chml cumd evtwin_beg evtwin_end abret0 abret1
+1005                abret2 abret3 sar0 sar1 sar2 sar3 missret cexpret1 cexpret2
+1005! cexpret3)
+1006       car_evtwin
+1007           (keep=permno evtdate evttime date ret cret abret0 abret1 abret2 abret3
+1008            sar0 sar1 sar2 sar3 bhar0 bhar1 bhar2 bhar3 car0 car1 car2 car3);
+1009    set car;
+1010    by permno evtdate date;
+1011    /*Standardized CARs and ARs for various models*/
+1012    scar0=car0/(&evtwin*var0)**0.5;
+1013    scar1=car1/(&evtwin*var1)**0.5;
+1014    scar2=car2/(&evtwin*var2)**0.5;
+1015    scar3=car3/(&evtwin*var3)**0.5;
+1016  
+1017    sar0=abret0/sqrt(var0);
+1018    sar1=abret1/sqrt(var1);
+1019    sar2=abret2/sqrt(var2);
+1020    sar3=abret3/sqrt(var3);
+1021  
+1022    pat_scale=(nobs-2)/(nobs-4); /*Patell Z scaling factor*/
+1023  
+1024    /*Buy-Hold Abnormal Returns*/
+1025    bhar0=cret-cmkt;
+1026    bhar1=cret-cexpret1;
+1027    bhar2=cret-cexpret2;
+1028    bhar3=cret-cexpret3;
+1029  
+1030    if last.evtdate then do;
+1031          nrets=&evtwin-missret;
+1032       output car_evtdate;
+1033    end;
+1034    output car_evtwin;
+1035  run;
+
+WARNING: The variable calpha1 in the DROP, KEEP, or RENAME list has never been 
+         referenced.
+WARNING: The variable calpha2 in the DROP, KEEP, or RENAME list has never been 
+         referenced.
+WARNING: The variable calpha3 in the DROP, KEEP, or RENAME list has never been 
+         referenced.
+WARNING: The variable cmrkt in the DROP, KEEP, or RENAME list has never been 
+         referenced.
+WARNING: The variable csmb in the DROP, KEEP, or RENAME list has never been 
+         referenced.
+WARNING: The variable chml in the DROP, KEEP, or RENAME list has never been 
+         referenced.
+WARNING: The variable cumd in the DROP, KEEP, or RENAME list has never been 
+         referenced.
+NOTE: Missing values were generated as a result of performing an operation on 
+      missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      35 at 1012:13   35 at 1013:13   35 at 1014:13   35 at 1015:13   43 at 1017:14
+      43 at 1018:14   43 at 1019:14   43 at 1020:14   35 at 1025:13   35 at 1026:13
+      35 at 1027:13   35 at 1028:13   
+NOTE: There were 84279 observations read from the data set WORK.CAR.
+NOTE: The data set WORK.CAR_EVTDATE has 16858 observations and 39 variables.
+NOTE: The data set WORK.CAR_EVTWIN has 84279 observations and 22 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.09 seconds
+      user cpu time       0.07 seconds
+      system cpu time     0.01 seconds
+      memory              1071.46k
+      OS Memory           50412.00k
+      Timestamp           06/04/2024 11:55:24 AM
+      Step Count                        63  Switch Count  0
+      
+
+1036  
+1037  proc printto;run;
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              132.59k
+      OS Memory           58848.00k
+      Timestamp           06/04/2024 05:15:51 PM
+      Step Count                        88  Switch Count  0
+      
+
+1410  
+1411  proc reg data=evtrets edf outest=params  noprint;
+1412     where estper_beg<=date<=estper_end;
+1413     by permno evtdate;
+1414     eq0: model exret=;      /*past market-premium return: ret-mkt as a benchmark*/
+1415     eq1: model ret=mktrf;   /*  CAPM      */
+1416     eq2: model ret=mktrf smb hml; /* FF 3 factor **/
+1417     eq3: model ret=mktrf smb hml umd; /*FF 4 factor */
+1418  run;
+
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=12799 Event Date=18JAN2023
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=12799 Event Date=03FEB2023
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=27167 Event Date=17JUN2015
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=32791 Event Date=05MAY2016
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=32791 Event Date=15JUL2020
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=40695 Event Date=03APR2000
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=52250 Event Date=11JAN2002
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=64785 Event Date=28MAY1996
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=75760 Event Date=13JAN1997
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=78001 Event Date=05APR2010
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=78001 Event Date=27MAY2010
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=79837 Event Date=25NOV1998
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=80993 Event Date=01DEC1994
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=84757 Event Date=04APR2017
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=89833 Event Date=18DEC2009
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+ERROR: No valid observations are found.
+NOTE: The above message was for the following BY group:
+      PERMNO=91612 Event Date=14OCT2013
+NOTE: Interactivity disabled with BY processing.
+NOTE: PROCEDURE REG used (Total process time):
+      real time           3.52 seconds
+      user cpu time       3.29 seconds
+      system cpu time     0.32 seconds
+      memory              1697.62k
+      OS Memory           61156.00k
+      Timestamp           06/04/2024 05:15:55 PM
+      Step Count                        89  Switch Count  0
+      
+NOTE: The data set WORK.PARAMS has 68340 observations and 17 variables.
+
+1419  proc printto;run;
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              132.93k
+      OS Memory           59872.00k
+      Timestamp           06/04/2024 05:15:58 PM
+      Step Count                        95  Switch Count  0
+      
+
+1551  
+1552  data car_evtdate
+1553          (drop=evttime ret mkt smb hml umd date calpha1 calpha2 calpha3
+1554                cmrkt csmb chml cumd evtwin_beg evtwin_end abret0 abret1
+1555                abret2 abret3 sar0 sar1 sar2 sar3 missret cexpret1 cexpret2 cexpret3)
+1556       car_evtwin
+1557           (keep=permno evtdate evttime date ret cret abret0 abret1 abret2 abret3
+1558            sar0 sar1 sar2 sar3 bhar0 bhar1 bhar2 bhar3 car0 car1 car2 car3);
+1559    set car;
+1560    by permno evtdate date;
+1561    /*Standardized CARs and ARs for various models*/
+1562    scar0=car0/(&evtwin*var0)**0.5;
+1563    scar1=car1/(&evtwin*var1)**0.5;
+1564    scar2=car2/(&evtwin*var2)**0.5;
+1565    scar3=car3/(&evtwin*var3)**0.5;
+1566  
+1567    sar0=abret0/sqrt(var0);
+1568    sar1=abret1/sqrt(var1);
+1569    sar2=abret2/sqrt(var2);
+1570    sar3=abret3/sqrt(var3);
+1571  
+1572    pat_scale=(nobs-2)/(nobs-4); /*Patell Z scaling factor*/
+1573  
+1574    /*Buy-Hold Abnormal Returns*/
+1575    bhar0=cret-cmkt;
+1576    bhar1=cret-cexpret1;
+1577    bhar2=cret-cexpret2;
+1578    bhar3=cret-cexpret3;
+1579  
+1580    if last.evtdate then do;
+1581          nrets=&evtwin-missret;
+1582       output car_evtdate;
+1583    end;
+1584    output car_evtwin;
+1585  run;
+
+WARNING: The variable calpha1 in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable calpha2 in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable calpha3 in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable cmrkt in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable csmb in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable chml in the DROP, KEEP, or RENAME list has never been referenced.
+WARNING: The variable cumd in the DROP, KEEP, or RENAME list has never been referenced.
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      15 at 1562:13   15 at 1563:13   15 at 1564:13   15 at 1565:13   23 at 1567:14   23 at 1568:14   23 at 1569:14
+      23 at 1570:14   15 at 1575:13   15 at 1576:13   15 at 1577:13   15 at 1578:13   
+NOTE: There were 83544 observations read from the data set WORK.CAR.
+NOTE: The data set WORK.CAR_EVTDATE has 16711 observations and 39 variables.
+NOTE: The data set WORK.CAR_EVTWIN has 83544 observations and 22 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.09 seconds
+      user cpu time       0.03 seconds
+      system cpu time     0.06 seconds
+      memory              1071.12k
+      OS Memory           60640.00k
+      Timestamp           06/04/2024 05:15:58 PM
+      Step Count                        96  Switch Count  0
+      
+
+1586  
+1587  proc printto;run;
+
