@@ -1,0 +1,150 @@
+<proc name="Means">
+<label name="IDX"/>
+<title type="string" class="systemtitle" unformatted_type="string" unformatted_width="0" toc-level="1">buy and Hold: BHARs around the event date</title>
+<proc-title type="string" class="proctitle" unformatted_type="string" unformatted_width="0" toc-level="1">The MEANS Procedure</proc-title>
+<branch name="Means" label="The Means Procedure" class="contentprocname" toc-level="1">
+<leaf name="Summary" label="Summary statistics" class="contentitem" toc-level="2">
+<output name="Summary" label="Summary statistics" clabel="Summary statistics">
+<output-object type="table" class="table">
+
+  <style>
+    <border spacing="1" padding="7" rules="groups" frame="box"/>
+  </style>
+<colspecs columns="8">
+<colgroup>
+<colspec column="1" width="8" name="class" label="Channel" type="string" class="data" sasformat="$" precision="0" scale="8" unformatted_type="string" unformatted_width="8"/>
+<colspec column="2" width="1" align="decimal" name="nobs" type="double" class="data" sasformat="BEST" scale="1" unformatted_type="double" unformatted_width="8"/>
+</colgroup>
+<colgroup>
+<colspec column="3" width="1" align="decimal" name="n" type="double" class="data" sasformat="BEST" scale="1" unformatted_type="double" unformatted_width="8"/>
+<colspec column="4" width="12" align="decimal" name="mean" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="8"/>
+<colspec column="5" width="12" align="decimal" name="median" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="8"/>
+<colspec column="6" width="12" align="decimal" name="stddev" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="8"/>
+<colspec column="7" width="12" align="decimal" name="min" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="8"/>
+<colspec column="8" width="12" align="decimal" name="max" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="8"/>
+</colgroup>
+</colspecs>
+<output-head>
+<row>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="1" column="1" column-end="8">
+  <style>
+    <span columns="8"/>
+  </style>
+<value>Analysis Variable : stake </value>
+</header>
+</row>
+<row>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="2" column="1">
+<value>Channel</value>
+</header>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="2" column="2">
+<value>N Obs</value>
+</header>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="2" column="3">
+<value>N</value>
+</header>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="2" column="4">
+<value>Mean</value>
+</header>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="2" column="5">
+<value>Median</value>
+</header>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="2" column="6">
+<value>Std Dev</value>
+</header>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="2" column="7">
+<value>Minimum</value>
+</header>
+<header type="string" class="header" unformatted_type="string" unformatted_width="0" row="2" column="8">
+<value>Maximum</value>
+</header>
+</row>
+</output-head>
+<output-body>
+<row>
+<header name="class" label="Channel" type="string" class="data" precision="0" scale="8" unformatted_type="string" unformatted_width="8" unformatted_value="Internet" row="3" column="1">
+<label>Channel</label>
+<value>Internet</value>
+</header>
+<header name="nobs" type="double" class="data" sasformat="B" scale="1" unformatted_type="double" unformatted_width="1" unformatted_value="1" row="3" column="2">
+<value>1</value>
+</header>
+<data raw-value="P/AAAAAAAAA=" name="n" type="double" class="data" sasformat="B" scale="1" unformatted_type="double" unformatted_width="1" unformatted_value="1" row="3" column="3">
+<value>1</value>
+</data>
+<data raw-value="QGLAAAAAAAA=" name="mean" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="150" row="3" column="4">
+<value>150.00</value>
+</data>
+<data raw-value="QGLAAAAAAAA=" name="median" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="150" row="3" column="5">
+<value>150.00</value>
+</data>
+<data missing-value="." name="stddev" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="1" unformatted_value="." row="3" column="6">
+<value>.</value>
+</data>
+<data raw-value="QGLAAAAAAAA=" name="min" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="150" row="3" column="7">
+<value>150.00</value>
+</data>
+<data raw-value="QGLAAAAAAAA=" name="max" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="150" row="3" column="8">
+<value>150.00</value>
+</data>
+</row>
+<row>
+<header name="class" label="Channel" type="string" class="data" precision="0" scale="8" unformatted_type="string" unformatted_width="8" unformatted_value="Mobile  " row="4" column="1">
+<label>Channel</label>
+<value>Mobile</value>
+</header>
+<header name="nobs" type="double" class="data" sasformat="B" scale="1" unformatted_type="double" unformatted_width="1" unformatted_value="1" row="4" column="2">
+<value>1</value>
+</header>
+<data raw-value="P/AAAAAAAAA=" name="n" type="double" class="data" sasformat="B" scale="1" unformatted_type="double" unformatted_width="1" unformatted_value="1" row="4" column="3">
+<value>1</value>
+</data>
+<data raw-value="QGkAAAAAAAA=" name="mean" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="200" row="4" column="4">
+<value>200.00</value>
+</data>
+<data raw-value="QGkAAAAAAAA=" name="median" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="200" row="4" column="5">
+<value>200.00</value>
+</data>
+<data missing-value="." name="stddev" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="1" unformatted_value="." row="4" column="6">
+<value>.</value>
+</data>
+<data raw-value="QGkAAAAAAAA=" name="min" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="200" row="4" column="7">
+<value>200.00</value>
+</data>
+<data raw-value="QGkAAAAAAAA=" name="max" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="200" row="4" column="8">
+<value>200.00</value>
+</data>
+</row>
+<row>
+<header name="class" label="Channel" type="string" class="data" precision="0" scale="8" unformatted_type="string" unformatted_width="8" unformatted_value="Phone   " row="5" column="1">
+<label>Channel</label>
+<value>Phone</value>
+</header>
+<header name="nobs" type="double" class="data" sasformat="B" scale="1" unformatted_type="double" unformatted_width="1" unformatted_value="1" row="5" column="2">
+<value>1</value>
+</header>
+<data raw-value="P/AAAAAAAAA=" name="n" type="double" class="data" sasformat="B" scale="1" unformatted_type="double" unformatted_width="1" unformatted_value="1" row="5" column="3">
+<value>1</value>
+</data>
+<data raw-value="QFkAAAAAAAA=" name="mean" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="100" row="5" column="4">
+<value>100.00</value>
+</data>
+<data raw-value="QFkAAAAAAAA=" name="median" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="100" row="5" column="5">
+<value>100.00</value>
+</data>
+<data missing-value="." name="stddev" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="1" unformatted_value="." row="5" column="6">
+<value>.</value>
+</data>
+<data raw-value="QFkAAAAAAAA=" name="min" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="100" row="5" column="7">
+<value>100.00</value>
+</data>
+<data raw-value="QFkAAAAAAAA=" name="max" type="double" class="data" precision="2" scale="12" unformatted_type="double" unformatted_width="3" unformatted_value="100" row="5" column="8">
+<value>100.00</value>
+</data>
+</row>
+</output-body>
+</output-object>
+</output>
+</leaf>
+</branch>
+</proc>

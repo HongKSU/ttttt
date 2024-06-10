@@ -1,4 +1,16 @@
+
+ODS NOPROCTITLE;
+options nolabel;
+options msglevel=i FULLSTIMER;
+Options THREADS;
+options cpuCount = actual;
+
 /*match back to the data*/
+*OR_name 
+libname or_crsp "C:\Users\lihon\Downloads\or_crsp_merged";
+libname comp_or "C:\Users\lihon\Downloads\data_or_crsp_merged";
+
+libname oneDrive "&path"; 
 libname mergback "C:\Users\lihon\Downloads\merge_back";
  PROC IMPORT OUT= work.ee_or
             DATAFILE= "C:\Users\lihon\Downloads\merge_back\ee_or.dta" 
@@ -6,7 +18,7 @@ libname mergback "C:\Users\lihon\Downloads\merge_back";
 
 RUN;
 
-ODS NOPROCTITLE;
+
 
  *ee_or: 568,987;
 /**************************************************************************************/
@@ -18,19 +30,20 @@ proc sql;
      select trans.rf_id, trans.ee_name, ee_state,
          trans.ee_country, trans.or_name, trans.exec_dt,
          ee.gvkey as ee_gvkey, or.gvkey as or_gvkey 
-      from   ee_or as trans
-              left join 
-             ee_matched_all as ee
-          on trans.id_ee = ee.id_ee
-             left join or_matched_all as or
-      on trans.id_or = or.id_or;
+       from   ee_or as trans
+         left join 
+           comp_or.ee_matched_all as ee
+        on    trans.id_ee = ee.id_ee
+         left join 
+           comp_or.or_matched_all as or
+        on    trans.id_or = or.id_or;
   quit;
   run;
 data ee_or_mached1; /*139,870*/
     set ee_or_mached ;
 	 if or_gvkey= ee_gvkey then relation = 1;
 	 if NOT missing(or_gvkey );
-	 run;
+run;
 
 %contents(ee_or_mached1)
 /**************************************************************************************/
@@ -66,7 +79,10 @@ RUN;
 * WORK.com_all_names_unique_std ;
  *           DATAFILE= "D:\Research\patent\data\wrds_names\com_all_names_unique_std.dta" 
 ;
-%varlist(com_all_names_unique_std)
+%importStata(infile="D:\Research\patent\data\wrds_names\com_all_names_unique_std.dta",
+             outfile = com_all_names_unique_std)
+
+*%varlist(com_all_names_unique_std, out=com_all_names_unique_std) ;
 
 /**************************************************************************************/
 /* ee_or_mached_location: with 197294 rows and 12 columns
@@ -74,20 +90,26 @@ Get OR firm country and state from COMP dataset
 April,1st, 2024
 
 /**************************************************************************************/
+/* wrds "D:\Research\patent\data\wrds_names";
+  */             
 proc sql;
  create table ee_or_mached_location as 
  select a.*
        ,b.state as or_state
        ,b.fic as or_fic
        ,b.naics as or_naics
- from ee_or_mached1 as a
+ from            ee_or_mached1 as a
         left join 
-      com_all_names_unique_std as b
+           com_all_names_unique_std as b
         on a.or_gvkey=b.gvkey 
    ;
    quit;
 run;
-
+data ee_or_mached_location;
+     set  ee_or_mached_location;
+     if missing(ee_country) and NOT missing(ee_state) then ee_country = "United States";
+run;
+/*
 %contents(ee_or_mached_location)
 proc print data=ee_or_mached_location(obs=10);
 run;
@@ -95,6 +117,7 @@ PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
 select  or_ee_trans_tax    ;
 RUN;
+*/
 /*
 PROC IMPORT OUT= WORK.Astate_names 
             DATAFILE= "C:\Users\lihon\Downloads\merge_back\stateNames.csv" 
@@ -110,20 +133,29 @@ run;
 
 EE_OR_MACHED_LOCATION;
 */
+ /*To get short state name*/
+/*
 proc sql;*826,115 v2:* 197294 rows*;
   create table ee_or_mached_final as
   select a.*
-         ,b.stateShort as ee_state2 /*short state name*/
-   from         EE_OR_MACHED_LOCATION as a
-     left join aStateNames1 as b
-   on upcase(a.ee_state) = upcase(b.StateLong);
+         ,b.stateShort as ee_state2
+   from          EE_OR_MACHED_LOCATION as a
+       left join aStateNames1          as b
+       on upcase(a.ee_state) = upcase(b.StateLong);
   quit;
 run;
- */
-PROC DATASETS NOLIST;
-COPY IN = work OUT = mergback ;
-select  ee_or_mached_final    ;
-RUN;
+
+%contents(mergback.ee_or_mached_final_v1)
+
+proc freq data = mergback.ee_or_mached_final_v1;
+   table ee_state ee_country ee_state2;
+run;
+*/
+/*If the ee_country names are missing,
+filled the US
+*/
+
+
 
 %let path=C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet;
 libname taxRate "&path"; 
@@ -139,10 +171,10 @@ atent_assignment\taxratet\StateTaxRate.dta"
 RUN;
 
 
-/*Merge ee_or with state tax Rate*/
+/*Merge ee_or with state tax Rate
 proc contents data = aStateNames1;
 run;
-
+*/
 data fips;
   fmtname='FIPS';
   type='I';
@@ -157,7 +189,7 @@ proc format cntlin=fips ; run;
 %contents(stateRate)
 
 data state_rates;
-  set stateRate (drop=state_long b_state_short)  ;
+  set stateRate;* (drop=state_long b_state_short)  ;
       state_short=fipstate(fips)  ;
 run;
  /*
@@ -174,39 +206,48 @@ proc sql;*826,115;
 
 %contents(ee_or_mached_final)
 proc freq data = state_rates;
-table stateShort state state_short;
+table   state state_short;
 run;
+
+%unique_values(state_rates,state_short,state)
+
 * stateShort and State_short are identical;
  
-
+/*
   %contents(ee_or_mached_final)
   proc freq data =state_rates;
   table state_short;
   run;
+*/
+
 ************************************************************************************;
 *Merge Sate tax;
 * April 1st, 2024
-*
+* 
 ************************************************************************************; 
+
+* assignee state tax rate;
 proc sql; 
   create table ee_trans_tax as 
     select a.* 
           ,b.t_f as ee_federal_tax
-          ,b.t_s as ee_state_tax
-    from ee_or_mached_final   a
+          ,b.t_s as ee_state_tax  
+    from ee_or_mached_location   a
          left join
         state_rates b
     on a.ee_state = upcase(b.state) and year(a.exec_dt) = b.year ;
  /*where NOT missing(a.ee_state);*
        
        */
-       quit;
- proc sql; 
+ * merge transaction with tax_rate to get Assignor State tex rate;
+proc sql;
   create table or_ee_trans_tax as 
-     select a.*, b.t_f as or_federal_tax, b.t_s as or_state_tax
+     select a.*
+            ,b.t_f as or_federal_tax
+            ,b.t_s as or_state_tax
      from         ee_trans_tax  a
        left join  state_rates b
-  on upcase(a.or_state) = upcase(b.state_short) and year(a.exec_dt) = b.year;
+     on upcase(a.or_state) = upcase(b.state_short) and year(a.exec_dt) = b.year;
   quit;
 run;
 
@@ -268,3 +309,8 @@ proc sql  outobs=15;
   * Merged Output:
   *
 
+ /**/
+PROC DATASETS NOLIST;
+COPY IN = work OUT = mergback ;
+select  ee_or_mached_final_v2    ;
+RUN;

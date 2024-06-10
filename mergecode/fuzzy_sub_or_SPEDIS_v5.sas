@@ -254,7 +254,12 @@ proc contents data= &table;
 ods select variables;
 run;
 %mend contents;
-
+%macro contents_short(table);
+Title "Varibales in table &table";
+proc contents data= &table varnum short ;
+ods select variables;
+run;
+%mend contents;
 %macro varList(table);
 Title "Varibale list in table &table";
 proc contents data= &table short varnum;

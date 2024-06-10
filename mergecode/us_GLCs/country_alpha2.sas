@@ -39,7 +39,7 @@ quit;
 */
 
 
-%importstat(infile="C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet\country_tax_rate0416.dta"
+%importstata(infile="C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet\country_tax_rate0416.dta"
 ,outfile=country_tax)
 /*;
 Recode the country name in international country tax data 
@@ -49,18 +49,18 @@ to IDNAME in SAS built-in data  mapsgfk.world_attr
 data country_taxrate;
     set country_tax; 
     IF      upcase(TAX_COUNTRY_NAME) = "BOLIVIA"       THEN TAX_COUNTRY_NAME= "BOLIVIA, PLURINATIONAL STATE OF";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "DEM REP CONGO" THEN TAX_COUNTRY_NAME="DEMOCRATIC REPUBLIC OF CONGO";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "GUERNSEY"      THEN TAX_COUNTRY_NAME="BAILIWICK OF GUERNSEY";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "HONG KONG"     THEN TAX_COUNTRY_NAME="HONG KONG";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "JERSEY"        THEN TAX_COUNTRY_NAME="BAILIWICK OF JERSEY";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "KOREA (REP.)"  THEN TAX_COUNTRY_NAME="SOUTH KOREA";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "DEM REP CONGO" THEN TAX_COUNTRY_NAME= "DEMOCRATIC REPUBLIC OF CONGO";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "GUERNSEY"      THEN TAX_COUNTRY_NAME= "BAILIWICK OF GUERNSEY";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "HONG KONG"     THEN TAX_COUNTRY_NAME= "HONG KONG";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "JERSEY"        THEN TAX_COUNTRY_NAME= "BAILIWICK OF JERSEY";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "KOREA (REP.)"  THEN TAX_COUNTRY_NAME= "SOUTH KOREA";
                                         
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "MACAU"         THEN TAX_COUNTRY_NAME="MACAO";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "RUSSIA"        THEN TAX_COUNTRY_NAME="RUSSIAN FEDERATION";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "TAIWAN"        THEN TAX_COUNTRY_NAME="TAIWAN, PROVINCE OF CHINA";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "TANZANIA"      THEN TAX_COUNTRY_NAME="TANZANIA, UNITED REPUBLIC OF";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "VENEZUELA"     THEN TAX_COUNTRY_NAME="VENEZUELA, BOLIVARIAN REPUBLIC OF";
-    ELSE IF upcase(TAX_COUNTRY_NAME) = "VIETNAM"       THEN TAX_COUNTRY_NAME="VIET NAM";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "MACAU"         THEN TAX_COUNTRY_NAME= "MACAO";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "RUSSIA"        THEN TAX_COUNTRY_NAME= "RUSSIAN FEDERATION";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "TAIWAN"        THEN TAX_COUNTRY_NAME= "TAIWAN, PROVINCE OF CHINA";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "TANZANIA"      THEN TAX_COUNTRY_NAME= "TANZANIA, UNITED REPUBLIC OF";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "VENEZUELA"     THEN TAX_COUNTRY_NAME= "VENEZUELA, BOLIVARIAN REPUBLIC OF";
+    ELSE IF upcase(TAX_COUNTRY_NAME) = "VIETNAM"       THEN TAX_COUNTRY_NAME= "VIET NAM";
 run;
  /* Hong Kong is not in the table of "mapsgfk.world_attr"
   Here I  add Hong Kong to the dataset
@@ -78,10 +78,12 @@ https://documentation.sas.com/doc/en/pgmmvacdc/9.4/grmapref/p03gwkwlwxhv5dn1drl3
 mapsgfk.world_attr
 */ 
 
- proc sort data=mapsgfk.world_attr out= _SAS_country_names_;
- by IDNAME;
+ proc sort data = mapsgfk.world_attr 
+           out  = _SAS_country_names_;
+    by IDNAME;
  run;
- proc sql;
+
+proc sql;
    insert into _SAS_country_names_
       set ID='HK',
           IDNAME='Hong Kong',
@@ -92,7 +94,7 @@ mapsgfk.world_attr
           IDNAME='Macao',
           ISOALPHA2='MO',	
           ISOALPHA3='MAC',
-          ISONAME='Macao'
+          ISONAME='Macao';
    quit; 
 run;
 
@@ -132,17 +134,17 @@ run;
 */
  /*Virgin Islands, British;*/
 data _temp_4;
-    DO fyendyr=1982 to  2021;
+    DO fyendyr=1982 to 2021;
        Ctry_Code = "BV";
-       ISOALPHA3='BVI';
+       ISOALPHA3 = 'BVI';
        tax_country_name="VIRGIN ISLANDS, BRITISH";
        IDNAME="VIRGIN ISLANDS, BRITISH";
-       TR=0;
+       TR = 0;
        output;
-       ISOALPHA3 ="UVI";
+       ISOALPHA3 = "UVI";
        Ctry_Code = "UV";
-       tax_country_name= "VIRGIN ISLANDS, U.S.";
-       IDNAME= "VIRGIN ISLANDS, U.S.";
+       tax_country_name = "VIRGIN ISLANDS, U.S.";
+       IDNAME = "VIRGIN ISLANDS, U.S.";
        TR = 2.31;
        output;
     end;
@@ -174,9 +176,6 @@ data country_taxrate_all_my;
       UVI_BVI
       ;
 run;
-    
- 
-
  
 
 /********************Merge countries with or and ee */
@@ -191,10 +190,11 @@ run;
  *       b.state as or_state ;
 *       ,b.fic as or_fic;
 ************************************************************************************; 
+/*
  proc freq data=or_ee_trans_tax;
  table ee_country;
  run;
-
+*/
 proc sql;
 create table _ee_country as
 select distinct ee_country from or_ee_trans_tax;
@@ -204,12 +204,13 @@ proc sql;
 create table __ee_country_merge as
 select a.*,
        b.*
-       from _ee_country a
-       left join country_taxrate_all_my b
+       from     _ee_country           a
+          left join 
+                country_taxrate_all_my b
        on upcase(a.ee_country) = upcase(b.IDNAME);
        quit;
        run;
-
+/*
 proc sql;
    select distinct ee_country
     from     __ee_country_merge 
@@ -223,6 +224,7 @@ select distinct tax_country_name from country_taxrate_all_my
 order by tax_country_name;
 quit;
 
+*/
 
 /************************************************************************************; 
 EE_names NOT matched :
@@ -276,7 +278,7 @@ WALES
 * We first standidize them
 ************************************************************************************;
 data or_ee_trans_tax;
-set mergback.or_ee_trans_tax;
+  set mergback.or_ee_trans_tax;
 run;
 proc sql;
     update or_ee_trans_tax
@@ -326,17 +328,18 @@ proc sql;
          where ee_country in ("TAIWAN");
          
 quit;
+
 proc sql;
    update or_ee_trans_tax
        set ee_country = ''
          where ee_country in ("NOT PROVIDED" , "STATELESS");
 
-quit;
-proc sql;
- update or_ee_trans_tax
-       set ee_country = "Luxembourg"    where prxmatch("/AAM INTERNATIONAL/", upcase(ee_name));
- update or_ee_trans_tax
-      set ee_country = "United Kingdom" where prxmatch("/ARAYNER SURGICAL IN/",upcase(ee_name));
+  update or_ee_trans_tax
+       set ee_country = "Luxembourg"    
+         where prxmatch("/AAM INTERNATIONAL/", upcase(ee_name));
+  update or_ee_trans_tax
+      set ee_country = "United Kingdom" 
+        where prxmatch("/ARAYNER SURGICAL IN/",upcase(ee_name));
 quit;
 
 run;
@@ -359,11 +362,13 @@ set update might be more efficient*/
 
 proc sql; 
   create table or_ee_trans_tax_ee as 
-    select  a.* , b.TR as ee_country_tax, b.TR_US  as US_tax
+    select  a.* 
+            ,b.TR     as ee_country_tax
+            ,b.TR_US  as US_tax
         from or_ee_trans_tax   a
-    left join
-       country_taxrate_all_my b
-    on upcase(a.ee_country) = upcase(b.IDNAME)  and year(a.exec_dt) = b.fyendyr;
+             left join
+            country_taxrate_all_my b
+       on upcase(a.ee_country) = upcase(b.IDNAME)  and year(a.exec_dt) = b.fyendyr;
 quit;   
 /* Convert keep both OR_fic  and  or_country names*/
  proc sql;
@@ -376,13 +381,14 @@ quit;
                 country_taxrate_all_my b
           on upcase(a.or_fic) = upcase(b.ISOALPHA3)  and year(a.exec_dt) = b.fyendyr;
 quit; 
+/*
 proc freq data = country_taxrate_all_my;
   table IDNAME;
 run;
 proc freq data = or_ee_trans_tax;
   table ee_country;
 run;
-
+*/
 /* Deal with missed ee_country and or country
 
 */
@@ -428,6 +434,7 @@ run;
 
 ods trace off;
 */
+/*
 proc freq data = country_taxrate_all_my ;
 table fyendyr;
 run;
@@ -438,9 +445,9 @@ select country_taxrate_all_my;
 RUN;
 
 country_taxrate_all_my
-
+*/
 proc print data = or_ee_trans_tax_state_country;
-where ee_country_tax is missing and ee_country= "VIRGIN ISLANDS, BRITISH";
+     where ee_country_tax is missing and ee_country= "VIRGIN ISLANDS, BRITISH";
 run;
 
 Title "Check Country tax rarte";
