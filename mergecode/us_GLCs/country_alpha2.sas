@@ -37,8 +37,15 @@ quit;
 ************************************************************************************;
 *C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet\country_tax_rate.dta;
 */
+/* Table WORK._TMP_CK created, with 32635 rows and 24 columns.
 
-
+*//*
+proc sql;
+create table _tmp_ck as
+select * from or_ee_trans_tax
+where or_country_code NE or_fic;
+run;
+*/
 %importstata(infile="C:\Users\lihon\OneDrive - Kent State University\Patent_assignment\taxratet\country_tax_rate0416.dta"
 ,outfile=country_tax)
 /*;
@@ -178,38 +185,7 @@ data country_taxrate_all_my;
 run;
  
 
-/********************Merge countries with or and ee */
 
-************************************************************************************;
-*Merge Sate tax;
-* April 1st, 2024
-* Merge:
-*      or_ee_trans_tax 
-*      country_taxrate_all 
- merge Keys:
- *       b.state as or_state ;
-*       ,b.fic as or_fic;
-************************************************************************************; 
-/*
- proc freq data=or_ee_trans_tax;
- table ee_country;
- run;
-*/
-proc sql;
-create table _ee_country as
-select distinct ee_country from or_ee_trans_tax;
-quit;
-
-proc sql;
-create table __ee_country_merge as
-select a.*,
-       b.*
-       from     _ee_country           a
-          left join 
-                country_taxrate_all_my b
-       on upcase(a.ee_country) = upcase(b.IDNAME);
-       quit;
-       run;
 /*
 proc sql;
    select distinct ee_country
@@ -280,6 +256,7 @@ WALES
 data or_ee_trans_tax;
   set mergback.or_ee_trans_tax;
 run;
+
 proc sql;
     update or_ee_trans_tax
        set ee_country = "CANADA"
@@ -288,41 +265,39 @@ proc sql;
        set ee_country = "BERMUDA"
          where ee_country in ('ANTARCTICA');
     update or_ee_trans_tax
-       set ee_country = "United Kingdom"
+       set ee_country = upcase("United Kingdom")
          where ee_country in ("BRITISH INDIAN OCEAN TERRITORY", "SCOTLAND", "WALES", "NORTHERN IRELAND", "ENGLAND", "GREAT BRITAIN", "ENGLAND AND WALES");
     update or_ee_trans_tax
-       set ee_country = "Republic of Chad"
+       set ee_country = upcase("Republic of Chad")
          where ee_country in ("CHAD");
     update or_ee_trans_tax
-       set ee_country = "Bailiwick of Jersey"
+       set ee_country = upcase("Bailiwick of Jersey")
          where ee_country in ("CHANNEL ISLANDS", "JERSEY");
     update or_ee_trans_tax
-       set ee_country = "Australia"
+       set ee_country =upcase("Australia")
          where ee_country in ("COCOS (KEELING) ISLANDS");
     update or_ee_trans_tax
-       set ee_country = "Netherlands"
+       set ee_country =upcase( "Netherlands")
          where ee_country in ("CURACAO", "NETHERLANDS ANTILLES" );
     update or_ee_trans_tax
-       set ee_country = "Bailiwick of Guernsey"
+       set ee_country = upcase("Bailiwick of Guernsey")
          where ee_country in ("GUERNSEY" );
     update or_ee_trans_tax
-       set ee_country = "Germany"
+       set ee_country = upcase("Germany")
          where ee_country in ("GERMAN DEMOCRATIC REPUBLIC");
     update or_ee_trans_tax
-       set ee_country = "Iran"  
+       set ee_country = upcase("Iran"  )
          where ee_country in ("IRAN, ISLAMIC REPUBLIC OF");
     update or_ee_trans_tax
-       set ee_country = "North Korea"
+       set ee_country = upcase("North Korea")
          where ee_country in ("KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF");
     update or_ee_trans_tax
-       set ee_country = "South Korea"
+       set ee_country = upcase("South Korea")
          where ee_country in ("KOREA, REPUBLIC OF");
     update or_ee_trans_tax
-       set ee_country = "Venezuela, Bolivarian Republic of"
+       set ee_country = upcase("Venezuela, Bolivarian Republic of")
          where ee_country in ("VENEZUELA");
-    update or_ee_trans_tax
-       set ee_country = "Iran"
-         where ee_country in ("IRAN, ISLAMIC REPUBLIC OF");
+    
     update or_ee_trans_tax
        set ee_country = "TAIWAN, PROVINCE OF CHINA"
          where ee_country in ("TAIWAN");
@@ -335,10 +310,10 @@ proc sql;
          where ee_country in ("NOT PROVIDED" , "STATELESS");
 
   update or_ee_trans_tax
-       set ee_country = "Luxembourg"    
+       set ee_country = upcase("Luxembourg")    
          where prxmatch("/AAM INTERNATIONAL/", upcase(ee_name));
   update or_ee_trans_tax
-      set ee_country = "United Kingdom" 
+      set ee_country = upcase("United Kingdom") 
         where prxmatch("/ARAYNER SURGICAL IN/",upcase(ee_name));
 quit;
 
@@ -360,27 +335,99 @@ set update might be more efficient*/
 * Country Tax information: 
 * country_taxrate_all_my;
 
+/********************Merge countries with or and ee */
+
+************************************************************************************;
+*Merge Sate tax;
+* April 1st, 2024
+* Merge:
+*      or_ee_trans_tax 
+*      country_taxrate_all 
+ merge Keys:
+ *       b.state as or_state ;
+*       ,b.fic as or_fic;
+************************************************************************************; 
+/*
+ proc freq data=or_ee_trans_tax;
+ table ee_country;
+ run;
+*/
+/*???????????06/12/2024 USELESS??
+proc sql;
+create table _ee_country as
+select distinct ee_country from or_ee_trans_tax;
+quit;
+
+proc sql;
+create table __ee_country_merge as
+select a.*,
+       b.*
+       from     _ee_country           a
+          left join 
+                country_taxrate_all_my b
+       on upcase(a.ee_country) = upcase(b.IDNAME);
+       quit;
+       run;
+*/
+/* %print30(country_taxrate_all_my)
+*/
+/* Check country names dis in tax_file*/
+/*
+Title "country names dis in tax_file";
+proc freq data= country_taxrate_all_my order=internal;
+table ISOALPHA3;
+run;
+*/
+data or_ee_trans_tax;
+set or_ee_trans_tax 
+     (rename=( ee_country=ee_ctry_code));
+               ee_country= upcase(ee_ctry_code);
+    drop  ee_ctry_code;
+run;
+
 proc sql; 
   create table or_ee_trans_tax_ee as 
     select  a.* 
             ,b.TR     as ee_country_tax
             ,b.TR_US  as US_tax
+            ,upcase(b.IDNAME) as ee_ctry_IDNAME
         from or_ee_trans_tax   a
              left join
             country_taxrate_all_my b
-       on upcase(a.ee_country) = upcase(b.IDNAME)  and year(a.exec_dt) = b.fyendyr;
+        on    a.ee_country  = upcase(b.IDNAME) 
+            and year(a.exec_dt) = b.fyendyr;
 quit;   
 /* Convert keep both OR_fic  and  or_country names*/
+Title "country names dis in or_ee_trans contry_code";
+proc freq data= or_ee_trans_tax_ee order=internal;
+table or_country_code;
+run;
  proc sql;
     create table or_ee_trans_tax_state_country as 
     select  a.* 
             ,b.TR as or_country_tax
-            ,b.IDNAME as or_country  
-          from or_ee_trans_tax_ee   a
+            ,b.IDNAME as or_country_name
+            ,b.ISONAME as or_country_ISONAME 
+            ,year(a.exec_dt) as exec_year
+            from or_ee_trans_tax_ee  as a
                   left join
-                country_taxrate_all_my b
-          on upcase(a.or_fic) = upcase(b.ISOALPHA3)  and year(a.exec_dt) = b.fyendyr;
+                country_taxrate_all_my as b
+          on upcase(a.or_country_code) = upcase(b.ISOALPHA3)  
+              and year(a.exec_dt) = b.fyendyr;
 quit; 
+
+
+
+
+
+
+
+ /*
+
+proc freq data = or_ee_trans_tax_state_country order=freq;
+table or_country_ISONAME  or_country_name or_country_code;
+run;
+*/
 /*
 proc freq data = country_taxrate_all_my;
   table IDNAME;
@@ -446,6 +493,12 @@ RUN;
 
 country_taxrate_all_my
 */
+
+proc freq data = or_ee_trans_tax_state_country order=freq;
+table ee_country or_country_code;
+run;
+
+/*
 proc print data = or_ee_trans_tax_state_country;
      where ee_country_tax is missing and ee_country= "VIRGIN ISLANDS, BRITISH";
 run;
@@ -461,6 +514,7 @@ run;
 PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
 select or_ee_trans_tax_state_country;
+       
 RUN;    
 
 
@@ -470,3 +524,4 @@ PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
 select  country_tax ;
 RUN;
+*/

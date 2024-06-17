@@ -26,7 +26,10 @@ data _t1_or_ee_gvkey;
       if first.rf_id then dup_rf_id=0;
         dup_rf_id +1;
 run;
-    
+proc freq data =_t1_or_ee_gvkey;
+table dup_rf_id;
+run;
+ 
 proc sql;
     create table _t1_or_ee_gvkey_dup as
         select *
@@ -36,6 +39,9 @@ proc sql;
         group by rf_id
     ;
 quit;
+proc freq data =_t1_or_ee_gvkey_dup;
+table total_dup  nonmis_ee;
+run;
 ********************************************************************************;
 * remove the duplicated ee_ from the same rf_id *;
 
@@ -49,13 +55,7 @@ data t2_or_ee_gvkey;
     drop dup_rf_id total_dup nonmis_ee;
 run;
 
-proc sql;
-drop table _t0_or_ee_gvkey
-          ,_t1_or_ee_gvkey
-          ,_t1_or_ee_gvkey_dup
-         ;
-    quit;
-run;
+
 
 /*
 %contents(documentid)
@@ -71,8 +71,8 @@ run;
 /********************************************************************************;
 *
 * Merge document id with assignment type
-  by rf_id
-only keep non employer assignment
+*  by rf_id
+* only keep non employer assignment
 *
 *
 ********************************************************************************/
@@ -95,11 +95,11 @@ proc sql;
 run;
 
 * merge doc_nonemployer assignment with KPSS 
-by patent number
+* by patent number
+* get patent value, citation, 
 ; 
 proc sql;
-  drop table documentid, assignment_conveyance;
-  create table documentid_kpss as
+    create table documentid_kpss as
     select a.rf_id
           ,appno_date
           ,appno_country
@@ -117,11 +117,7 @@ proc sql;
     on a.patent_num =b.patent_num;
   quit;
 run;
-proc sql;
-  drop table documentid_assign
-             ,kpss2022
-             ;
-quit;
+
 
 
 /*
@@ -136,6 +132,8 @@ quit;
                 t2_or_ee_gvkey +  documentid_kpss
 output dataset: 
          rf_id_total
+
+* all nonmissing data are US granted;
 */
 proc sql;
     create table _docid_kpss as
@@ -145,7 +143,7 @@ proc sql;
            ,case
               when grant_country = "US" then 1
               else 0 
-           end as US_grant
+            end as US_grant
       from t2_or_ee_gvkey as a
                    left join
             documentid_kpss as b
@@ -154,7 +152,7 @@ proc sql;
     create table rf_id_total as
       select rf_id
            ,count(*)        as pac_size
-           ,sum(us_grant)   as us_grant
+           ,sum(us_grant)   as us_grant /*all shows US */
            ,sum(cites)      as total_cites
            ,sum(xi_real)    as vreal
            ,sum(xi_nominal) as vnominal
@@ -167,6 +165,8 @@ run;
 *          t2_or_ee_gvkey + rf_id_total                                         *;
 * Output dataset:                                                               *;
 *          or_ee_gvkey_patentid                                                 *;
+* NOTE:
+* or_ee_gvkey_patentid.sas7 has UNIQUE rf_id                                   *;
 *********************************************************************************;
 proc sql;
    create table or_ee_gvkey_patentid as 
@@ -179,6 +179,8 @@ proc sql;
   quit;
 run;
 
+
+
 /*
 %varlist(or_ee_trans_sort) 
 
@@ -189,8 +191,7 @@ the YEAR function have caused the function to return a missing value.
 */
 sasfile Crsp_comp_ccm load;
 proc sql; * with 327470 rows and 11 columns.;
-
-create table or_ee_trans_permno1 as 
+create table or_ee_trans_permno_rf_id as 
 select a.*
        ,or_gvkey
        ,lpermno as permno
@@ -204,29 +205,52 @@ select a.*
            Crsp_comp_ccm as b
            on a.or_gvkey=b.gvkey
                 AND 
-               year(a.exec_dt) = fyear  
+              a.exec_year = fyear 
+      ; 
   /*where not missing(a.exec_dt)*/
- ;
  quit;
- run;
+run;
 sasfile Crsp_comp_ccm close;
 
-%unique_values(or_ee_trans_permno1,or_gvkey, ee_gvkey)
+proc sort data = or_ee_trans_permno_rf_id NODUPKEY 
+          out  = or_ee_trans_permno_rf_id_unique; 
+by rf_id ee_name or_name exec_dt ee_gvkey or_gvkey ee_country or_fic or_country_name vreal;
+run;
+/*
+ 
+%unique_values(or_ee_trans_permno_rf_id_unique,or_gvkey, ee_gvkey)
 proc sql;
 create table all_gvkey as
-   select distinct or_gvkey as gvkey from or_ee_trans_permno1 where NOT missing(or_gvkey)
+   select distinct or_gvkey as gvkey from or_ee_trans_permno_rf_id_unique where NOT missing(or_gvkey)
    union 
-   select distinct ee_gvkey as gvkey  from or_ee_trans_permno1  where not missing(ee_gvkey);
+   select distinct ee_gvkey as gvkey  from or_ee_trans_permno_rf_id_unique  where not missing(ee_gvkey);
    quit;
  run;
-
+*/
+PROC DATASETS NOLIST;
+COPY IN = work OUT = mergback ;
+select   or_ee_trans_permno_rf_id_unique;
+RUN;
 PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
 select all_gvkey ;
 RUN;
 
-
- 
+proc sql;
+  
+  drop table documentid_assign
+             ,kpss2022
+              ,documentid
+              , assignment_conveyance
+             ;
+quit;
+proc sql;
+drop table _t0_or_ee_gvkey
+          ,_t1_or_ee_gvkey
+          ,_t1_or_ee_gvkey_dup
+         ;
+    quit;
+run; 
   
 ********************************************************************************;
 * Merge with assignment to get the record_dt;
@@ -239,14 +263,61 @@ proc sql;
  create table or_ee_gvkey_patentid_record_dt as 
  select  a.*
         ,record_dt
-        from or_ee_trans_permno1 as a
+        from or_ee_trans_permno_rf_id_unique as a
             inner join assignment as b
-         on a.rf_id =b.rf_id
-           where NOT missing(permno) and 
-                relation=1              
-            ;
-         quit;
+         on a.rf_id =b.rf_id;
+      quit;
 run;
+gen taxdiff=or_country_tax - ee_country_tax
+ replace 
+ 
+;;
+data  my_all_trans;
+    set or_ee_gvkey_patentid_record_dt(drop = us_grant);
+        rec_exec_days =intck('day', record_dt, exec_dt );
+        if upcase(or_country_name) NE upcase(ee_country) & not missing (or_country_name) & not missing(ee_country)
+            then foreign = 1 ;
+        else if not missing(or_country_name) & not missing(ee_country) then  foreign = 0;
+        else   foreign = .;
+        taxdiff=or_country_tax - ee_country_tax;
+
+        if abs(taxdiff ) < 0.0021 then taxdiff = 0;
+      run;
+
+       
+**********************************************;
+*Select foreign transfer and deciles divided
+* June 16, 2016
+ ;
+
+data  foreign_trans; * There were 25513 observations;
+     set my_all_trans (where =( NOT missing(permno) 
+                              and  foreign=1));
+      
+run;
+proc rank  data=foreign_trans
+           out = foreign_trans_decile groups=10;
+     var taxdiff;
+ranks decile;
+run;
+%unique_values(foreign_trans_decile, permno, rf_id)
+
+proc freq data = foreign_trans_decile order=freq;
+table decile;
+run;
+
+ods latex path='C:\Users\lihon\Downloads\sas_code\sas_temp\' file='taxdiff_summary_report.tex' style=Journal2;
+Title 'Show in RTF and LaTeX';
+options nolabel;
+
+proc means data = foreign_trans_decile;
+var taxdiff;
+class decile;
+run;
+ods latex close;
+ 
+title;
+
 /* fill the empty ee_country to USA;
 
 data or_ee_gvkey_patentid_record_dt;
@@ -322,7 +393,7 @@ proc sql;
    and b.record_dt=a.evtdate;
 quit;
 */
-proc sort data = or_ee_gvkey_patentid_record_dt NODUPKEY 
+proc sort data = foreign_trans_decile NODUPKEY 
           out  = or_ee_gvkey_patentid_record_dt2 ;
     * by rf_id or_name exec_dt permno;
           by rf_id or_name;
@@ -331,186 +402,3 @@ proc sort data = or_ee_gvkey_patentid_record_dt2
           out  = oree_gvkey_patentid_record_dtv2  NODUPKEYS;
           by permno record_dt;
 run;
-
-
-
-
-
-
-
-
-
-
-
-/* Merge with compustat
-*/
-proc sql;
-    create table  oree_gvkey_record_dtv2_comp as
-        select * from 
-        /*oree_gvkey_patentid_record_dtv2 as a*/
-        or_ee_gvkey_patentid_record_dt2 as a
-              inner join 
-           mergback.oree_compustat_gvkey as b
-           on a.or_gvkey = b.gvkey
-       and    year(a.record_dt) - b.FYEAR=1;
-quit;
-run;
-
-%contents(oree_gvkey_record_dtv2_comp)
-/*
-proc sql;
-    create table  oree_gvkey_record_comp2 as
-        select * from 
-          oree_gvkey_patentid_record_dtv2 as a
-              inner join 
-        mergback.compustat_evt_gvkey as b
-              on a.or_gvkey = b.gvkey
-  and    year(a.record_dt) - b.FYEAR=1;
-quit;
-run;
-*/
-/* Extract permno and gvkey in 
-
- %importStata(infile="C:\Users\lihon\Downloads\wrd_evt_res\dnltqx87bslc9xnb_edate.dta",
-              outfile=wrds_ff)
-
-PROC SQL;
-create table wrd_car_evtdate_comp as
-select * from wrds_ff as a
- inner join oree_gvkey_record_dtv2_comp as b
- on a.permno = b.permno and a.evtdate = b.record_dt;
- quit;
- run;
-
-oree_gvkey_patentid_record_dtv2
-/*
-proc sort data = for_event_study1 
-          out  = for_event_study_v2  NODUPKEYS;
-          by permno record_dt;
-run;
-*/
-
-/* Merge  evt-CARs with COMPUSTAT
-oree_gvkey_record_dtv2_comp
-car1_day2: day2 cars
-*/
-
-proc sql;
-create table aad_tmp as 
-select rf_id
-        ,or_name
-        ,ee_name
-        ,PERMno
-        ,record_dt
-        ,exec_dt
-from  oree_gvkey_record_dtv2_comp
-order by rf_id, record_dt;
-
-quit;
-run;
-
-proc sort data=aad_tmp;
- by permno record_dt;
- run;
-
-
-/*oree_gvkey_record_dtv2_comp:
- the combination of permno and date is not unique;
- */
-PROC SQL;
-  create table car1_day2_comp as 
-   select * from  car_evtdate as a
-      inner join  as b
-   on a.permno = b.permno and a.evtdate = b.record_dt;
- quit;
- run;
-
-%contents(car1_day2_comp)
-PROC SQL;
-create table car_evtdate_comp as
-select * from car_evtdate as a
- inner join oree_gvkey_record_dtv2_comp as b
- on a.permno = b.permno and a.evtdate = b.record_dt;
- quit;
- run;
-
-/*second merge of CARs and comp
- */
- PROC SQL;
-create table car1_day2_comp_2 as
-select * from car1_day2 as a
- inner join oree_gvkey_record_comp2 as b
- on a.permno = b.permno and a.evtdate = b.record_dt;
- quit;
- run;
-
-/* merge the CARs with compustat data;
-* C:\Users\lihon\Downloads\merge_back\compustat1979_2023.sas7bdat;
-*/
-proc sql;
-  create table wrds_or_ee_event_res_car0_comp as
-    select * from 
-    /* car_evtwin a*/
-    /*wrds_evt_Neg20_p10 a*/
-    wrds_or_ee_event_res_car0 as a
-    left join
-     /* mergback.compustat1979_2023 as b*/
-         mergback.compustat_evt_gvkey as b
-   on a.or_gvkey = b.GVKEY 
-   and year(a.record_dt) - b.FYEAR=1;
-quit;
-
-
-
-proc transpose data= car_evtwin 
-      prefix = car out= car0_evtwin_wide(drop = _NAME_);
-    by  permno evtdate;
-    id evttime;
-    var car0;
-format evtdate MMDDYY10.;
-run;
-proc sql;
-  create table wrds_or_ee_event_res_car0 as
-    select * from 
-    /* car_evtwin a*/
-    /*wrds_evt_Neg20_p10 a*/
-    car0_evtwin_wide as a
-    left join
-     or_ee_gvkey_patentid_record_dt as b
-   on a.PERMNO = b.permno 
-   and b.record_dt=a.evtdate;
-quit;
-
-
-
-74,153 obs)???
-PROC DATASETS NOLIST;
-COPY IN = work OUT = mergback ;
-select  wrds_or_ee_event_res_car0_comp ;
-RUN;
-
-PROC DATASETS NOLIST;
-COPY IN = work OUT = mergback ;
-select  wrd_car_evtdate_comp ;
-RUN;
-
-
-PROC DATASETS NOLIST;
-COPY IN = work OUT = mergback ;
-select  car1_day2_comp  car_evtdate_comp;
-RUN;
-PROC DATASETS NOLIST;
-COPY IN = work OUT = mergback ;
-select car1_day2_comp;
-RUN;
-***********************************************;
-
-
-
-PROC DATASETS NOLIST;
-COPY IN = work OUT = mergback ;
-select  or_ee_gvkey_patentid_record_dt2  oree_gvkey_patentid_record_dtv2 ;
-RUN;
-
-%unique_values(oree_gvkey_patentid_record_dtv2, or_gvkey, permno)
-%unique_values(or_ee_trans_permno1, or_gvkey, permno)

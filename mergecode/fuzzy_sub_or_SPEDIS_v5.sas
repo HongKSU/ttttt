@@ -9,6 +9,7 @@
                               ,or_sub = or_sub_name
                               ,comp_original=HCONM
                               ,comp_name = std_sub_name 
+                              ,country_code = country_code
                               ,sub_name = sub_name
                               ,len_name = len_name
                               ,merged_prefix=ee       /*must set a value*/
@@ -17,22 +18,23 @@ sasfile &or_table load;
 sasfile &comp     load;
 proc sql _method ;
    create table m_&merged_prefix._&comp  as
-   select a.rf_id,
-          a.exec_dt, 
-          a.id_or,
-          a.id_ee, 
-	      a.&original_name as &merged_prefix._name,
+   select a.rf_id
+          ,a.exec_dt
+          ,a.id_or
+          ,a.id_ee 
+	      ,a.&original_name as &merged_prefix._name
 	     /* a.entity_1 as entity_or_1,*/
-          a.entity   as &merged_prefix._entity,
-          a.&or_name as  &merged_prefix._std_name, 
-          a.&or_sub,
-          b.GVKEY,
-          b.&comp_name     as crsp_std_name, 
-          b.&comp_original as comp_conm,
-          SPEDIS(a.&or_name, b.&comp_name) as spedis_score, 
-/****** compged(a.&or_name, b.&comp_name) as gl_score,*/
-          a.&len_std_or as len_&merged_prefix,
-          b.&len_name   as len_comp
+          ,a.entity   as &merged_prefix._entity
+          ,a.&or_name as  &merged_prefix._std_name
+          ,a.&or_sub
+          ,b.GVKEY
+          ,b.&comp_name     as crsp_std_name
+          ,b.&comp_original as comp_conm
+          ,SPEDIS(a.&or_name, b.&comp_name) as spedis_score
+            /****** compged(a.&or_name, b.&comp_name) as gl_score,*/
+          ,a.&len_std_or as len_&merged_prefix
+          ,b.&len_name   as len_comp
+          ,b.&country_code as country_code /*added on 06/12/2024*/
           /*b.entity as entity_comp*/
    from      &or_table as a
    left join &comp as b
@@ -257,7 +259,7 @@ run;
 %macro contents_short(table);
 Title "Varibales in table &table";
 proc contents data= &table varnum short ;
-ods select variables;
+ods select variable;
 run;
 %mend contents;
 %macro varList(table);
@@ -265,6 +267,18 @@ Title "Varibale list in table &table";
 proc contents data= &table short varnum;
 run;
 %mend varList;
+
+%macro uniquevalue(table, var_name1);
+Title "The count of total values and  unique variable &var_name1 from table &table";
+proc sql;
+select count(*) ,'total' as total from &table
+union
+select count(distinct &var_name1) as gvkey_N, "&var_name1" as uniq1 from  &table;
+quit;
+run;
+%mend uniquevalue;
+
+
 
 %macro unique_values(table, var_name1, var_name2);
 Title "The count of total values and  unique variable &var_name1 and &var_name2 values from table &table";

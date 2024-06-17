@@ -31,26 +31,31 @@ libname wrds_db "D:\Research\patent\data\wrds_names";
 
 * The import data set has 913834 observations and 5 variables.;
 
+options nolabel;
 PROC IMPORT OUT= WORK.parent_sub_gvkey_name_only 
-     DATAFILE= "D:\Research\patent\data\wrds_names\parent_gvkey_name_only.dta" 
+     DATAFILE= "D:\Research\patent\data\wrds_names\parent_gvkey_name_only_v2.dta" 
      DBMS=STATA REPLACE;
 RUN;
 
-options nolable;
-%listvars(parent_sub_gvkey_name_only)
 
-Title "Subsidiary data";
-PROC sql;
-    create table subs_gvkey as 
-      select distinct gvkey    
-    from SUBS.parent_sub_stacked;
-quit;
+; *'; *"; */;
+ODS _ALL_ CLOSE;
+quit; run; %MEND;
+data _NULL_; putlog "DONE"; run;
 
+
+
+ ;*';*";*/;quit;run;
+ ODS _ALL_ CLOSE;
+ QUIT; RUN;
+
+ /*
+%contents(parent_sub_gvkey_name_only)
 Title "Contents of Subsidiary data";
 proc contents data= SUBS.parent_sub_stacked;  varnum;
 *ods select PositionShort;
 run;
-
+*/
 *************************************************************************************;
 * Nonmatched_comp                                                                   *;
 * comp_or:60,595                                                                    *;
@@ -123,7 +128,7 @@ NOTE: The data set WORK.SUBS_OTHERS has 0 observations and 6 variables.
                         ,up_spedis_score=15)
 %mend merge_sub_ee;
 
-%merge_sub_ee(ee_AC, SUBS_AC);
+%merge_sub_ee(ee_AC, SUBS_AC)
 %merge_sub_ee(ee_dg, SUBS_dg)
 %merge_sub_ee(ee_hl, SUBS_hL)
 %merge_sub_ee(ee_mr, SUBS_mr)
@@ -222,7 +227,7 @@ rf_id exec_dt id_or id_ee ee_name ee_entity ee_std_name ee_sub gvkey crsp_std_na
 
 */
 data ee_matched_all;
-  set sub_ee_merged_v2       (keep=rf_id exec_dt id_or id_ee ee_name ee_entity ee_std_name gvkey 
+  set sub_ee_merged_v2      (keep=rf_id exec_dt id_or id_ee ee_name ee_entity ee_std_name gvkey 
                                 crsp_std_name comp_conm spedis_score dist_name 
 				   rename=(comp_conm=firm_name crsp_std_name=std_name))
 

@@ -2,14 +2,13 @@
 *OR_name 
 libname or_crsp "C:\Users\lihon\Downloads\or_crsp_merged";
 libname comp_or "C:\Users\lihon\Downloads\data_or_crsp_merged";
+libname or_name "C:\Users\lihon\Downloads\data_or_crsp_merged";
 libname comp_ee "C:\Users\lihon\Downloads\ee_crsp_merged";
 libname oneDrive "&path";
  
+
  
 libname doc "C:\Users\lihon\Downloads";
-libname or_crsp_merged "C:\Users\lihon\Downloads\or_crsp_merged";
-
-
 options nolabel;
 options mlogic MPRINT;
 
@@ -26,10 +25,6 @@ C:\Users\lihon\Downloads\stn_unique_or_dedupe_co.dta
 
 This file did self_join
 */
-
- 
-
-
  
 
 PROC IMPORT OUT= WORK.OR_NAME_orig 
@@ -161,7 +156,15 @@ proc sort data=or_name_orig out = or_name1;
 by std_firm1;
 run;
 */
-
+/*
+NOTE: There were 170073 observations read from the data set WORK.OR_NAME.
+NOTE: The data set WORK.OR_AC has 38216 observations and 16 variables.
+NOTE: The data set WORK.OR_DG has 26813 observations and 16 variables.
+NOTE: The data set WORK.OR_HL has 27017 observations and 16 variables.
+NOTE: The data set WORK.OR_MR has 38892 observations and 16 variables.
+NOTE: The data set WORK.OR_SZ has 39126 observations and 16 variables.
+NOTE: The data set WORK.OR_OTHERS has 9 observations and 16 variables.
+*/
 %split_non_matched(all_data =or_name  
                          ,std_firm = std_firm1
                          ,prefix = or
@@ -181,17 +184,17 @@ run;
 
 /**********************/
 
-libname or_name "C:\Users\lihon\Downloads\data_or_crsp_merged";
-%let lab_or=or_name;
+%let lab_or=comp_or;
 %let comp_ac=COMP_NAME_A_C;
-
+/*
 %fuzzy_comp_or(          &lab_or..or_name_a_j82098, AJ_comp)
 %fuzzy_comp_or_SPEDIS(   &lab_or..or_name_a_j82098, AJ_comp)
-%fuzzy_comp_or_SPEDIS_v5(&lab_or..or_name_a_j82098, AJ_comp)
-
 %fuzzy_comp_or(or_name_U_Z170073, UZ_comp)
+*/
+/*
+%fuzzy_comp_or_SPEDIS_v5(&lab_or..or_name_a_j82098, AJ_comp)
 %fuzzy_sub_or_SPEDIS_v5( or_name_a_c, COMP_NAME_A_C
-                               ,or_name= std_firm1
+                              ,or_name= std_firm1
                               ,len_std_or = len_std_or 
                               ,or_sub = or_sub
                               ,comp_original=conm
@@ -200,7 +203,7 @@ libname or_name "C:\Users\lihon\Downloads\data_or_crsp_merged";
                               ,len_name = len_std
                               ,merged_prefix=comp
                               ,up_spedis_score=10)
-
+*/
 %macro match_or(or_name_a_c, COMP_NAME_A_C);
 %fuzzy_sub_or_SPEDIS_v5( &or_name_a_c, &COMP_NAME_A_C
                                ,or_name= std_firm1
@@ -208,28 +211,53 @@ libname or_name "C:\Users\lihon\Downloads\data_or_crsp_merged";
                               ,or_sub = or_sub
                               ,comp_original=conm
                               ,comp_name = std_conmL
+                              ,country_code = loc
                               ,sub_name = comp_sub
                               ,len_name = len_std
                               ,merged_prefix=or
-                              ,up_spedis_score=15)
+                              ,up_spedis_score=12) /* version 1 has score=15, June 12, change to 12*/
+
 %mend match_or;
+/*.M_OR_COMP_AC created, with 5723 rows and 15 columns
+Table WORK.M_OR_COMP_DG created, with 2511 rows and 15 columns.
+Table WORK.M_OR_COMP_HL created, with 2629 rows and 15 columns.
 
-%match_or(or_name_a_c, COMP_NAME_A_C)
-%match_or(or_name_d_g, COMP_NAME_d_g)
-%match_or(or_name_h_l, COMP_NAME_h_L)
-%match_or(or_name_m_r, COMP_NAME_m_r)
-%match_or(or_name_s_z, COMP_NAME_s_z)
+Table WORK.M_OR_COMP_MR created, with 4150 rows and 15 columns.
+
+ Table WORK.M_OR_COMP_SZ created, with 4057 rows and 15 columns.
+ Table WORK.M_OR_COMP_DG created, with 2511 rows and 15 columns.
+
+*/
+
+*  comp data country code is LOC,  3 chars;
+* subsidiary country code: 2 chars ;
+
+%match_or(or_ac, COMP_AC)
+%match_or(or_dg, COMP_dg)
+%match_or(or_hl, COMP_hL)
+%match_or(or_mr, COMP_mr)
+%match_or(or_sz, COMP_sz)
 %match_or(or_others, COMP_others)
-
+/*
 or_name_d_g or_name_h_L or_name_m_R or_name_S_Z
-
-DATA comp_or_mar29_v3;  /*60,595*/
-  set m_or_comp_name_:;
+*/
+/* V3 06/12/2024
+NOTE: There were 5723 observations read from the data set WORK.M_OR_COMP_AC.
+NOTE: There were 2511 observations read from the data set WORK.M_OR_COMP_DG.
+NOTE: There were 2629 observations read from the data set WORK.M_OR_COMP_HL.
+NOTE: There were 4150 observations read from the data set WORK.M_OR_COMP_MR.
+NOTE: There were 0 observations read from the data set WORK.M_OR_COMP_OTHERS.
+NOTE: There were 4057 observations read from the data set WORK.M_OR_COMP_SZ.
+NOTE: The data set WORK.COMP_OR_MAR29_V4 has 19070 observations and 15 variables.
+*/
+DATA comp_or_mar29_v4;  /*60,595*/
+  set m_or_comp_:;
+  rename loc = country_code;
 RUN;
 *can be done in the mathch macro;
 proc sql;
 create table _temp_ as
-select * ,spedis(or_name, comp_conm) as dist_name from comp_or_mar29_v3
+select * ,spedis(or_name, comp_conm) as dist_name from comp_or_mar29_v4
 group by id_or
 having spedis_score = min(spedis_score)
 order by id_or;
@@ -244,7 +272,7 @@ run;
 
 proc sql;
 Title "number record in origin";
-select count(distinct rf_id) as a from comp_or_mar29_v3;
+select count(distinct rf_id) as a from comp_or_mar29_v4;
  title "new rec";
  select count(distinct rf_id) as d from _temp_2;
 quit;
@@ -253,14 +281,14 @@ run;
 
 
 
-proc sort data =_temp_2 out= comp_or_mar29_v3  nodupkey;
+proc sort data =_temp_2 out= comp_or_June12_v4   nodupkey;
 by id_or  ;
 run;
 
 PROC DATASETS NOLIST;
   COPY IN = work OUT = comp_or ;
   *select  m_comp_comp_name_:;
-  select comp_or_mar29_v3    ;
+  select comp_or_June12_v4    ;
 RUN;
 
 /* removed the duplicated records */
@@ -339,7 +367,7 @@ proc datasets library=work nolist;
 change comp_or_mar29_v3=comp_or;
 run;
 data comp_or_merged;
-  set COMP_OR.comp_or_mar29_v3;
+  set comp_or_June12_v4;
      by id_or;
   if first.id_or;
 run;
@@ -382,6 +410,11 @@ run;
     if NOT comp_in;
 RUN;
 */
+* WORK.NOMMATCHED_OR created, with 149382 rows and 15 columns.;
+*There were 20691 observations read from the data set COMP_OR.COMP_OR_MAR29_V ;
+*  149382- 20691 = 128691
+ WORK.NOMMATCHED_OR created, with 149382 rows and 15 columns
+;
 proc sql;
 create table nommatched_or as
 select * from or_name  
@@ -390,12 +423,15 @@ where rf_id not in
  
 quit;
 run;
+proc datasets lib=work nolist;
+delete or_: ;
+run;
 
 %split_non_matched(all_data =nommatched_or  
                          ,std_firm = std_firm1
                          ,prefix = or
                          ) 
-
+/*
  *NOTE: There were 149382 observations read from the data set WORK.NOMMATCHED_OR.
 NOTE: The data set WORK.OR_NAME_A_C has 33165 observations and 16 variables.
 NOTE: The data set WORK.OR_NAME_D_G has 23846 observations and 16 variables.
@@ -405,7 +441,7 @@ NOTE: The data set WORK.OR_NAME_S_Z has 34369 observations and 16 variables.
 NOTE: The data set WORK.OR_OTHERS has 9 observations and 16 variables.
 
 *WORK.NOMMATCHED_OR created, with 149382 rows and 1 columns.;
-
+*/
 
 /*
 NOTE: There were 170073 observations read from the data set WORK.OR_NAME.
