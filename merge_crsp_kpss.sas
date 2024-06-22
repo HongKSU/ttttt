@@ -444,9 +444,9 @@ proc sql;
 having kpss_dup_unique.issue_y -a.date<183;
 quit;
 run;
-patent_num	permno	issue_y	COMNAM	PERMCO	DATE	diff_days	dup
-8116297	33452	14feb2012	ERICSSON	                1577	29feb2012	15	1
-8116297	33452	14feb2012	ERICSSON L M TELEPHONE CO	1577	31jan2012	-14	1
+patent_num	permno	    issue_y	    COMNAM	                  PERMCO	DATE	diff_days	dup
+8116297	    33452	       14feb2012	ERICSSON	                1577	29feb2012	15	1
+8116297	    33452	       14feb2012	ERICSSON L M TELEPHONE CO	1577	31jan2012	-14	1
 I will do the detection in Stata.
 *
  duplicates tag patent_num permno issue_y, gen(dup)

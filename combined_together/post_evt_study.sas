@@ -1,3 +1,8 @@
+******;
+* Event study version 1:
+* all foreign country transactions;
+* Input data:
+* oree_gvkey_patentid_record_dtv2
 
 * North american data;
 
@@ -5,28 +10,28 @@
       set  mergback.oree_compustat_gvkey
            mergback.oree_compustat_gvkey_extraJune16;
 run;
-
-*extract needed variables;
+*********************************************************************************************;
+* Extract needed variables;                                                                 *;
+* 1. Book Value Per Share (bkvlps)                                                          *;      
+*     BKVLPS                                                                                *:
+*     Market Value - Total - Fiscal (mkvalt)                                                *;
+* Price Close - Annual - Fiscal (prcc_f) * Common Shares Outstanding (csho)                 *;
+* bvEquity = PRCC_F *CSHO                                                                   *;
+* Two years of accounting data before 1990                                                  *;
+* PS: prefered stock value                                                                  *;
  
-
 data northamerica_comp(keep=gvkey BE year bvcEquity capIntens cashFlow 
-                      cashHoldings costcap 
+                      cashHoldings costcap ceq
+                      ebit ebita
                        leverages bleverage market_leverage
                       roa roe  TobinsQ at lt  ni ebit );
-set oree_compustatAllMy_gvkey;
-* 1. Book Value Per Share (bkvlps)
-BKVLPS
-Market Value - Total - Fiscal (mkvalt)
-* Price Close - Annual - Fiscal (prcc_f) * Common Shares Outstanding (csho);
-* bvEquity = PRCC_F *CSHO;
-   /* Two years of accounting data before 1990 */
-	/* PS: prefered stock value*/
+  set oree_compustatAllMy_gvkey;
   PS=coalesce(PSTKRV, PSTKL, PSTK, 0);
   if missing(TXDITC) then 
         TXDITC=0;
   BE=SEQ + TXDITC - PS;
   if BE<0 then
-	BE=.;
+     BE=.;
   year=year(datadate);
   * BE of common equity;
   bvcEquity = PRCC_F *CSHO;
@@ -44,72 +49,24 @@ Market Value - Total - Fiscal (mkvalt)
   roa = ib/at;
   roe = ni/bvcEquity;
   cash_assets = che/AT;
-
- * roai = NI/AT;
- TobinsQ = (AT +bvEqity - CEQ)/AT;
- label BE='Book Value of Equity FYear t-1';
- label   LT= "Total Liabilities";
- label   AT= "Total Assets";
- label   capIntens= "Capital Intensity";
- label   cashFlow ="Cash Flow";
- label     cashHoldings= "Cash Holdings";
- *label variable costcap ="Cost of Capital";
- label   leverages= "Leverage";
- label   roa= "ROA";
- label   roe= "ROE";
- label    TobinsQ= "TobinsQ";
- run;
-
-
-data global_comp(keep=gvkey BE year bvcEquity capIntens cashFlow 
-                      cashHoldings costcap 
-                       leverages bleverage market_leverage
-                      roa roe  TobinsQ at lt  ni ebit );
-set mergback.gvkey_in_comp_global;
-* 1. Book Value Per Share (bkvlps)
-BKVLPS
-Market Value - Total - Fiscal (mkvalt)
-** Price Close - Annual - Fiscal (prcc_f) * Common Shares Outstanding (csho);
-** bvEquity = PRCC_F *CSHO;
-   /* Two years of accounting data before 1990 */
-	/* PS: prefered stock value*/
-  PS=coalesce(PSTKRV, PSTKL, PSTK, 0);
-  if missing(TXDITC) then 
-        TXDITC=0;
-  BE=SEQ + TXDITC - PS;
-  if BE<0 then
-	BE=.;
-  year=year(datadate);
-  * BE of common equity;
-  bvcEquity = PRCC_F *CSHO;
-  capIntens = CAPX/AT;
-  cashFlow = (IBC+DP)/AT;
-  cashHoldings = CHE/AT;
-  costcap = XINT/DLC;
-  * Debt in Current Liabilities - Total (dlc)  +  Long-Term Debt - Total (dltt) / tockholders Equity - Parent (seq);
-  leverages = (DLTT + DLC)/SEQ;
-
-  * book leverage;
-  bleverage = (dltt + dlc )/at;
-  market_leverage = (dltt + dlc )/(at-ceq + bvcEquity);
-  * ib, ibcom, ni;
-  roa = ib/at;
-  roe = ni/bvcEquity;
-  cash_assets = che/AT;
-
- * roai = NI/AT;
- TobinsQ = (AT +bvEqity - CEQ)/AT;
- label BE='Book Value of Equity FYear t-1';
- label   LT= "Total Liabilities";
- label   AT= "Total Assets";
- label   capIntens= "Capital Intensity";
- label   cashFlow ="Cash Flow";
- label     cashHoldings= "Cash Holdings";
- *label variable costcap ="Cost of Capital";
- label   leverages= "Leverage";
- label   roa= "ROA";
- label   roe= "ROE";
- label    TobinsQ= "TobinsQ";
+  
+  roai = NI/AT;
+  * Common/Ordinary Equity - Total (ceq);
+  TobinsQ = (AT +bvcEquity - CEQ)/AT;
+  label BE             = "Book Value of Equity FYear t-1"
+       LT              = "Total Liabilities" 
+       AT              = "Total Assets" 
+       capIntens       = "Capital Intensity" 
+       cashFlow        = "Cash Flow" 
+       cashHoldings    = "Cash Holdings" 
+       bleverage       = "book leverage" 
+       market_leverage = "Market Leverage" 
+       costcap         = "Cost of Capital" 
+       leverages       = "Leverage" 
+       roa             = "ROA" 
+       roe             = "ROE" 
+       TobinsQ         = "TobinsQ";
+ 
  run;
  * short debt/ total debt;
 
@@ -118,36 +75,113 @@ Market Value - Total - Fiscal (mkvalt)
  *Debt-to-Equity Ratio = totaldebt/;
 *short debt 
  short
+* 1. Book Value Per Share (bkvlps)
+  BKVLPS
+  Market Value - Total - Fiscal (mkvalt)
+  ** Price Close - Annual - Fiscal (prcc_f) * Common Shares Outstanding (csho);
+** bvEquity = PRCC_F *CSHO;
+   /* Two years of accounting data before 1990 */
+	/* PS: prefered stock value*/
+
+ 
+data global_comp(keep=gvkey BE year bvcEquity capIntens cashFlow 
+                      cashHoldings costcap ceq
+                      ebit ebita
+                      leverages bleverage market_leverage
+                      roa roe  TobinsQ at lt  ni ebit );
+set mergback.gvkey_in_comp_global;
+  PS=coalesce(PSTKRV, PSTKL, PSTK, 0);
+  if missing(TXDITC) then 
+        TXDITC=0;
+  BE=SEQ + TXDITC - PS;
+  if BE<0 then
+	BE=.;
+  year=year(datadate);
+  * BE of common equity;
+  bvcEquity = PRCC_F *CSHO;
+  capIntens = CAPX/AT;
+  cashFlow = (IBC+DP)/AT;
+  cashHoldings = CHE/AT;
+  costcap = XINT/DLC;
+  * Debt in Current Liabilities - Total (dlc)  +  Long-Term Debt - Total (dltt) / tockholders Equity - Parent (seq);
+  leverages = (DLTT + DLC)/SEQ;
+
+  * book leverage;
+  bleverage = (dltt + dlc )/at;
+  market_leverage = (dltt + dlc )/(at-ceq + bvcEquity);
+  * ib, ibcom, ni;
+  roa = ib/at;
+  roe = ni/bvcEquity;
+  * cash and short term investment /AT;
+  cash_assets = che/AT;
+
+  roai = NI/AT;
+  TobinsQ = (AT +bvcEquity - CEQ)/AT;
+ label BE              = "Book Value of Equity FYear t-1"
+       LT              = "Total Liabilities" 
+       AT              = "Total Assets" 
+       capIntens       = "Capital Intensity" 
+       cashFlow        = "Cash Flow" 
+       cashHoldings    = "Cash Holdings" 
+       bleverage       = "book leverage" 
+       market_leverage = "Market Leverage" 
+       costcap         = "Cost of Capital" 
+       leverages       = "Leverage" 
+       roa             = "ROA" 
+       roe             = "ROE" 
+       TobinsQ         = "TobinsQ";
+       ni              = "Net Income";
+ 
 run;
-data my_compusta;
+
+data my_compustat;
     set global_comp 
         northamerica_comp;
     run;
 
-proc contents data= mergback.oree_compustat_gvkey VARNUM;
-run;
-proc contents data= mergback.oree_compustat_gvkey_extraJune16 VARNUM;
-run;
 
 
 
-/* Merge with compustat
+/* First Event study data set Merge with my compustat
+ Input: 1. all foreign transactions:
+        oree_gvkey_patentid_record_dtv2
+        2. my_compustat
 */
 proc sql;
     create table  oree_gvkey_record_dtv2_comp as
         select * from 
-        oree_gvkey_patentid_record_dtv2 as a
+        my_all_trans as a
           
          /*or_ee_gvkey_patentid_record_dt2 as a*/
               inner join 
-           my_compusta as b
+           my_compustat as b
            on a.or_gvkey = b.gvkey
            and    year(a.record_dt) = b.YEAR;
         /*and    year(a.record_dt) - b.FYEAR=1;*/
 quit;
 run;
+%contents(my_all_trans)
+**************************************************;
+*124,849 rf_id and 124,849 total  ;
+* %uniquevalue(my_all_trans,rf_id) 
+* 15,293 or_gvkey in total
+ %uniquevalue(my_all_trans,or_gvkey) 
+*******************************************************;
 
-%contents(oree_gvkey_record_dtv2_comp)
+********************************************************************;
+* Input: oree_gvkey_record_dtv2_comp
+*87,706 rf_id 
+* 94,036 total 
+
+*  %uniquevalue(oree_gvkey_record_dtv2_comp,rf_id) 
+*************************************************************;
+proc sql;
+select count(*) from (
+  select distinct rf_id, or_gvkey,   count(*)
+         from oree_gvkey_record_dtv2_comp
+         group by rf_id, or_gvkey );
+         quit;
+         run;
 /*
 proc sql;
     create table  oree_gvkey_record_comp2 as
@@ -185,7 +219,7 @@ run;
 oree_gvkey_record_dtv2_comp
 car1_day2: day2 cars
 */
-
+/*
 proc sql;
 create table aad_tmp as 
 select rf_id
@@ -203,14 +237,52 @@ run;
 proc sort data=aad_tmp;
  by permno record_dt;
  run;
-
+*/
 
 /*oree_gvkey_record_dtv2_comp:
  the combination of permno and date is not unique;
+         with 19313 rows and 27 columns.
+
  */
+  proc sql;
+    create table  aggforeign_trans_record_dt_comp as
+        select * from 
+         /*        ??aggforeign_trans as a*/
+        mergback.foreign_trans_decile as a
+         /*or_ee_gvkey_patentid_record_dt2 as a*/
+              inner join 
+           my_compustat as b
+           on a.or_gvkey = b.gvkey
+           and    year(a.record_dt) = b.YEAR;
+        /*and    year(a.record_dt) - b.FYEAR=1;*/
+quit;
+run;   
+
+%let outresult=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result;
+libname aggf_all "&outresult\agg_foreign_all";
+** 1. First  subsample;
 PROC SQL;
+  create table Evt_foreign_all_car1_day2_comp as 
+   select * from  aggf_all.car_evtwin as a
+      inner join aggforeign_trans_record_dt_comp as b
+   on a.permno = b.permno and a.evtdate = b.record_dt
+where evttime=2;
+ quit;
+ run;
+
+ PROC DATASETS NOLIST;
+COPY IN = work OUT = evtstudy ;
+select   foreign_trans_decile Evt_foreign_all_car1_day2_comp ;
+run;
+
+
+/*
+ evtwindd
+Evt_foreign_all_car1_day2_comp
+*/
+ PROC SQL;
   create table car1_day2_comp as 
-   select * from  car_evtdate as a
+   select * from  car_evtwin as a
       inner join oree_gvkey_record_dtv2_comp as b
    on a.permno = b.permno and a.evtdate = b.record_dt;
  quit;
@@ -297,6 +369,14 @@ RUN;
 ***********************************************;
 
 
+PROC DATASETS NOLIST;
+COPY IN = work OUT = mergback ;
+select   my_all_trans;
+run;
+proc contents data= mergback.oree_compustat_gvkey VARNUM;
+run;
+proc contents data= mergback.oree_compustat_gvkey_extraJune16 VARNUM;
+run;
 
 PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
