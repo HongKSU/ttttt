@@ -210,6 +210,17 @@ where evttime=2;
 run;
 %mend car_comp;
 
+%macro unique_comb_values(foreign_trans, permno , record_dt);
+Title "Unique combinatons of &permno and &record_dt in dataset :&foreign_trans  is  ";
+proc sql; *18,130;
+select count(*) from (
+select distinct &permno, &record_dt, count(*) as ccc 
+from  &foreign_trans   
+group by &permno, &record_dt);
+quit;
+%mend unique_comb_values;
+
+
 ;*';*";*/;quit;run;
 *);*/;/*'*/ /*"*/; %MEND;run;quit;;;;;
 

@@ -68,31 +68,113 @@ label variable roe             "ROE"
 label variable ni             "NetIncome"
 label variable TobinsQ        "TobinsQ"
 label variable netloss         "NetLoss"
+
+   egen rank = rank(taxdiff ), unique
+egen tax_group=cut(rank), group(10) 
+ rename decile taxdff_decile_sas
+rename tax_group decile
+
 *https://www.baeldung.com/cs/latex-tables-vertical-horizontal
 * global outputPath "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_all"
 
-estpost tabstat taxdiff car*  ,by(decile) columns(statistics) stat(mean sd ) nototal  
+* Only Taxdiff and cars
+
+*----------------------------------By Deciles------------------------------------------ 
+/// Cars
+est clear
+quietly{
+	estpost tabstat taxdiff car*  ,by(decile) columns(statistics) stat(mean sd ) nototal  
+}
 /* 
  esttab  , unstack   ///
  starlevels(* 0.05 ** 0.01 *** 0.001) ///
  cells(mean(star fmt(%6.3fc) label(Mean)) sd(par fmt(2) label(SD)))nonumber   nomtitle eqlabels("D1" "D2" "D3" "D4" "D5" "D6" "D7"  "D8" "D9" "D10") nonote  nonumber noobs   
 */ 
+
+
 esttab  using "$outputPath\descriptive_stats_cars.tex", replace unstack ///
                booktabs alignment(D{.}{.}{-1})  /// align elements
          	   cells(mean(star fmt(%6.3fc) label(Mean)) sd(par fmt(2) label(SD))) /// two columns  stacked
 	           eqlabels("D1" "D2" "D3" "D4" "D5" "D6" "D7"  "D8" "D9" "D10")   ///
 	           nonote  nonumber   nomtitle
+			   
+			   
+* Constructed COMPUSTAT vars			   
 est clear
-estpost tabstat  AT LT EBIT BE  bvcEquity ni earnings netloss be_me cashFlow cashHoldings costcap leverages bleverage market_leverage roa roe   TobinsQ,by(decile) columns(statistics) stat(mean sd ) nototal  
-
-esttab using "$outputPath\descriptive_stats_compvars.tex" , booktabs alignment(D{.}{.}{-1}) replace  unstack  cells(mean( fmt( %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc  %7.0fc 2 2 2 2 2 2 2 2 2 2 2 2)) sd(par fmt(%7.0fc %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc 2 2 2 2 2 2 2 2 2 2 2 2))  )  nomtitle eqlabels("D1" "D2" "D3" "D4" "D5" "D6" "D7"  "D8" "D9" "D10") nonote  nonumber noobs 
+quietly{
+estpost tabstat  AT LT EBIT BE  bvcEquity ni earnings ///
+                netloss be_me cashFlow cashHoldings costcap ///
+				leverages bleverage market_leverage ///
+				roa roe TobinsQ, ///
+				by(decile) ///
+				columns(statistics) stat(mean sd ) nototal  
+}
+esttab using "$outputPath\descriptive_stats_compvars.tex" , replace  unstack ///
+              booktabs alignment(D{.}{.}{-1}) ///
+      cells(mean( fmt( %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc  %7.0fc 2 2 2 2 2 2 2 2 2 2 2 2))  ///
+	  sd(par fmt(%7.0fc %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc 2 2 2 2 2 2 2 2 2 2 2 2))) ///
+	  nomtitle eqlabels("D1" "D2" "D3" "D4" "D5" "D6" "D7"  "D8" "D9" "D10") ///
+	  nonote  nonumber noobs 
  
 /* 
   esttab using "$outputPath\descriptive_stats_compvars_means.tex" , unstack  cells(mean( fmt( %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc  %7.0fc 2 2 2 2 2 2 2 2 2 2))   )  nomtitle eqlabels("D1" "D2" "D3" "D4" "D5" "D6" "D7"  "D8" "D9" "D10") nonote  nonumber noobs 
   
+* The folowing is for SAS deciles, which combine the zero taxdiff onto one decile, check sas PROC RANK
+  est clear
+  estpost tabstat  taxdiff AT LT EBIT BE  bvcEquity ni earnings  ///
+                   netloss be_me cashFlow cashHoldings costcap   ///
+				   leverages bleverage market_leverage roa roe  TobinsQ, ///
+				   by(taxdff_decile_sas) columns(statistics) ///
+				   stat(mean sd ) nototal  
+  
+  esttab  , unstack  ///
+	      cells(mean(fmt(%7.2fc %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc 2 2 2 2 2 2 2 2 2 2 2)))  ///
+		  nomtitle eqlabels("D1" "D2" "D3" "D4" "D5" "D6" "D7"  "D8" "D9" "D10") ///
+		  nonote  nonumber noobs 
+	
+   esttab  using "$outputPath\descriptive_stats_compvars_sasDecile.tex" ,  unstack ///
+             cells(mean( fmt(%7.2fc  %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc  %7.0fc 2 2 2 2 2 2 2 2 2 2 2))   )  ///
+			 nomtitle eqlabels("D1" "D2" "D3" "D4" "D5" "D6" "D7"  "D8" "D9" "D10") ///
+			 nonote  nonumber noobs 	
   */
  
- 
+
+*----------------------------------------------------- By foreign and relation summary statistics
+est clear
+quietly{
+	 estpost tabstat taxdiff car*  ,by(foreign) columns(statistics) stat(mean sd ) nototal 
+}
+esttab  using "$outputPath\descriptive_stats_cars_By_foreign.tex", replace unstack ///
+               booktabs alignment(D{.}{.}{-1})  /// align elements
+         	   cells(mean(star fmt(%6.5fc) label(Mean)) sd(par fmt(3) label(SD))) /// two columns  stacked
+	           eqlabels("Domestic" "Foreign")   ///
+	           nonote  nonumber nomtitle
+ est clear
+ quietly{
+ estpost tabstat AT LT EBIT BE  bvcEquity ni earnings ///
+                netloss be_me cashFlow cashHoldings costcap ///
+				leverages bleverage market_leverage ///
+				roa roe TobinsQ, ///
+				by(foreign) ///
+				columns(statistics) stat(mean sd ) nototal 
+ } 
+
+esttab using "$outputPath\descriptive_stats_compvars_byForeigh.tex" , replace  unstack ///
+              booktabs alignment(D{.}{.}{-1}) ///
+              cells(mean( fmt(%7.0fc %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc ///
+			                 2 2 2 2 2 2 2 2 2 2 2 2))  ///
+	          sd(par      fmt(%7.0fc %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc ///
+			                 2 2 2 2 2 2 2 2 2 2 2 2))) ///
+	          eqlabels("Domestic" "Foreign")   ///  
+	          nonote  nonumber noobs nomtitle
+	  
+/*	  
+ esttab  , unstack   ///
+ starlevels(* 0.05 ** 0.01 *** 0.001) ///
+  cells(mean( fmt( %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc  %7.0fc 2 2 2 2 2 2 2 2 2 2 2 2))  ///
+	  sd(par fmt(%7.0fc %7.0fc %7.0fc %7.0fc %7.0fc %7.0fc 2 2 2 2 2 2 2 2 2 2 2 2)) ) ///
+	  nonumber   nomtitle eqlabels("Domestic" "Foreign" ) nonote  nonumber noobs   
+	  */
 /*label variable costcap ="Cost of Capital";
  
 tabstat taxdiff roa roe AT LT BE costcap leverages bleverage market_leverage, by(decile) stat(  mean  )  format(%9.2fc)   long
@@ -117,7 +199,7 @@ collect style cell result[mean sd], nformat(%9.2f)
 * review style changes
 collect preview
 */
-winsor2 taxdiff car0 car1 car2 car3 sar0 sar1 sar2 sar3 abret0 abret1 abret2 abret3 bhar0 bhar1 bhar2 bhar3 ///
+winsor2 taxdiff car0 car1 car2 car3  abret0 abret1 abret2 abret3 bhar0 bhar1 bhar2 bhar3 ///
        AT LT CEQ cashHoldings bvcEquity be_me BE costcap ni EBIT EBITDA ///
        vreal  leverages roai vnominal bleverage  cash_assets         ///
        capIntens market_leverage TobinsQ  cashFlow   roa  roe      ///

@@ -331,9 +331,14 @@ select  distinct permno
         ,max(taxdiff) as  taxdiff /*It was min(taxdiff) before*/
         ,min(rec_exec_days) as rec_exec_days
         from my_all_trans
-  group by permno, or_gvkey,record_dt;
-  quit;
-run;
+  group by permno
+           ,or_gvkey
+           ,record_dt
+           ,foreign
+           ,relation
+           ;
+quit;
+
 
 *
 Table WORK.OREE_GVKEY_RECORD_DTV2_COMP created, with 94,036 rows and 62 columns.
@@ -355,10 +360,10 @@ run;
 libname onedrive "C:\Users\lihon\OneDrive - Kent State University\aaaa\merged_ana";
 PROC DATASETS NOLIST;
     COPY IN = work OUT = onedrive ;
-    select oree_gvkey_record_dtv2_comp 
-            
- 
-;
+    select my_all_trans
+           aggmy_all_trans
+           oree_gvkey_record_dtv2_comp 
+    ;
 run;
 
 
@@ -417,7 +422,8 @@ run;
 proc sort data = relation_trans (keep= permno record_dt
                         rf_id ee_comp_stdname ee_gvkey
                         or_name or_comp_stdname or_gvkey  
-                        exec_dt or_country_ISONAME or_country_name ee_country) 
+                        exec_dt 
+                         or_country_ISONAME or_country_name ee_country) 
                          
            out = _sort_relation_trans;
   by permno record_dt;
@@ -438,10 +444,15 @@ select  distinct permno
         ,sum(vnominal) as agg_vnominal
         ,min(taxdiff) as  taxdiff
         ,min(rec_exec_days) as rec_exec_days
+        ,foreign
         from relation_trans
-  group by permno, or_gvkey,record_dt;
+  group by permno
+           ,or_gvkey
+           ,record_dt
+           ,foreign;
   quit;
 run;
+%unique_comb_values(aggrelation_trans, permno, record_dt ) *17501;
 
 
 libname allrel "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\allRelationTrans";
@@ -461,10 +472,13 @@ run;
                        ,outlib=allrel
                        ,outdata_pref=all_relat)      
 
+%uniqueValue(allrel.all_relat_evt_car_day2_comp2, permno)
 
+proc contents data = all_relat_evt_car_day2_comp2;
+run;
  
 **********************************************;
-* 2. Foreign trans
+* 1. Foreign trans
                        Select foreign transfer and deciles divided
 * June 16, 2016
 * There were 25513 observations read from the data set WORK.MY_ALL_TRANS
