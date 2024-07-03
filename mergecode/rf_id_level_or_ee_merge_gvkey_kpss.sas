@@ -191,6 +191,8 @@ run;
 
 
 /*
+Purpose: get or_permno
+----------------------------------------------------------------
 %varlist(or_ee_trans_sort) 
 
 merge or_ee_gvkey_patentid to get or_permno
@@ -292,23 +294,183 @@ run;
 * The data set WORK.MY_ALL_TRANS has 124,849 observations and 44 variable;
  
 data  my_all_trans;
-    set or_ee_gvkey_patentid_record_dt(drop = us_grant);
-        rec_exec_days =intck('day', record_dt, exec_dt );
-        if upcase(or_country_name) NE upcase(ee_country) & not missing (or_country_name) & not missing(ee_country)
-            then foreign = 1 ;
-        else if not missing(or_country_name) & not missing(ee_country) then  foreign = 0;
-        else   foreign = .;
-        taxdiff=or_country_tax - ee_country_tax;
-        label taxdiff="Assignor Tax-Assignee tax";
-        if abs(taxdiff ) < 0.0021 then taxdiff = 0;
+    set mergback.or_ee_gvkey_patentid_record_dt(drop = us_grant);
+        rec_exec_days =intck('day', record_dt, exec_dt ); * exec_dt - record_dt;
+        if relation =1 
+           & (upcase(or_country_name) NE upcase(ee_country)) 
+           & not missing(or_country_name) 
+           & not missing(ee_country)
+           then foreign = 1 ;
+        else if not missing(or_country_name) 
+                & not missing(ee_country) 
+            then  foreign = 0;
+        else  foreign = .;
+        if NOT missing(or_country_tax) 
+           & NOT missing(ee_country_tax) 
+           then taxdiff = or_country_tax - ee_country_tax;
+           else taxdiff = .;
+        label     taxdiff = "Assignor Tax-Assignee tax"
+            rec_exec_days = "Exec_dt - Record_dt"
+            ;
+        if abs(taxdiff ) < 0.005 then taxdiff = 0;
 run;
 
-       
+*-------------------------------------------------------------------------
+Table WORK.AGGMY_ALL_TRANS created, with 90,750 rows and 9 columns.
+permno: $5,148$ 
+;
+proc sql  NOREMERGE;
+create table aggmy_all_trans as
+select  distinct permno
+        ,or_gvkey
+        ,record_dt
+        ,sum(pac_size) as agg_pack_size
+        ,sum(total_cites) as agg_total_cites
+        ,sum(vreal) as agg_vreal
+        ,sum(vnominal) as agg_vnominal
+        ,max(taxdiff) as  taxdiff /*It was min(taxdiff) before*/
+        ,min(rec_exec_days) as rec_exec_days
+        from my_all_trans
+  group by permno, or_gvkey,record_dt;
+  quit;
+run;
+
+*
+Table WORK.OREE_GVKEY_RECORD_DTV2_COMP created, with 94,036 rows and 62 columns.
+why have more
+;
+proc sql;
+    create table  oree_gvkey_record_dtv2_comp as
+        select * from 
+        aggmy_all_trans as a
+          
+         /*or_ee_gvkey_patentid_record_dt2 as a*/
+              inner join 
+           mergback.my_compustat as b
+           on a.or_gvkey = b.gvkey
+           and    year(a.record_dt) = b.YEAR;
+        /*and    year(a.record_dt) - b.FYEAR=1;*/
+quit;
+run;
+libname onedrive "C:\Users\lihon\OneDrive - Kent State University\aaaa\merged_ana";
+PROC DATASETS NOLIST;
+    COPY IN = work OUT = onedrive ;
+    select oree_gvkey_record_dtv2_comp 
+            
+ 
+;
+run;
+
+
+proc sort data = relation_trans (keep= permno record_dt
+                        rf_id ee_comp_stdname ee_gvkey
+                        or_name or_comp_stdname or_gvkey  
+                        exec_dt or_country_ISONAME or_country_name ee_country) 
+                         
+           out = _sort_relation_trans;
+  by permno record_dt;
+run;
+
+
+%unique_values(oree_gvkey_record_dtv2_comp, rf_id, permno)
+
+%unique_values(aggmy_all_trans, rf_id, permno)
+* in my_all_tans, total unique: permno  51,48;
+%unique_values(my_all_trans, rf_id, permno) 
+
+proc sql;
+select count(*) from (
+  select distinct rf_id, or_gvkey,   count(*)
+         from oree_gvkey_record_dtv2_comp
+         group by rf_id, or_gvkey );
+         quit;
+run;
+/***/
+
+* Version 0
+
+Relational trans;
+*************************************************************;
+data  relation_trans; * There were 25,513 observations;
+     set my_all_trans (where =( NOT missing(permno) 
+                              and  relation=1));
+run;
+
+
+%uniqueValue(relation_trans,rf_id) *25,964;
+
+*****************************************************
+* 2072 permno 
+* 6189  record_dt
+*****************************************;
+%unique_values(relation_trans, permno, record_dt)
+
+Title "Unique combinatons in foreign transactions on recorded date from same OR";
+proc sql; *17,501;
+select count(*) from (
+select distinct permno, record_dt, count(*) as ccc 
+from  relation_trans   
+group by permno, record_dt);
+quit;
+run;
+
+proc sort data = relation_trans (keep= permno record_dt
+                        rf_id ee_comp_stdname ee_gvkey
+                        or_name or_comp_stdname or_gvkey  
+                        exec_dt or_country_ISONAME or_country_name ee_country) 
+                         
+           out = _sort_relation_trans;
+  by permno record_dt;
+run;
+
+
+***************************************************************************;
+* 0. All relational trans;
+
+proc sql  NOREMERGE;
+create table aggrelation_trans as
+select  distinct permno
+        ,or_gvkey
+        ,record_dt
+        ,sum(pac_size) as agg_pack_size
+        ,sum(total_cites) as agg_total_cites
+        ,sum(vreal) as agg_vreal
+        ,sum(vnominal) as agg_vnominal
+        ,min(taxdiff) as  taxdiff
+        ,min(rec_exec_days) as rec_exec_days
+        from relation_trans
+  group by permno, or_gvkey,record_dt;
+  quit;
+run;
+
+
+libname allrel "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\allRelationTrans";
+
+proc rank  data=aggrelation_trans
+           out = aggrelation_trans_decile groups=10;
+     var taxdiff;
+ranks decile;
+run;
+
+
+%event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\allRelationTrans
+          ,permno_list = aggrelation_trans_decile)
+ 
+%car_comp(event_source=aggrelation_trans_decile
+                       ,car_evtwin=car_evtwin
+                       ,outlib=allrel
+                       ,outdata_pref=all_relat)      
+
+
+ 
 **********************************************;
-* Select foreign transfer and deciles divided
+* 2. Foreign trans
+                       Select foreign transfer and deciles divided
 * June 16, 2016
 * There were 25513 observations read from the data set WORK.MY_ALL_TRANS
 * ;
+
+
 
 data  foreign_trans; * There were 25,513 observations;
      set my_all_trans (where =( NOT missing(permno) 
@@ -450,16 +612,42 @@ proc means data = foreign_trans_decile mean std;
 run;
 
 * Version 1: all foreign transactions;
+proc rank  data=foreign_trans_exec_record10
+           out = foreign_trans_execrec10_decile groups=10;
+     var taxdiff;
+ranks decile;
+run;
+libname allfor "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_all";
+
 %event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_all
             ,permno_list = foreign_trans_decile)
 
 %contents(foreign_trans_decile)
+%car_comp(event_source=foreign_trans_decile
+                       ,car_evtwin=allfor.car_evtwin
+                       ,outlib=allfor
+                       ,outdata_pref=all_f) 
+
+
+
+proc rank  data=foreign_trans_exec_record10
+           out = foreign_trans_execrec10_decile groups=10;
+     var taxdiff;
+ranks decile;
+run;
+
+%car_comp(event_source=relation_trans
+                       ,car_evtwin=car_evtwin
+                       ,outlib=allrel
+                       ,outdata_pref=all_relat) 
 
 * WORK.FOREIGN_TRANS_EXECREC10_DECILE has 792 obse
+
+June 28 463
 ;
 data  foreign_trans_exec_record10; * There were 25513 observations;
      set aggforeign_trans (where =( NOT missing(permno) 
-                                  and 0 le rec_exec_days<5));
+                                  and 0 le rec_exec_days<10));
       
 run;
 
@@ -485,15 +673,34 @@ run;
 data  foreign_trans_execrec10_dec10;
 set foreign_trans_execrec10_decile (where = (decile=9));
 run;
+%event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_exe10_dec10
+          ,permno_list = foreign_trans_execrec10_dec10)
+
+
+* Version 4: all foreign transactions record-exec_dt <=10 days;
+*;
+* WORK.FOREIGN_TRANS_EXECREC10_DEC10 has 74 observations and 10 variables;
+*;
+data  foreign_trans_dec10;
+set foreign_trans_decile (where = (decile=9));
+run;
+agg_foreign_rec_dec10;
+
 
 proc means data = foreign_trans_execrec10_decile;
 class decile;
 var taxdiff;
 run;
 
-%event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_exe10_dec10
-          ,permno_list = foreign_trans_execrec10_dec10)
+%event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_dec10
+          ,permno_list = foreign_trans_dec10)
+libname frec_d10 "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_dec10";
 
+ 
+%car_comp(event_source=foreign_trans_dec10
+                       ,car_evtwin=frec_d10.car_evtwin
+                       ,outlib=frec_d10
+                       ,outdata_pref=f_re_d10) 
 proc sort data = foreign_trans_decile NODUPKEY;
 by permno  record_dt;
 run;
@@ -619,3 +826,54 @@ PROC DATASETS NOLIST;
 COPY IN = work OUT = mergback ;
 select  oree_gvkey_patentid_record_dtv2 ;
 RUN;
+
+
+PROC DATASETS NOLIST;
+COPY IN = work OUT = allrel ;
+select  relation_trans  _sort_relation_trans;
+RUN;
+* Version 4
+
+Relational trans NON foreign;
+*************************************************************;
+data  domestic_relation_trans; * There were 25,513 observations;
+     set my_all_trans (where =( NOT missing(permno) 
+                              and  relation=1 and foreign NE 1));
+run;
+proc sort data = domestic_relation_trans 
+          out  = domestic_relation_trans_uniq  NODUPKEYS;
+          by permno record_dt;
+run;
+%event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\relation_Non_foreign
+          ,permno_list = domestic_relation_trans_uniq)
+
+
+*******Domestic trans without Blackberry;
+
+data    domes_trans_noBlackBerry;  *9455;
+ set domestic_relation_trans_uniq (where = (permno ne 86745) );
+ run;
+proc sort data = domes_trans_noBlackBerry  out=domes_trans_noBlackBerry_uniq
+            NODUPKEYS;
+          by permno record_dt;
+ %event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\rel_Non_f_noBlack
+          ,permno_list = domes_trans_noBlackBerry_uniq)
+
+ proc sql NOREMERGE;
+  Title "without Black";
+          select * from domes_trans_noBlackBerry
+where  permno = 86745;
+
+quit;
+
+Title "witht Black";
+select or_comp_name, permno, count(*) from domestic_relation_trans
+where  permno = 86745
+group by permno;
+
+libname noBlac "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\rel_Non_f_noBlack";
+%car_comp(event_source=domes_trans_noBlackBerry_uniq
+                       ,car_evtwin=car_evtwin
+                       ,outlib=noBlac
+                       ,outdata_pref=No_black) 
+

@@ -24,6 +24,7 @@ RUN;
 /**************************************************************************************/
 * Merge with assignor matched;
 * April 1, 2024;
+* July, 2nd 335,001
 /**************************************************************************************/
 proc sql; 
   create table ee_or_mached as /*ee_or:568,987*/
@@ -119,7 +120,9 @@ proc sql;
 run;
 data ee_or_mached_location;
      set  ee_or_mached_location;
-     if missing(ee_country) and NOT missing(ee_state) then ee_country = "United States";
+     if missing(ee_country) 
+          and NOT missing(ee_state) 
+     then ee_country = "United States";
 run;
 /*
 %contents(ee_or_mached_location)

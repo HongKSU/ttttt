@@ -1,4 +1,11 @@
- /*%*%SYSMACDELETE split_non_matched  */
+/*
+https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/mcrolref/n17rxjs5x93mghn1mdxesvg78drx.htm
+https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/mcrolref/n17rxjs5x93mghn1mdxesvg78drx.htm
+Because values in the macro processor are case sensitive
+
+https://blogs.sas.com/content/sgf/2022/02/11/jedi-sas-tricks-resizing-renaming-and-reformatting-your-data/
+https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/mcrolref/n0pfmkjlc3e719n1lks4go8ke61r.htm#:~:text=There%20are%20two%20types%20of,with%20a%20semicolon%20(%20%3B%20).
+/*%*%SYSMACDELETE split_non_matched  */
  %SYSMACDELETE fuzzy_sub_or_SPEDIS_v5  
 
 %macro fuzzy_sub_or_SPEDIS_v5(or_table
