@@ -11,6 +11,7 @@ we drop the ee_name
 input data: or_ee_trans_tax_state_country.dta
             or_ee_trans_tax_state_country.sas7bdat
 *******************************************************************************/
+libname mytrans "C:\Users\lihon\OneDrive - Kent State University\aaaa\merged_ana";
 proc sort data = or_ee_trans_tax_state_country 
       out=_t0_or_ee_gvkey nodupkey;
     by rf_id  descending ee_gvkey ee_name or_name descending or_gvkey  ;
@@ -324,6 +325,8 @@ create table aggmy_all_trans as
 select  distinct permno
         ,or_gvkey
         ,record_dt
+        ,foreign
+        ,relation
         ,sum(pac_size) as agg_pack_size
         ,sum(total_cites) as agg_total_cites
         ,sum(vreal) as agg_vreal
@@ -351,19 +354,22 @@ proc sql;
           
          /*or_ee_gvkey_patentid_record_dt2 as a*/
               inner join 
-           mergback.my_compustat as b
+           my_compustat as b
            on a.or_gvkey = b.gvkey
            and    year(a.record_dt) = b.YEAR;
         /*and    year(a.record_dt) - b.FYEAR=1;*/
 quit;
 run;
+
+%contents(oree_gvkey_record_dtv2_comp)
+
 libname onedrive "C:\Users\lihon\OneDrive - Kent State University\aaaa\merged_ana";
 PROC DATASETS NOLIST;
     COPY IN = work OUT = onedrive ;
-    select my_all_trans
-           aggmy_all_trans
-           oree_gvkey_record_dtv2_comp 
-    ;
+    select  /*my_all_trans
+            aggmy_all_trans*/
+           oree_gvkey_record_dtv2_comp
+     ;
 run;
 
 
@@ -397,7 +403,7 @@ run;
 Relational trans;
 *************************************************************;
 data  relation_trans; * There were 25,513 observations;
-     set my_all_trans (where =( NOT missing(permno) 
+     set mytrans.my_all_trans (where =( NOT missing(permno) 
                               and  relation=1));
 run;
 
@@ -463,10 +469,18 @@ proc rank  data=aggrelation_trans
 ranks decile;
 run;
 
+libname aggrel "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\allRelationTrans";
+PROC DATASETS NOLIST;
+    COPY IN = work OUT = aggrel ;
+    select  /*my_all_trans
+            aggmy_all_trans*/
+           aggrelation_trans_decile    ;
+run;
 
 %event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\allRelationTrans
           ,permno_list = aggrelation_trans_decile)
- 
+%event_turnover(outputPath=outputPath, permno_list=aggrelation_trans_decile, output_prefix=allrel)
+
 %car_comp(event_source=aggrelation_trans_decile
                        ,car_evtwin=car_evtwin
                        ,outlib=allrel
@@ -487,7 +501,7 @@ run;
 
 
 data  foreign_trans; * There were 25,513 observations;
-     set my_all_trans (where =( NOT missing(permno) 
+     set mytrans.my_all_trans (where =( NOT missing(permno) 
                               and  foreign=1));
       
 run;
@@ -620,6 +634,14 @@ foreign_trans_execrec10_dec10
 ;
 run;
 
+libname aggf_all "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_all";
+PROC DATASETS NOLIST;
+    COPY IN = work OUT = aggf_all ;
+    select foreign_trans 
+           foreign_trans_decile
+ 
+;
+run;
 proc means data = foreign_trans_decile mean std;
     class decile;
     var roa roe;
@@ -634,8 +656,12 @@ run;
 libname allfor "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_all";
 
 %event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_all
-            ,permno_list = foreign_trans_decile)
+            ,permno_list = allfor.foreign_trans_decile)
 
+%event_turnover(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_all
+            ,permno_list=allfor.foreign_trans_decile, output_prefix=foreign_rel)
+%let output_prefix=foreign_rel;
+%let outputPath=%str(C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_all);
 %contents(foreign_trans_decile)
 %car_comp(event_source=foreign_trans_decile
                        ,car_evtwin=allfor.car_evtwin
@@ -665,6 +691,8 @@ data  foreign_trans_exec_record10; * There were 25513 observations;
       
 run;
 
+ 
+
 
 proc rank  data=foreign_trans_exec_record10
            out = foreign_trans_execrec10_decile groups=10;
@@ -679,6 +707,9 @@ run;
 %event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_exe10
             ,permno_list = foreign_trans_execrec10_decile)
 
+%event_turnover(outputPath=%str(C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_exe10)
+            ,permno_list= foreign_trans_execrec10_decile, output_prefix=forrec_exe10)
+
 
 * Version 3: all foreign transactions record-exec_dt <=10 days;
 *;
@@ -687,8 +718,11 @@ run;
 data  foreign_trans_execrec10_dec10;
 set foreign_trans_execrec10_decile (where = (decile=9));
 run;
-%event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_exe10_dec10
+%event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_exe10
           ,permno_list = foreign_trans_execrec10_dec10)
+
+%event_turnover(outputPath=%str(C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_dec10)
+            ,permno_list=foreign_trans_execrec10_dec10, output_prefix=for_execrec10)
 
 
 * Version 4: all foreign transactions record-exec_dt <=10 days;
@@ -696,7 +730,7 @@ run;
 * WORK.FOREIGN_TRANS_EXECREC10_DEC10 has 74 observations and 10 variables;
 *;
 data  foreign_trans_dec10;
-set foreign_trans_decile (where = (decile=9));
+set allfor.foreign_trans_decile (where = (decile=9));
 run;
 agg_foreign_rec_dec10;
 
@@ -708,8 +742,13 @@ run;
 
 %event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_dec10
           ,permno_list = foreign_trans_dec10)
-libname frec_d10 "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_dec10";
+%event_turnover(outputPath=%str(C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_dec10)
+            ,permno_list=foreign_trans_dec10
+, output_prefix=for_execrec10)
+foreign_trans_dec10
 
+libname frec_d10 "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\agg_foreign_rec_dec10";
+agg_foreign_rec_exe10_dec10
  
 %car_comp(event_source=foreign_trans_dec10
                        ,car_evtwin=frec_d10.car_evtwin
