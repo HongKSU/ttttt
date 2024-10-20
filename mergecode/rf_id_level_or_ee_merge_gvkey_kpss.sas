@@ -12,6 +12,7 @@ input data: or_ee_trans_tax_state_country.dta
             or_ee_trans_tax_state_country.sas7bdat
 *******************************************************************************/
 libname mytrans "C:\Users\lihon\OneDrive - Kent State University\aaaa\merged_ana";
+libname mergback "C:\Users\lihon\Downloads\merge_back";
 proc sort data = or_ee_trans_tax_state_country 
       out=_t0_or_ee_gvkey nodupkey;
     by rf_id  descending ee_gvkey ee_name or_name descending or_gvkey  ;
@@ -343,7 +344,7 @@ select  distinct permno
 quit;
 
 
-*
+***
 Table WORK.OREE_GVKEY_RECORD_DTV2_COMP created, with 94,036 rows and 62 columns.
 why have more
 ;
