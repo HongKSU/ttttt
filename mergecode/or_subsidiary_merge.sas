@@ -258,16 +258,27 @@ RUN;
 comp_original=CONAME, or_name= std_firm1,
 comp_name = std_sub_name, 
 up_spedis_score=10, up_gl_score=230);
+
 %macro subs_merge_ee;
-%put "ERROR:(or_name_K_O109896, subs_aj)";
-    %fuzzy_sub_or_SPEDIS_v5(ee_name_A_J82098Ex, subs_AJ,
-                           or_name = std_ee_name,len_std_or = len_name, or_sub= ee_sub,
-							comp_original=CONAME, comp_name = std_sub_name, sub_name = sub_name, len_name = len_name,
-                             up_spedis_score=10, up_gl_score=200)
+  %put "ERROR:(or_name_K_O109896, subs_aj)";
+      %fuzzy_sub_or_SPEDIS_v5(ee_name_A_J82098Ex, subs_AJ,
+                             or_name = std_ee_name,
+			     len_std_or = len_name, 
+			     or_sub= ee_sub,
+  			     comp_original=CONAME, 
+			     comp_name = std_sub_name, 
+			     sub_name = sub_name, 
+			     len_name = len_name,
+                             up_spedis_score=10, 
+			     up_gl_score=200)
   %put "ERROR:(or_name_K_O109896, KO_comp)";
-  %fuzzy_sub_or_SPEDIS_v5(ee_name_K_O109896Ex, subs_KO,
-                           or_name = std_ee_name,len_std_or = len_name, or_sub= ee_sub,
-							comp_original=CONAME, comp_name = std_sub_name, sub_name = sub_name, len_name = len_name,
+     %fuzzy_sub_or_SPEDIS_v5(ee_name_K_O109896Ex, subs_KO,
+                             or_name = std_ee_name,
+			     len_std_or = len_name, 
+			     or_sub= ee_sub,
+			     comp_original=CONAME, 
+			     comp_name = std_sub_name, 
+			     sub_name = sub_name, len_name = len_name,
                              up_spedis_score=10, up_gl_score=200)
      
   %put "ERROR:(or_name_P_R130938, PR_comp)";

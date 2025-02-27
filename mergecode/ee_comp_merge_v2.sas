@@ -49,7 +49,7 @@ run;
 
 
 *************************************************************************************;
-* The assignor names are divided into several files and mathc them with COMPUSTAT   *;
+* The assignor names are divided into several files and match them with COMPUSTAT   *;
 * corresponding files                                                               *;
 * March 2nd, 2024                                                                   *;
 * Directory: "C:\Users\lihon\Downloads\or_crsp_merged"                              *;
@@ -156,14 +156,14 @@ libname or_name "C:\Users\lihon\Downloads\data_or_crsp_merged";
 
 %macro match_or(or_name_a_c, COMP_NAME_A_C);
 %fuzzy_sub_or_SPEDIS_v5( &or_name_a_c, &COMP_NAME_A_C
-                               ,or_name= std_firm1
-                              ,len_std_or = len_std_or 
-                              ,or_sub = or_sub
-                              ,comp_original=conm
-                              ,comp_name = std_conmL
-                              ,sub_name = comp_sub
-                              ,len_name = len_std
-                              ,merged_prefix=comp
+                              ,or_name       = std_firm1
+                              ,len_std_or    = len_std_or 
+                              ,or_sub        = or_sub
+                              ,comp_original = conm
+                              ,comp_name     = std_conmL
+                              ,sub_name      = comp_sub
+                              ,len_name      = len_std
+                              ,merged_prefix =comp
                               ,up_spedis_score=15)
 %mend match_or;
 
@@ -174,7 +174,7 @@ libname or_name "C:\Users\lihon\Downloads\data_or_crsp_merged";
 %match_or(or_name_s_z, COMP_NAME_s_z)
 %match_or(or_others, COMP_others)
 
-or_name_d_g or_name_h_L or_name_m_R or_name_S_Z
+** or_name_d_g or_name_h_L or_name_m_R or_name_S_Z;
 
 DATA comp_or_mar29_v3;  /*60,595*/
   set m_comp_comp_name_:;
@@ -206,8 +206,9 @@ run;
 
 
 
-proc sort data =_temp_2 out= comp_or_mar29_v3  nodupkey;
-by id_or  ;
+proc sort data =_temp_2 
+	out= comp_or_mar29_v3  nodupkey;
+    by id_or  ;
 run;
 
 PROC DATASETS NOLIST;
@@ -221,8 +222,8 @@ RUN;
 
 
 /*****************************************************
-*        or_name_a_j82098
-*        or_name_K_O109896 
+*       or_name_a_j82098
+*       or_name_K_O109896 
 *       or_name_P_R130938
 *       or_name_S_T157024  
 *       or_name_U_Z170073
@@ -346,7 +347,7 @@ run;
 * Nonmatched_comp                                                                   *;
 * comp_or:60,595                                                                    *;
 * or_name: 170,073                                                                  *;
-* only kop the records which does not hav a GVKEY matched ;
+* only keep the records which does not hav a GVKEY matched ;
 *************************************************************************************;
 data nonmatched_or_comp;
     merge or_name (rf_id=or_rfid 

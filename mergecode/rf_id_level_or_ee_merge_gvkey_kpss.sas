@@ -13,11 +13,24 @@ input data: or_ee_trans_tax_state_country.dta
 *******************************************************************************/
 libname mytrans "C:\Users\lihon\OneDrive - Kent State University\aaaa\merged_ana";
 libname mergback "C:\Users\lihon\Downloads\merge_back";
-proc sort data = or_ee_trans_tax_state_country 
-      out=_t0_or_ee_gvkey nodupkey;
-    by rf_id  descending ee_gvkey ee_name or_name descending or_gvkey  ;
-run;
+/* data:
+or_ee_trans_tax_state_country
 
+created in  
+C:\Users\lihon\Downloads\sas_code\mergecode\us_GLCs\country_alpha2.sas
+and C:\Users\lihon\Downloads\sas_code\wrd_names\merge_back.sas
+*/
+
+proc sort data = mergback.or_ee_trans_tax_state_country 
+      out=_t0_or_ee_gvkey nodupkey;
+      by rf_id  
+         descending ee_gvkey 
+                   ee_name 
+                   or_name 
+         descending or_gvkey  ;
+run;
+%contents(mergback.or_ee_trans_tax_state_country)
+%contents(_t0_or_ee_gvkey)
 /***********************
 * count number of patents in the rf_id  *;
 * and number the patents in the same rf_id;
@@ -28,10 +41,11 @@ data _t1_or_ee_gvkey;
       if first.rf_id then dup_rf_id=0;
         dup_rf_id +1;
 run;
+/*
 proc freq data =_t1_or_ee_gvkey;
 table dup_rf_id;
 run;
- 
+ */
 proc sql;
     create table _t1_or_ee_gvkey_dup as
         select *
@@ -41,9 +55,11 @@ proc sql;
         group by rf_id
     ;
 quit;
+/*
 proc freq data =_t1_or_ee_gvkey_dup;
 table total_dup  nonmis_ee;
 run;
+*/
 ********************************************************************************;
 * remove the duplicated ee_ from the same rf_id *;
 
@@ -78,7 +94,7 @@ PROC IMPORT OUT= WORK.assignment
              DATAFILE= "D:\Research\patent\data\uspto\2022\assignment.dta" 
              DBMS=STATA REPLACE;
 run;
-  
+ 
 /********************************************************************************;
 *
 * Merge document id with assignment type
@@ -111,7 +127,7 @@ run;
 ; 
 proc sql;
     create table documentid_kpss as
-    select a.rf_id
+        select a.rf_id
           ,appno_date
           ,appno_country
           ,grant_country
@@ -122,9 +138,10 @@ proc sql;
           ,b.xi_nominal
           ,b.xi_real
           ,b.cites
-    from documentid_assign as a
-            inner join 
-         kpss2022         as b
+        from documentid_assign as a
+              /* left join  *for part 2: inter-firm transfer*/
+             inner join  /* for Part1: intra-firm */
+              kpss2022         as b
     on a.patent_num =b.patent_num;
   quit;
 run;
@@ -154,12 +171,12 @@ proc sql;
           ,case
               when grant_country = "US" then 1
               else 0 
-            end as US_grant
+           end as US_grant
       from t2_or_ee_gvkey as a
                    left join
             documentid_kpss as b
       on a.rf_id =b.rf_id;
-
+     /* rf_id package id*/
     create table rf_id_total as
       select rf_id
            ,count(*)        as pac_size
@@ -189,43 +206,128 @@ proc sql;
     on a.rf_id =b.rf_id;
   quit;
 run;
-
-
+%contents(t2_or_ee_gvkey)
+%contents(or_ee_gvkey_patentid)
 
 /*
 Purpose: get or_permno
 ----------------------------------------------------------------
 %varlist(or_ee_trans_sort) 
 
-merge or_ee_gvkey_patentid to get or_permno
+merge or_ee_gvkey_patentid with CRSP_Compustat 
+     retreive PERMNO from gvkey
+Output: to get or_permno--> permno, permco of assignor
 
 Note: missing exec_dt: Invalid (or missing) arguments to 
 the YEAR function have caused the function to return a missing value.
 */
-sasfile Crsp_comp_ccm load;
+
+%contents(or_ee_gvkey_patentid)
+ options nolabel;
+
+ /* the following gvkey liked before 1977, and now can not find link after 1974*
+ proc sql;
+select * from  mergback.Crsp_comp_ccm where  gvkey in
+  		('001006','001035', '001084', '001071', '001090',
+  		'002228', '002675', '002798', '003056','003099','003630','003956','004061','004199')
+;quit;
+*/
+%contents( mergback.Crsp_comp_ccm)
+%print30( mergback.Crsp_comp_ccm)
+sasfile mergback.Crsp_comp_ccm load;
 proc sql; * with 327470 rows and 11 columns.;
-create table or_ee_trans_permno_rf_id as 
+create table or_ee_trans_permno_rf_id0 as 
 select  a.*
-       ,or_gvkey
+       /*,or_gvkey*/
        ,lpermno as permno
        ,lpermco as permco
-       ,fyear
-       ,year(a.exec_dt)as exec_year
+       ,fyear /*Ficical year for the datadate*/
+       ,exec_year
+       /*,year(a.exec_dt)as exec_year*/
        ,datadate
        ,costat
        from or_ee_gvkey_patentid as a
            left join
-           Crsp_comp_ccm as b
+           mergback.Crsp_comp_ccm as b
            on a.or_gvkey=b.gvkey
                 AND 
               a.exec_year = fyear 
+       order by or_gvkey
+               ,permno
       ; 
+
   /*where not missing(a.exec_dt)*/
  quit;
-run;
-sasfile Crsp_comp_ccm close;
+ sasfile mergback.Crsp_comp_ccm close;
 
-proc sort data = mergback.or_ee_trans_permno_rf_id NODUPKEY 
+proc sql;
+    create table gvkey_permno_table as
+        select distinct gvkey,  LPERMNO, LPERMCO from   mergback.Crsp_comp_ccm 
+        order by gvkey;
+quit;
+/*
+proc sql;
+select * 
+    from dictionary.catalogs
+    where objtype='MACRO';
+quit;
+*/
+%obs_count(or_ee_trans_permno_rf_id0)
+data _OR_EE_TRANS_PERMNO_RF_ID ;
+   merge or_ee_trans_permno_rf_id0 (in =in_oree)             
+         gvkey_permno_table(rename=(gvkey=or_gvkey) in = in_ccm);
+     by or_gvkey;
+     id_source = catx('_', in_oree, in_ccm);
+     if in_oree;
+run;
+  proc freq ;
+  table id_source/missing;
+  run;
+
+%contents( or_ee_trans_permno_rf_id0 )
+%obs_count(or_ee_trans_permno_rf_id0)
+/* 
+proc sql;
+  select count(*) from or_ee_trans_permno_rf_id0
+  where  missing(permno);
+  quit;
+
+Total observatoins:  125,795
+   missing(permno):      52,905
+ NOT    missing(permno): 72,890
+0_1                      18,331 12.71 18331 12.71 
+1_0                      23,852 16.54 42183 29.24 
+1_1                      102,068 70.76 144251 100.00 
+----
+1_0 23852 18.94 23852 18.94 
+1_1 102068 81.06 125920 100.00 
+
+
+*/
+
+
+** RESULT:
+NOTE: Table WORK.OR_EE_TRANS_PERMNO_RF_ID created, with 125795 rows and 41 columns.
+;
+* or_ee_trans_permno_rf_id
+Since some exec_year does not have COMPUSTAT data on fyear, so there is no match
+and permno (from linkfile) is missing 
+
+
+;
+* TBD:
+merge with crsp_comp_ccm again to get the perm number;
+data or_ee_trans_permno_rf_id;
+  set _OR_EE_TRANS_PERMNO_RF_ID(drop=id_source);
+  if missing(permno) then 
+      do;
+        permno = LPERMNO; 
+        permco = LPERMCO;
+      end;
+  drop LPERMNO LPERMCO;
+run;
+
+proc sort data = or_ee_trans_permno_rf_id NODUPKEY 
           out  = or_ee_trans_permno_rf_id_unique; 
       by rf_id 
          ee_name or_name 
@@ -234,6 +336,7 @@ proc sort data = mergback.or_ee_trans_permno_rf_id NODUPKEY
          or_fic or_country_name 
          vreal;
 run;
+
 /*
  
 %unique_values(or_ee_trans_permno_rf_id_unique,or_gvkey, ee_gvkey)
@@ -265,9 +368,23 @@ proc sql;
 drop table _t0_or_ee_gvkey
           ,_t1_or_ee_gvkey
           ,_t1_or_ee_gvkey_dup
+          ;
+          quit;
+proc sql;
+    drop table or_ee_trans_permno_rf_id0
+               ,_OR_EE_TRANS_PERMNO_RF_ID
+               ,Rf_id_total
+               ,T2_or_ee_gvkey
+               ,_docid_kpss
          ;
-    quit;
-run; 
+ quit;
+proc sql;
+drop table Documentid_kpss
+           ,Gvkey_permno_table
+           ;
+           quit;
+
+ 
   
 ********************************************************************************;
 * Merge with assignment to get the record_dt;
@@ -278,7 +395,9 @@ run;
 ****************************************************************************************;
 * June 19, 2024:                                                                       *;
 * Table WORK.OR_EE_GVKEY_PATENTID_RECORD_DT created, with 124,849 rows and 42 columns. *;
-*      
+* marge with assignment:
+*      to get the record date on uspto
+*
 ********************************************************************************;
 proc sql;
  create table or_ee_gvkey_patentid_record_dt as 
@@ -291,22 +410,32 @@ proc sql;
       quit;
 run;
 
-
+proc sql;
+drop table  Assignment;
+quit;
 * June 19, 2024;
 * The data set WORK.MY_ALL_TRANS has 124,849 observations and 44 variable;
  
 data  my_all_trans;
-    set mergback.or_ee_gvkey_patentid_record_dt(drop = us_grant);
+    set or_ee_gvkey_patentid_record_dt(drop = us_grant);
         rec_exec_days =intck('day', record_dt, exec_dt ); * exec_dt - record_dt;
-        if relation =1 
-           & (upcase(or_country_name) NE upcase(ee_country)) 
-           & not missing(or_country_name) 
-           & not missing(ee_country)
-           then foreign = 1 ;
-        else if not missing(or_country_name) 
+        if relation =1 then do;
+             if (upcase(or_country_name) NE upcase(ee_country)) 
+                & not missing(or_country_name) 
+                & not missing(ee_country)
+              then foreign = 1 ;
+              else if (upcase(or_country_name) = upcase(ee_country)) 
+                & not missing(or_country_name) 
+                & not missing(ee_country)
+              then foreign = 0;
+        end;
+        else if relation =0 
+                & not missing(or_country_name) 
                 & not missing(ee_country) 
-            then  foreign = 0;
+            then  foreign = .;
         else  foreign = .;
+
+
         if NOT missing(or_country_tax) 
            & NOT missing(ee_country_tax) 
            then taxdiff = or_country_tax - ee_country_tax;
@@ -316,10 +445,96 @@ data  my_all_trans;
             ;
         if abs(taxdiff ) < 0.005 then taxdiff = 0;
 run;
+%contents(my_all_trans)
+proc freq data = or_ee_gvkey_patentid_record_dt;
+table exec_year/missing;
+run;
+proc sql;
+Title "Missing exec_year";
+select count(*) from my_all_trans
+where missing(exec_year );
+Title "Missing fyear";
+select count(*) from my_all_trans
+where missing(fyear);
+Title "Missing recordyear";
+select count(*) from my_all_trans
+where missing( record_dt);
+quit;
+proc sql outobs = 20;
+select or_gvkey, permno, permco, fyear, exec_year from my_all_trans where missing(fyear);
+quit;
 
+
+Title "my_all_trans----The frequency of different execution year";
+proc freq data = my_all_trans;
+table exec_year/missing;
+run;
+
+proc sql;
+create table unique_orgvkey as
+select distinct or_gvkey, relation from my_all_trans;
+ALTER TABLE my_all_trans ADD firm_type   NUM (8);
+ 
+QUIT;
+
+ proc sql;
+ Title "firms which only have nonrelational transactions";
+ update my_all_trans
+ set firm_type=0 where or_gvkey in 
+     (
+         select or_gvkey from unique_orgvkey
+         where relation=0
+                except  
+         select or_gvkey from unique_orgvkey
+         where  relation =1
+    );
+ 
+ Title "firms which only have relational transactions";
+ update my_all_trans
+ set firm_type=1 where or_gvkey in 
+     (
+         select or_gvkey from unique_orgvkey
+         where relation=1
+               except  
+         select or_gvkey from unique_orgvkey
+         where  relation =0
+    );
+     
+ Title "firms which have both relation+nonrelational transactions";
+ update my_all_trans
+ set firm_type=2 where or_gvkey in 
+     (
+         select or_gvkey from unique_orgvkey
+         where relation=0
+               intersect  
+         select or_gvkey from unique_orgvkey
+         where  relation =1
+    );
+quit;
+
+ 
+
+
+proc freq  data= my_all_trans;
+    table relation/missing;
+run;
+
+proc freq  data= my_all_trans;
+    table firm_type/missing;
+run;
+*============================================================================;
+*
+*
+*
+*=============================================================================;
 *-------------------------------------------------------------------------
+Aggregation by -firm- and -transaction date-
+
 Table WORK.AGGMY_ALL_TRANS created, with 90,750 rows and 9 columns.
 permno: $5,148$ 
+
+WORK.AGGMY_ALL_TRANS created, with 92,998 rows and 11 columns.
+
 ;
 proc sql  NOREMERGE;
 create table aggmy_all_trans as
@@ -342,8 +557,10 @@ select  distinct permno
            ,relation
            ;
 quit;
-
-
+%contents(aggmy_all_trans)
+%obs_count(aggmy_all_trans)
+%obs_count(oree_gvkey_record_dtv2_comp)
+%contents( mergback.my_compustat)
 ***
 Table WORK.OREE_GVKEY_RECORD_DTV2_COMP created, with 94,036 rows and 62 columns.
 why have more
@@ -351,11 +568,11 @@ why have more
 proc sql;
     create table  oree_gvkey_record_dtv2_comp as
         select * from 
-        aggmy_all_trans as a
+           aggmy_all_trans as a
           
          /*or_ee_gvkey_patentid_record_dt2 as a*/
               inner join 
-           my_compustat as b
+           mergback.my_compustat as b
            on a.or_gvkey = b.gvkey
            and    year(a.record_dt) = b.YEAR;
         /*and    year(a.record_dt) - b.FYEAR=1;*/
@@ -401,7 +618,7 @@ run;
 
 * Version 0
 
-Relational trans;
+Relational trans: relation == 1 ;
 *************************************************************;
 data  relation_trans; * There were 25,513 observations;
      set mytrans.my_all_trans (where =( NOT missing(permno) 
@@ -427,19 +644,20 @@ quit;
 run;
 
 proc sort data = relation_trans (keep= permno record_dt
-                        rf_id ee_comp_stdname ee_gvkey
-                        or_name or_comp_stdname or_gvkey  
-                        exec_dt 
-                         or_country_ISONAME or_country_name ee_country) 
+                                       rf_id ee_comp_stdname ee_gvkey
+                                       or_name or_comp_stdname or_gvkey  
+                                       exec_dt 
+                                       or_country_ISONAME or_country_name ee_country
+                                  ) 
                          
-           out = _sort_relation_trans;
-  by permno record_dt;
+          out = _sort_relation_trans;
+      by permno record_dt;
 run;
 
 
-***************************************************************************;
-* 0. All relational trans;
-
+****************************************************************************;
+* 1. All relational trans                                                 **;
+****************************************************************************;
 proc sql  NOREMERGE;
 create table aggrelation_trans as
 select  distinct permno
@@ -480,7 +698,7 @@ run;
 
 %event_study(outputPath=C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study\result\allRelationTrans
           ,permno_list = aggrelation_trans_decile)
-%event_turnover(outputPath=outputPath, permno_list=aggrelation_trans_decile, output_prefix=allrel)
+%event_turnover(outputPath=outputPath, permno_list=aggrel.aggrelation_trans_decile, output_prefix=allrel)
 
 %car_comp(event_source=aggrelation_trans_decile
                        ,car_evtwin=car_evtwin
@@ -492,12 +710,12 @@ run;
 proc contents data = all_relat_evt_car_day2_comp2;
 run;
  
-**********************************************;
-* 1. Foreign trans
-                       Select foreign transfer and deciles divided
-* June 16, 2016
-* There were 25513 observations read from the data set WORK.MY_ALL_TRANS
-* ;
+********************************************************************************************;
+* 2. Foreign trans                                                                         *;
+*                       Select foreign transfer and deciles divided                        *;
+*    Date: June 16, 2016                                                                   *;
+* There were 25513 observations read from the data set WORK.MY_ALL_TRANS                   *;
+***********************************************;
 
 
 
@@ -629,9 +847,9 @@ PROC DATASETS NOLIST;
     COPY IN = work OUT = mergback ;
     select foreign_trans 
            foreign_trans_decile
-foreign_trans_exec_record10
-foreign_trans_execrec10_decile
-foreign_trans_execrec10_dec10
+           foreign_trans_exec_record10
+           foreign_trans_execrec10_decile
+           foreign_trans_execrec10_dec10
 ;
 run;
 
@@ -686,6 +904,10 @@ run;
 
 June 28 463
 ;
+*Version 3: all foreign transactions record-exec_dt <=10 days;
+*                                                           *;
+*                                                           *;
+*                       *;
 data  foreign_trans_exec_record10; * There were 25513 observations;
      set aggforeign_trans (where =( NOT missing(permno) 
                                   and 0 le rec_exec_days<10));
@@ -712,7 +934,7 @@ run;
             ,permno_list= foreign_trans_execrec10_decile, output_prefix=forrec_exe10)
 
 
-* Version 3: all foreign transactions record-exec_dt <=10 days;
+* Version 4: all foreign transactions record-exec_dt <=10 days;
 *;
 * WORK.FOREIGN_TRANS_EXECREC10_DEC10 has 74 observations and 10 variables;
 *;
@@ -727,7 +949,7 @@ run;
 
 
 * Version 4: all foreign transactions record-exec_dt <=10 days;
-*;
+*                  High value ;
 * WORK.FOREIGN_TRANS_EXECREC10_DEC10 has 74 observations and 10 variables;
 *;
 data  foreign_trans_dec10;
@@ -930,4 +1152,4 @@ libname noBlac "C:\Users\lihon\OneDrive - Kent State University\aaaa\event_Study
                        ,car_evtwin=car_evtwin
                        ,outlib=noBlac
                        ,outdata_pref=No_black) 
-
+**End of rf_id_level_or_ee***;

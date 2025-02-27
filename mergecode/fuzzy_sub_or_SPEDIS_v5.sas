@@ -5,8 +5,16 @@ Because values in the macro processor are case sensitive
 
 https://blogs.sas.com/content/sgf/2022/02/11/jedi-sas-tricks-resizing-renaming-and-reformatting-your-data/
 https://documentation.sas.com/doc/en/pgmsascdc/9.4_3.5/mcrolref/n0pfmkjlc3e719n1lks4go8ke61r.htm#:~:text=There%20are%20two%20types%20of,with%20a%20semicolon%20(%20%3B%20).
+*/
+
+/* BEFORE FUZZY match
+Did you remove exact matches first?
+*/
 /*%*%SYSMACDELETE split_non_matched  */
- %SYSMACDELETE fuzzy_sub_or_SPEDIS_v5  
+%SYSMACDELETE fuzzy_sub_or_SPEDIS_v5  
+
+libname cl_macro "C:\Users\lihon\Downloads\sas_code\cl_macro";
+options mstored sasmstore=cl_macro;
 
 %macro fuzzy_sub_or_SPEDIS_v5(or_table
                               ,comp 
@@ -257,44 +265,65 @@ run;
 %mend split_non_matched;
  /*%*%SYSMACDELETE split_non_matched  */
 
-%macro contents(table);
+%macro contents(table) /store des='table of variables';
 Title "Varibales in table &table";
 proc contents data= &table;
-ods select variables;
+ods select Variables;
 run;
 %mend contents;
-%macro contents_short(table);
+%macro contents_short(table)/store des='short list of variables';
 Title "Varibales in table &table";
 proc contents data= &table varnum short ;
-ods select variable;
+ods select Variables;
 run;
-%mend contents;
-%macro varList(table);
+%mend contents_short;
+%macro varList(table)/store des='list of variables';
 Title "Varibale list in table &table";
 proc contents data= &table short varnum;
 run;
 %mend varList;
 
-%macro uniquevalue(table, var_name1);
+
+/* Count number of observations in a dataset tb*/
+%macro obs_count(tb)/store des='Count total observations in tb';
+proc sql;
+Title "Total number of observatoins in dataset &tb";
+select count(*) format = comma10. from &tb;
+quit;
+run;
+%mend obs_count;
+
+%macro uniquevalue(table, var_name1)/store des='List unique values of var in par2 from par1: table';
 Title "The count of total values and  unique variable &var_name1 from table &table";
 proc sql;
-select count(*) ,'total' as total from &table
+select count(*)  as count format = comma10., 'total obs' as total from &table
 union
-select count(distinct &var_name1) as gvkey_N, "&var_name1" as uniq1 from  &table;
+select count(distinct &var_name1) as count format = comma10., "&var_name1" as uniq1 from  &table;
 quit;
+%put WARNING: End of macro;
 run;
 %mend uniquevalue;
 
-
-
-%macro unique_values(table, var_name1, var_name2);
-Title "The count of total values and  unique variable &var_name1 and &var_name2 values from table &table";
+***%uniquecombin();
+%macro uniquecombin(table, var_name1, var_name2, title=)/store;
+Title font="Arial" color="red" "&title";
+Title2 "The count of total combination of variable %str(&var_name1) and %str(&var_name2) values from table &table";
+    proc sql;
+    select count(*) as count format = comma10. from(
+            select &var_name1, &var_name2 from &table group by &var_name1, &var_name2
+            having count(*) =1
+    );
+    quit;
+%mend uniquecombin;
+%macro unique_values(table, var_name1, var_name2, title=)/store;
+Title font="Arial" color="red" "&title";
+Title2 "The count of total values and unique variable %str(&var_name1) and %str(&var_name2) values from table &table";
 proc sql;
-select count(*) ,'total' as total from &table
+select count(*) as count ,'total obs' as total from &table
 union
-select count(distinct &var_name1) as gvkey_N, "&var_name1" as uniq1 from  &table
+select count(distinct &var_name1) as count format = comma10., "&var_name1" as uniqe_1 from &table
 union
-select count(distinct &var_name2) as conm_N, "&var_name2" as unique_2 from &table;
+select count(distinct &var_name2) as count format = comma10., "&var_name2" as unique_2 from &table;
 quit;
 run;
 %mend unique_values;
@@ -311,7 +340,89 @@ PROC IMPORT OUT= WORK.&outfile
 RUN;
 %mend importStata;
 
-%macro print30(infile, obs=30);
+%macro print30(infile, obs=30)/store des='Print first 30records' ;
 proc print data=&infile (obs=&obs);
 run;
 %mend print30;
+
+options mlogic mprint symbolgen;
+%macro print100(infile,varlist, obs=100)/store des='Print first 100records of given varlist' ;
+proc print data=&infile (obs=&obs);
+%*var &varlist;
+run;
+%mend print100;
+* copy table;
+%macro copytb(table,outlib=mergback) /store des='Copy a dataset from work lib to outlib';
+proc datasets NOLIST;
+    copy in=work out=&outlib;
+    select &table;
+    run;
+%mend copytb;
+*); */; /*’*/ /*”*/; %mend;
+*); */; /*’*/ /*”*/; %mend;
+*';*";*/;run;
+https://stackoverflow.com/questions/107414/whats-your-best-trick-to-break-out-of-an-unbalanced-quote-condition-in-base-sas
+ ;*';*";*/;quit;run;
+ ODS _ALL_ CLOSE;
+
+ ; *'; *"; */;
+ODS _ALL_ CLOSE;
+quit; run; %MEND;
+rename work dataset :
+proc datasets library=usclim;
+   change hightemp=ushigh lowtemp=uslow;
+run;
+data _NULL_; putlog "DONE"; run;
+
+%* --This is the macro comment ;
+OR 
+/* This is the macro comment*/
+
+ QUIT; RUN;
+
+ NO! * will most often NOT work to comment out code in a macro, only %*  and the /* */ combination.
+
+One always can run into a problem is trying to comment out code that already has code commented statements imbedded in it.
+For that, as far as I know, there isn't a readily available method.
+
+The method to comment out code that has commented statements embedded into it:
+
+ 
+
+inside a macro, use:
+
+ 
+
+%if 0 %then %do;
+
+...
+
+%end;
+
+If not inside a macro, then you can comment out this section by making it a macro that is never called:
+
+ 
+
+%macro dont_do_this;
+
+...
+
+%mend;
+
+ 
+
+Naturally, you might want to add a comment statement just before you do this explaining that you are commenting out a whole block of code.
+
+
+
+%macro test;
+%put a;
+*%put b;
+%*put c;
+/*%put d;*/
+%put abcd;
+%mend test;
+%test 
+
+%* Macro Comment Macro Statement;;
+https://documentation.sas.com/doc/en/pgmsascdc/v_056/mcrolref/n17rxjs5x93mghn1mdxesvg78drx.htm
